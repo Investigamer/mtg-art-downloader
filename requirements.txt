@@ -1,3 +1,4 @@
 colorama
 urllib3
 contextlib3
+pathlib
