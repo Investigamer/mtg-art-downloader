@@ -4,7 +4,7 @@ This tool is intended to mass download arts for MTG Cards using MTGPics with Scr
 # Requirements
 - Python 3
 - pip install -r requirements.txt (python dependencies)
-- Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1PHAPt0oIoXGwNbNDAsmaQUhOARso797Jcmum-Ozm_Ws/edit?usp=sharing
+- Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1zI4wF6EN2MO7DcZbqxqEcm8Fg1u-yMu_ycXFyPbqf0M/edit?usp=sharing
 
 # How to use it
 - Open up your copy of the "Generate MTG Download Script" google sheet
