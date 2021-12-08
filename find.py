@@ -32,6 +32,7 @@ while z == 0:
 		print("Can do! Grab yourself a beer, we might be here a minute..")
 		import sheet_generated
 	elif choice == "2":
-		z = "Loading decklist! Grab yourself a beer, we might be here a minute..")
+		z = 1
+		print("Loading decklist! Grab yourself a beer, we might be here a minute..")
 		import txt_downloader
 	else: print("Do you think this is a game? Try again.\n")
