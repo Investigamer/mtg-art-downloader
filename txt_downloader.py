@@ -26,7 +26,7 @@ with open(settings.cardlist, 'r') as cards:
 				else: print("Error! Illegitimate set. Try again!\n")
 		else:
 			if settings.download_all:
-				raw = requests.get(f"https://api.scryfall.com/cards/search?q={parse.quote(card)} is:hires&unique=art&order=released").json()
+				raw = requests.get(f"https://api.scryfall.com/cards/search?q=!{parse.quote(card)} is:hires&unique=art&order=released").json()
 				for r in raw['data']:
 					set = r['set']
 					card_num = r['collector_number']
