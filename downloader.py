@@ -35,13 +35,13 @@ def download_image (txt,set,code,name,artist,scrylink,flipname):
 			mtgp_link = "https://mtgpics.com/pics/art/"+mtgp_set+"/"+code+".jpg"
 		
 		# Try to download from MTG Pics
-		urllib.request.urlretrieve(mtgp_link, settings.f_mtgp + "/" + name + " [" + set.upper() + "] (" + artist + ").jpg")
+		urllib.request.urlretrieve(mtgp_link, settings.f_mtgp + "/" + name + " (" + artist + ") [" + set.upper() + "].jpg")
 		print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + name)
 	except:
 		# Failed so download from scryfall art crop
 		print(f"{Fore.RED}MTGP is missing " + name + ", checking Scryfall...")
 		try: 
-			urllib.request.urlretrieve(scrylink, settings.f_scry + "/" + name + " [" + set.upper() + "] (" + artist + ").jpg")
+			urllib.request.urlretrieve(scrylink, settings.f_scry + "/" + name + " (" + artist + ") [" + set.upper() + "].jpg")
 			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name)
 		except:
 			txt.write(name+'\n')
@@ -57,16 +57,16 @@ def download_image (txt,set,code,name,artist,scrylink,flipname):
 			cardback = soup.find_all(id="CardScanBack")
 			cbimage = cardback[0].find("img")
 			cbsrc = cbimage['src']
-			mtgp_link = cbsrc[-7:]
+			mtgp_link = baselink+cbsrc[-7:]
 			
 			# Try to download flip from MTG Pics
-			urllib.request.urlretrieve(baselink+mtgp_link, settings.f_mtgp_b + "/" + flipname + " [" + set.upper() + "] (" + artist + ").jpg")
+			urllib.request.urlretrieve(mtgp_link, settings.f_mtgp_b + "/" + flipname + " (" + artist + ") [" + set.upper() + "].jpg")
 			print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + flipname)
 		except:
 			# Failed so download from scryfall art crop
 			print(f"{Fore.RED}MTGP is missing " + flipname + ", checking Scryfall...")
 			try: 
-				urllib.request.urlretrieve(flipscry, settings.f_scry_b + "/" + flipname + " [" + set.upper() + "] (" + artist + ").jpg")
+				urllib.request.urlretrieve(flipscry, settings.f_scry_b + "/" + flipname + " (" + artist + ") [" + set.upper() + "].jpg")
 				print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + flipname)
 			except:
 				txt.write(flipname+'\n')
