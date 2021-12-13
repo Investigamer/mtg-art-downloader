@@ -3,8 +3,8 @@ import urllib.request
 import urllib.error
 import requests
 import settings
-from colorama import Fore
-from colorama import Style
+from colorama import init
+from colorama import Style, Fore, Back
 from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -20,6 +20,21 @@ Path(settings.f_scry).mkdir(mode=511, parents=True, exist_ok=True)
 Path(settings.f_mtgp_b).mkdir(mode=511, parents=True, exist_ok=True)
 Path(settings.f_scry_b).mkdir(mode=511, parents=True, exist_ok=True)
 
+print(f"{Fore.YELLOW}{Style.BRIGHT}\n  ██████╗ ███████╗████████╗    ███╗   ███╗████████╗ ██████╗ ")
+print(f" ██╔════╝ ██╔════╝╚══██╔══╝    ████╗ ████║╚══██╔══╝██╔════╝ ")
+print(f" ██║  ███╗█████╗     ██║       ██╔████╔██║   ██║   ██║  ███╗")
+print(f" ██║   ██║██╔══╝     ██║       ██║╚██╔╝██║   ██║   ██║   ██║")
+print(f" ╚██████╔╝███████╗   ██║       ██║ ╚═╝ ██║   ██║   ╚██████╔╝")
+print(f"  ╚═════╝ ╚══════╝   ╚═╝       ╚═╝     ╚═╝   ╚═╝    ╚═════╝ ")
+print(f"  █████╗ ██████╗ ████████╗    ███╗   ██╗ ██████╗ ██╗    ██╗ ")
+print(f" ██╔══██╗██╔══██╗╚══██╔══╝    ████╗  ██║██╔═══██╗██║    ██║ ")
+print(f" ███████║██████╔╝   ██║       ██╔██╗ ██║██║   ██║██║ █╗ ██║ ")
+print(f" ██╔══██║██╔══██╗   ██║       ██║╚██╗██║██║   ██║██║███╗██║ ")
+print(f" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
+print(f" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  {Style.RESET_ALL}\n")
+print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi")
+print(f"Additional credit to Trix are for Scoot + Gikkman")
+print(f"http://mpcfill.com --- Support great MTG Proxies!{Style.RESET_ALL}\n")
 z = 0
 while z == 0:
 	# Does the user want to use Google Sheet queeries or cards from txt file?

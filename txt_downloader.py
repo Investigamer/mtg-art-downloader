@@ -3,7 +3,7 @@ import settings
 import requests
 import time
 from urllib import parse
-from downloader import download_image, download_cards
+from downloader import download_card, download_cards
 
 # Open the failed to find txt
 failed = open(settings.f_name+"/failed.txt","w+")
@@ -22,7 +22,8 @@ with open(settings.cardlist, 'r') as cards:
 					card_num = r['collector_number']
 					artist = r['artist']
 					flipname = ""
-					download_image(failed, set, card_num, card_name, artist, art_crop, flipname)
+					layout = r['layout']
+					download_card(failed, set, card_num, card_name, artist, art_crop, flipname,layout)
 				else: print("Error! Illegitimate set. Try again!\n")
 		else:
 			if settings.download_all:
@@ -31,6 +32,7 @@ with open(settings.cardlist, 'r') as cards:
 					set = r['set']
 					card_num = r['collector_number']
 					artist = r['artist']
+					layout = r['layout']
 					flipname = ""
 					
 					# Extra stuff for flip cards
@@ -44,8 +46,8 @@ with open(settings.cardlist, 'r') as cards:
 					
 					if settings.exclude_fullart == True:
 						if r['full_art']: print("\nSkipping fullart image...\n")
-						else: download_image(failed, set, card_num, card_name, artist, art_crop, flipname)
-					else: download_image(failed, set, card_num, card_name, artist, art_crop, flipname)
+						else: download_card(failed, set, card_num, card_name, artist, art_crop, flipname, layout)
+					else: download_card(failed, set, card_num, card_name, artist, art_crop, flipname, layout)
 			else:
 				raw = requests.get(f"https://api.scryfall.com/cards/search?q={parse.quote(card)} is:hires&unique=art&order=released").json()
 				download_cards(failed,raw['data'])

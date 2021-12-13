@@ -3,7 +3,8 @@ import requests
 import settings
 import urllib.request
 import urllib.error
-from colorama import Fore, Style
+from colorama import init
+from colorama import Style, Fore, Back
 from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
