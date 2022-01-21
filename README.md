@@ -7,7 +7,7 @@ This tool is intended to mass download arts for MTG Cards using MTGPics with Scr
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o/edit?usp=sharing (optional)
 
 # How to use with a Decklist
-- Paste a decklist into the decklist.txt file in the working directory of MTG Art Downloader
+- Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
 - Execute Run.bat, choose option 2. That's pretty much it.
 
 # How to use with Google Sheet Script
