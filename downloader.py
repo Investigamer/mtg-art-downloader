@@ -9,7 +9,7 @@ from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-def download_card (txt,set,code,name,artist,scrylink,name2,layout):
+def download_card (txt,set,set_name,code,name,artist,scrylink,name2,layout):
 
 	# Make sure numeric code is 3 digits
 	if len(code) == 1: code = "00"+code
@@ -19,26 +19,28 @@ def download_card (txt,set,code,name,artist,scrylink,name2,layout):
 	set = fix_set_mtgp(set)
 	filename = "/" + name + " (" + artist + ") [" + set.upper() + "].jpg"
 
-	# First part of mtgp link, and flip scryfall
-	baselink = "https://mtgpics.com/pics/art/"+set+"/"
-	flipscry = scrylink.replace("front","back")
+	# Get correct mtgp code
+	mtgp_code = get_mtgp_code(set, set_name, code, name)
 
 	# Which type of card?
 	if layout == "transform" or layout == "modal_dfc" or layout == "split":
 
 		# Download front side
-		download_front (txt,set,code,name,filename,scrylink)
+		download_front (txt,name,filename,scrylink,mtgp_code)
+
+		# Flip scryfall
+		flipscry = scrylink.replace("front","back")
 
 		# New filename for back side, download back side
 		filename = "/" + name2 + " (" + artist + ") [" + set.upper() + "].jpg"
-		download_back (txt,set,code,name2,filename,flipscry)
+		download_back (txt,name2,filename,flipscry,mtgp_code)
 
-	else: download_front (txt,set,code,name,filename,scrylink)
+	else: download_front (txt,name,filename,scrylink,mtgp_code)
 
-def download_front (txt,set,code,name,filename,scrylink):
+def download_front (txt,name,filename,scrylink,mtgp_code):
 	try:
 		# Crawl the mtgpics site to find correct link for mdfc card
-		r = requests.get("https://www.mtgpics.com/card?ref="+set+code)
+		r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
 		soup = BeautifulSoup(r.content, "html.parser")
 		soup_img = soup.find("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
 		img_src = soup_img['src']
@@ -55,13 +57,13 @@ def download_front (txt,set,code,name,filename,scrylink):
 			urllib.request.urlretrieve(scrylink, settings.f_scry + filename)
 			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name)
 		except:
-			txt.write(name+" (https://www.mtgpics.com/card?ref="+set+code+")\n")
+			txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n")
 			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name)
 
-def download_back (txt,set,code,name,filename,scrylink):
+def download_back (txt,name,filename,scrylink,mtgp_code):
 	try:
 		# Crawl the mtgpics site to find correct link for mdfc card
-		r = requests.get("https://www.mtgpics.com/card?ref="+set+code)
+		r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
 		soup = BeautifulSoup(r.content, "html.parser")
 		soup_img = soup.find_all("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
 		img_src = soup_img[1]['src']
@@ -74,16 +76,37 @@ def download_back (txt,set,code,name,filename,scrylink):
 	except:
 		# Failed so download from scryfall art crop
 		print(f"{Fore.RED}MTGP is missing " + name + " (Back), checking Scryfall...")
-		try: 
+		try:
 			urllib.request.urlretrieve(flipscry, settings.f_scry_b + filename)
 			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name + " (Back)")
 		except:
-			txt.write(name+" (https://www.mtgpics.com/card?ref="+set+code+")\n")
+			txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n")
 			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name + " (Back)")
+
+def get_mtgp_code (set, set_name, code, name):
+	try:
+		# Crawl the mtgpics site to find correct set code
+		r = requests.get("https://www.mtgpics.com/card?ref="+set+"001")
+		soup = BeautifulSoup(r.content, "html.parser")
+		soup_td = soup.find("td", {"width": "170", "align": "center"})
+		soup_a = soup_td.find('a')
+		src_link = soup_a['href']
+		mtgp_link = "https://mtgpics.com/"+src_link
+
+		# Crawl the set page to find the correct link
+		r = requests.get(mtgp_link)
+		soup = BeautifulSoup(r.content, "html.parser")
+		soup_i = soup.find("img", {"alt": name+" - "+set_name})
+		soup_src = soup_i['src']
+		mtgp_code = soup_src.replace("../pics/reg/","")
+		mtgp_code = mtgp_code.replace("/","")
+		return(mtgp_code.replace(".jpg",""))
+	except: return(set+code)
 
 # Beta feature, needs additional work
 def download_cards (txt, json):
 	
+	# Used to track whether mtgp downloaded for both sides
 	mtgp = 0
 	mtgp_b = 0
 	
@@ -91,12 +114,13 @@ def download_cards (txt, json):
 		
 		# Base variables
 		set = card['set']
+		set_name = card['set_name']
 		card_num = card['collector_number']
 		artist = card['artist']
 		flipname = ""
 		set = fix_set_mtgp(set)
 		
-		# Is this mdfc?
+		# Is this double faced?
 		if 'card_faces' in card:
 			flipname = card['card_faces'][1]['name']
 			art_crop = card['card_faces'][0]['image_uris']['art_crop']
@@ -106,14 +130,15 @@ def download_cards (txt, json):
 			card_name = card['name']
 			mtgp_b = 1
 		
-		baselink = "https://mtgpics.com/pics/art/"+set+"/"
-		
+		# Get correct mtgp code
+		mtgp_code = get_mtgp_code(set, set_name, card_num, card_name)
+
 		# Has MTGPic art been found yet?
 		if mtgp != 1:
 			try:
 				try:
 					# Crawl the mtgpics site to find correct link for mdfc card
-					r = requests.get("https://www.mtgpics.com/card?ref="+set+card_num)
+					r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
 					soup = BeautifulSoup(r.content, "html.parser")
 					soup_img = soup.find("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
 					img_src = soup_img['src']
@@ -131,7 +156,7 @@ def download_cards (txt, json):
 		if mtgp_b != 1:
 			try:
 				# Crawl the mtgpics site to find correct link for mdfc card
-				r = requests.get("https://www.mtgpics.com/card?ref="+set+card_num)
+				r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
 				soup = BeautifulSoup(r.content, "html.parser")
 				soup_img = soup.find_all("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
 				img_src = soup_img[1]['src']
@@ -241,4 +266,5 @@ def fix_set_mtgp (set):
 	if set == "ugl": return("ung")
 	if set == "wth": return("wea")
 	if set == "exp": return("zex")
+	if set == "pnat": return("pmo")
 	else: return(set)
