@@ -3,6 +3,7 @@ import requests
 import settings
 import urllib.request
 import urllib.error
+import re
 from colorama import init
 from colorama import Style, Fore, Back
 from contextlib import suppress
@@ -98,7 +99,7 @@ def get_mtgp_code (set, set_name, code, name):
 		# Crawl the set page to find the correct link
 		r = requests.get(mtgp_link)
 		soup = BeautifulSoup(r.content, "html.parser")
-		soup_i = soup.find("img", {"alt": name+" - "+set_name})
+		soup_i = soup.find("img", attrs={"alt": re.compile('^'+name+'.*')})
 		soup_src = soup_i['src']
 		mtgp_code = soup_src.replace("../pics/reg/","")
 		mtgp_code = mtgp_code.replace("/","")
@@ -268,5 +269,12 @@ def fix_set_mtgp (set):
 	if set == "ugl": return("ung")
 	if set == "wth": return("wea")
 	if set == "exp": return("zex")
+	if set == "10e": return("xth")
+	if set == "9ed": return("9th")
+	if set == "8ed": return("8th")
+	if set == "7ed": return("7th")
+	if set == "6ed": return("6th")
+	if set == "5ed": return("5th")
+	if set == "4ed": return("4th")
 	if set == "pnat": return("pmo")
 	else: return(set)
