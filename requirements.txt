@@ -4,3 +4,4 @@ contextlib3
 pathlib
 bs4
 requests
+configparser
