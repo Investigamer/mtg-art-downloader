@@ -15,9 +15,11 @@ def download_card (txt,set,set_name,code,name,artist,scrylink,name2,layout):
 	if len(code) == 1: code = "00"+code
 	elif len(code) == 2: code = "0"+code
 	
+	# Set up the filename
+	filename = "/" + name + " (" + artist + ") [" + set.upper() + "].jpg"
+
 	# Some sets aren't represented accurately on mtgpics, lets fix it
 	set = fix_set_mtgp(set)
-	filename = "/" + name + " (" + artist + ") [" + set.upper() + "].jpg"
 
 	# Get correct mtgp code
 	mtgp_code = get_mtgp_code(set, set_name, code, name)
