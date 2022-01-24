@@ -1,14 +1,15 @@
 # MTG Art Downloader
 This tool is intended to mass download arts for MTG Cards using MTGPics with Scryfall as a backup source, images are automaticalled named according to their card name with the artist in parenthesis, set code in brackets. Arts from mtgpics are put in one folder, scryfall art crops in another folder. If any cards couldn't be found from either source a "failed.txt" is populated with names of the missing cards so you can manually look for them.
 
-# Requirements - Executable Release
+# Setup - Executable Release
 - Download the latest release
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk (optional)
 
-# Requirements - Python Version
+# Setup - Python Version
 - Python 3
 - pip install -r requirements.txt (python dependencies)
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o (optional)
+- "python find.py" to run
 
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
