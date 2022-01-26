@@ -26,3 +26,4 @@ This tool is intended to mass download arts for MTG Cards using MTGPics with Scr
 - You can rename the download folders
 - You can choose whether to download all available arts or only one art
 - You can choose whether to ignore fullarts (supported only when download all is enabled)
+- You can choose whether to download scryfall arts as a fallback
