@@ -5,3 +5,4 @@ pathlib
 bs4
 requests
 configparser
+re

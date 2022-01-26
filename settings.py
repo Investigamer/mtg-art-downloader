@@ -23,5 +23,13 @@ exclude_fullart = config['SETTINGS'].getboolean('Exclude.Fullart')
 # Download all images available or just most recent?
 download_all = config['SETTINGS'].getboolean('Download.All')
 
+# Download unique or ALL?
+if config['SETTINGS'].getboolean('Only.Search.Unique.Art'): unique = "art"
+else: unique = "prints"
+
+# Download scryfall if mtgpics missing?
+if config['SETTINGS'].getboolean('If.Missing.Download.Scryfall'): download_scryfall = True
+else: download_scryfall = False
+
 # Refer to this for generating detailed list
 # https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk/edit?usp=sharing

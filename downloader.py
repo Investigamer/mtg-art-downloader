@@ -10,83 +10,92 @@ from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-def download_card (txt,set,set_name,code,name,artist,scrylink,name2,layout):
+def download_card (txt,set_code,code,name,artist,scrylink,name2,layout,set_type,alternate):
 
 	# Make sure numeric code is 3 digits
 	if len(code) == 1: code = "00"+code
 	elif len(code) == 2: code = "0"+code
 	
 	# Set up the filename
-	filename = "/" + name + " (" + artist + ") [" + set.upper() + "].jpg"
+	filename = "/" + name + " (" + artist + ") [" + set_code.upper() + "].jpg"
 
 	# Some sets aren't represented accurately on mtgpics, lets fix it
-	set = fix_set_mtgp(set)
+	set = fix_set_mtgp(set_code)
 
 	# Get correct mtgp code
-	mtgp_code = get_mtgp_code(set, set_name, code, name)
+	mtgp_code = get_mtgp_code (set, name, alternate)
+	if mtgp_code == "missing":
+		if set_type == "promo": 
+			mtgp_code = get_mtgp_code ("pmo", name, alternate)
+			if mtgp_code == "missing": mtg_code = set+code
+		else: mtgp_code = set+code
 
 	# Which type of card?
 	if layout == "transform" or layout == "modal_dfc" or layout == "split":
 
-		# Download front side
-		download_front (txt,name,filename,scrylink,mtgp_code)
+		# Try downloading from mtgp
+		success = download_mtgp (name,settings.f_mtgp+filename,mtgp_code,False)
 
-		# Flip scryfall
-		flipscry = scrylink.replace("front","back")
+		# If failed, download scryfall art
+		if success == False: download_scryfall (name,scrylink,settings.f_scry+filename,False)
 
-		# New filename for back side, download back side
-		filename = "/" + name2 + " (" + artist + ") [" + set.upper() + "].jpg"
-		download_back (txt,name2,filename,flipscry,mtgp_code)
+		# Filename for back
+		filename2 = "/" + name2 + " (" + artist + ") [" + set_code.upper() + "].jpg"
 
-	else: download_front (txt,name,filename,scrylink,mtgp_code)
+		# Try downloading back from mtgp
+		if success: success = download_mtgp (name2,settings.f_mtgp_b+filename2,mtgp_code,True)
 
-def download_front (txt,name,filename,scrylink,mtgp_code):
-	try:
-		# Crawl the mtgpics site to find correct link for mdfc card
-		r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
-		soup = BeautifulSoup(r.content, "html.parser")
-		soup_img = soup.find("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
-		img_src = soup_img['src']
-		img_link = img_src.replace("pics/art_th/","")
-		mtgp_link = "https://mtgpics.com/pics/art/"+img_link
-		
-		# Try to download from MTG Pics
-		urllib.request.urlretrieve(mtgp_link, settings.f_mtgp + filename)
-		print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + name)
-	except:
-		# Failed so download from scryfall art crop
-		print(f"{Fore.RED}MTGP is missing " + name + ", checking Scryfall...")
-		try: 
-			urllib.request.urlretrieve(scrylink, settings.f_scry + filename)
-			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name)
-		except:
-			txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n")
-			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name)
+		# If failed, download scryfall art
+		if success == False: download_scryfall (name2,scrylink.replace("front","back"),settings.f_scry_b+filename2,True)
 
-def download_back (txt,name,filename,scrylink,mtgp_code):
+	else:
+		# Try downloading from mtgp
+		success = download_mtgp (name,settings.f_mtgp+filename,mtgp_code,False)
+
+		# If failed, download scryfall art
+		if success == False: download_scryfall (name,scrylink,settings.f_scry+filename,False)
+
+def download_mtgp (name,filename,mtgp_code,back):
 	try:
 		# Crawl the mtgpics site to find correct link for mdfc card
 		r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
 		soup = BeautifulSoup(r.content, "html.parser")
 		soup_img = soup.find_all("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
-		img_src = soup_img[1]['src']
-		img_link = img_src.replace("pics/art_th/","")
-		mtgp_link = "https://mtgpics.com/pics/art/"+img_link
 		
-		# Try to download flip from MTG Pics
-		urllib.request.urlretrieve(mtgp_link, settings.f_mtgp_b + filename)
-		print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + name + " (Back)")
-	except:
-		# Failed so download from scryfall art crop
-		print(f"{Fore.RED}MTGP is missing " + name + " (Back), checking Scryfall...")
-		try:
-			urllib.request.urlretrieve(flipscry, settings.f_scry_b + filename)
-			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name + " (Back)")
+		# Is this the back face?
+		if back: 
+			img_src = soup_img[1]['src']
+			name = name + " (Back)"
+		else: img_src = soup_img[0]['src']
+		
+		# Final mtgp IMG link
+		img_link = img_src.replace("pics/art_th/","https://mtgpics.com/pics/art/")
+		
+		# Try to download from MTG Pics
+		urllib.request.urlretrieve(img_link, filename)
+		print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + name)
+		return(True)
+	except: return(False)
+
+def download_scryfall (name,scrylink,filename,back):
+	# Is downloading scryfall enabled?
+	if settings.download_scryfall:
+		# Is this a card back?
+		if back: name = name + " (BACK)"
+		print(f"{Fore.RED}MTGP is missing " + name + ", checking Scryfall...")
+		try: 
+			urllib.request.urlretrieve(scrylink, filename)
+			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name)
+			return(True)
 		except:
 			txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n")
-			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name + " (Back)")
+			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name)
+			return(False)
+	else:
+		print(f"{Fore.RED}MTGP is missing " + name + f"{Style.RESET_ALL}") 
+		return(False)
 
-def get_mtgp_code (set, set_name, code, name):
+def get_mtgp_code (set, name, alternate):
 	try:
 		# Crawl the mtgpics site to find correct set code
 		r = requests.get("https://www.mtgpics.com/card?ref="+set+"001")
@@ -99,117 +108,84 @@ def get_mtgp_code (set, set_name, code, name):
 		# Crawl the set page to find the correct link
 		r = requests.get(mtgp_link)
 		soup = BeautifulSoup(r.content, "html.parser")
-		soup_i = soup.find("img", attrs={"alt": re.compile('^'+name+'.*')})
-		soup_src = soup_i['src']
+		soup_i = soup.find_all("img", attrs={"alt": re.compile('^'+name+'.*')})
+		if alternate: soup_src = soup_i[1]['src']
+		else: soup_src = soup_i[0]['src']
 		mtgp_code = soup_src.replace("../pics/reg/","")
 		mtgp_code = mtgp_code.replace("/","")
 		return(mtgp_code.replace(".jpg",""))
-	except: return(set+code)
+	except: return("missing")
 
 # Beta feature, needs additional work
 def download_cards (txt, json):
 	
 	# Used to track whether mtgp downloaded for both sides
-	mtgp = 0
-	mtgp_b = 0
+	mtgp = False
+	mtgp_b = False
 	
 	for card in json:
 		
 		# Base variables
-		set = card['set']
-		set_name = card['set_name']
+		set_code = card['set']
 		card_num = card['collector_number']
 		artist = card['artist']
-		flipname = ""
-		set = fix_set_mtgp(set)
+		set = fix_set_mtgp(set_code)
 		
 		# Is this double faced?
 		if 'card_faces' in card:
 			flipname = card['card_faces'][1]['name']
 			art_crop = card['card_faces'][0]['image_uris']['art_crop']
 			card_name = card['card_faces'][0]['name']
+			filename = "/" + card_name + " (" + artist + ") [" + set_code.upper() + "].jpg"
+			filename2 = "/" + flipname + " (" + artist + ") [" + set_code.upper() + "].jpg"
 		else:
 			art_crop = card['image_uris']['art_crop']
 			card_name = card['name']
-			mtgp_b = 1
+			filename = "/" + card_name + " (" + artist + ") [" + set_code.upper() + "].jpg"
+			mtgp_b = True
+
+		# Borderless card?
+		if card['border_color'] == "borderless": alternate = True
+		else: alternate = False
 		
 		# Get correct mtgp code
-		mtgp_code = get_mtgp_code(set, set_name, card_num, card_name)
+		mtgp_code = get_mtgp_code(set, card_name, alternate)
+		if mtgp_code == "missing": 
+			if card['set_type'] == "promo": 
+				mtgp_code = get_mtgp_code("pmo", card_name, alternate)
+				if mtgp_code == "missing": mtgp_code = set+card_num
+			else: mtgp_code = set+card_num
 
 		# Has MTGPic art been found yet?
-		if mtgp != 1:
-			try:
-				try:
-					# Crawl the mtgpics site to find correct link for mdfc card
-					r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
-					soup = BeautifulSoup(r.content, "html.parser")
-					soup_img = soup.find("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
-					img_src = soup_img['src']
-					img_link = img_src.replace("pics/art_th/","")
-					mtgp_link = "https://mtgpics.com/pics/art/"+img_link
-				except:
-					mtgp_link = "https://mtgpics.com/pics/art/"+set+"/"+card_num+".jpg"
-				# Try to download from MTG Pics
-				urllib.request.urlretrieve(mtgp_link, settings.f_mtgp + "/" + card_name + " (" + artist + ").jpg")
-				print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + card_name)
-				mtgp = 1
-			except: mtgp = 0
+		if mtgp == False: mtgp = download_mtgp (card_name,settings.f_mtgp+filename,mtgp_code,False)
 		
 		# Has MTGPic art been found for back?
-		if mtgp_b != 1:
-			try:
-				# Crawl the mtgpics site to find correct link for mdfc card
-				r = requests.get("https://www.mtgpics.com/card?ref="+mtgp_code)
-				soup = BeautifulSoup(r.content, "html.parser")
-				soup_img = soup.find_all("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
-				img_src = soup_img[1]['src']
-				img_link = img_src.replace("pics/art_th/","")
-				mtgp_link = "https://mtgpics.com/pics/art/"+img_link
-				
-				# Try to download flip from MTG Pics
-				urllib.request.urlretrieve(mtgp_link, settings.f_mtgp_b + "/" + flipname + " (" + artist + ").jpg")
-				print(f"{Fore.GREEN}SUCCESS MTGP: {Style.RESET_ALL}" + flipname + " (Back)")
-				mtgp_b = 1
-			except: mtgp_b = 0
+		if mtgp_b == False: mtgp_b = download_mtgp (flipname,settings.f_mtgp_b+filename2,mtgp_code,True)
 	
 	card = json[0]
 	
 	# Base variables
-	set = card['set']
+	set_code = card['set']
 	card_num = card['collector_number']
 	artist = card['artist']
-	flipname = ""
 	
 	# Is this mdfc?
 	if 'card_faces' in card:
 		flipname = card['card_faces'][1]['name']
-		art_crop = card['card_faces'][0]['image_uris']['art_crop']
 		card_name = card['card_faces'][0]['name']
-		flipscry = json[0]['card_faces'][1]['image_uris']['art_crop']
+		scrylink = card['card_faces'][0]['image_uris']['art_crop']
+		filename = "/" + card_name + " (" + artist + ") [" + set_code.upper() + "].jpg"
+		filename2 = "/" + flipname + " (" + artist + ") [" + set_code.upper() + "].jpg"
 	else:
-		art_crop = card['image_uris']['art_crop']
+		scrylink = card['image_uris']['art_crop']
 		card_name = card['name']
-		mtgp_b = 1
+		filename = "/" + card_name + " (" + artist + ") [" + set_code.upper() + "].jpg"
 	
 	# Did MTGP fail all?
-	if mtgp == 0:
-		print(f"{Fore.RED}FAILED MTGP: {Style.RESET_ALL}" + card_name + ", trying scryfall...")
-		try: 
-			urllib.request.urlretrieve(art_crop, settings.f_scry + "/" + card_name + " (" + artist + ").jpg")
-			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + card_name)
-		except:
-			txt.write(name+'\n')
-			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + card_name)
+	if mtgp == False: download_scryfall (card_name,scrylink,settings.f_scry+filename,False)
 	
 	# Did MTGP fail all backs?
-	if mtgp_b == 0:
-		print(f"{Fore.RED}FAILED MTGP: {Style.RESET_ALL}" + flipname + " (Back), trying scryfall...")
-		try: 
-			urllib.request.urlretrieve(flipscry, settings.f_scry_b + "/" + flipname + " (" + artist + ").jpg")
-			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + flipname + " (Back)")
-		except:
-			txt.write(flipname+'\n')
-			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + flipname + " (Back)")
+	if mtgp_b == False: download_scryfall (flipname,scrylink.replace("front","back"),settings.f_scry_b+filename2,True)
 
 def fix_set_mtgp (set):
 	if set == "arb": return("alr")
@@ -277,4 +253,6 @@ def fix_set_mtgp (set):
 	if set == "5ed": return("5th")
 	if set == "4ed": return("4th")
 	if set == "pnat": return("pmo")
+	if set == "pvow": return("vow")
+	if set == "pmid": return("mid")
 	else: return(set)

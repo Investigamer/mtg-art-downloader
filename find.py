@@ -9,6 +9,7 @@ from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
 import time
+import sys
 import os
 
 # System call
@@ -37,17 +38,18 @@ def txt_downloader ():
 					if len(land_set) >= 3:
 						z = 1
 						r = requests.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}&set={parse.quote(land_set)}").json()
-						if r['set_type'] == "promo":
-							set_name = "Misc. Promos"
-							set = "pmo"
-						download_card(failed, set, set_name, r['collector_number'], r['name'], r['artist'], r['image_uris']['art_crop'], "", r['layout'])
+
+						# Borderless card?
+						if r['border_color'] == "borderless": alternate = True
+						else: alternate = False
+
+						download_card(failed, r['set'], r['collector_number'], r['name'], r['artist'], r['image_uris']['art_crop'], "", r['layout'], r['set_type'], alternate)
 					else: print("Error! Illegitimate set. Try again!\n")
 			else:
 				if settings.download_all:
-					raw = requests.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique=art&order=released").json()
+					raw = requests.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+settings.unique+"&order=released").json()
 					for r in raw['data']:
 						set = r['set']
-						set_name = r['set_name']
 						card_num = r['collector_number']
 						artist = r['artist']
 						layout = r['layout']
@@ -61,29 +63,31 @@ def txt_downloader ():
 						else: 
 							art_crop = r['image_uris']['art_crop']
 							card_name = r['name']
-
-						if r['set_type'] == "promo":
-							set_name = "Misc. Promos"
-							set = "pmo"
+						
+						# Borderless card?
+						if r['border_color'] == "borderless" or r['collector_number'][-1] == "s": alternate = True
+						else: alternate = False
 						
 						if settings.exclude_fullart == True:
 							if r['full_art'] == True: print("\nSkipping fullart image...\n")
-							else: download_card(failed, set, set_name, card_num, card_name, artist, art_crop, flipname, layout)
-						else: download_card(failed, set, set_name, card_num, card_name, artist, art_crop, flipname, layout)
+							else: download_card(failed, set, card_num, card_name, artist, art_crop, flipname, layout, r['set_type'], alternate)
+						else: download_card(failed, set, card_num, card_name, artist, art_crop, flipname, layout, r['set_type'], alternate)
 				else:
-					raw = requests.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique=art&order=released").json()
+					raw = requests.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+settings.unique+"&order=released").json()
 					# Remove full art entries?
 					prepared = []
 					if settings.exclude_fullart == True:
 						for foo in raw['data']:
 							if foo['full_art'] == False: prepared.append(foo)
-					if prepared:
-						download_cards(failed,prepared)
+					else: prepared = raw['data']
+					if prepared: download_cards(failed,prepared)
 					else: print(card + " not found!")
 	# Close the txt file
 	failed.close()
 
-	print("\nAll available files downloaded.\nSee failed.txt for images that couldn't be located.\n")
+	print("\nAll available files downloaded.\nSee failed.txt for images that couldn't be located.\nPress enter to exit :)")
+	input()
+	sys.exit()
 
 def sheet_downloader ():
 	# Open the failed to find txt
@@ -111,21 +115,19 @@ def sheet_downloader ():
 				art_crop = r['image_uris']['art_crop']
 				card_name = r['name']
 
-			# On MTG Pics all promo cards are in one pmo set
-			if r['set_type'] == "promo":
-				set_name = "Misc. Promos"
-				set_code = "pmo"
-			else:
-				set_name = r['set_name']
-				set_code = r['set']
+			# Borderless card?
+			if r['border_color'] == "borderless" or r['collector_number'][-1] == "s": alternate = True
+			else: alternate = False
 			
 			# Download the card
-			download_card(failed, r['set'], r['set_name'], r['collector_number'], card_name, r['artist'], art_crop, flipname, r['layout'])
+			download_card(failed, r['set'], r['collector_number'], card_name, r['artist'], art_crop, flipname, r['layout'], r['set_type'], alternate)
 
 	# Close the txt file
 	failed.close()
 
-	print("\nAll available files downloaded.\nSee failed.txt for images that couldn't be located.\n")
+	print("\nAll available files downloaded.\nSee failed.txt for images that couldn't be located.\nPress enter to exit :)")
+	input()
+	sys.exit()
 
 print(f"{Fore.YELLOW}{Style.BRIGHT}\n  ██████╗ ███████╗████████╗    ███╗   ███╗████████╗ ██████╗ ")
 print(f" ██╔════╝ ██╔════╝╚══██╔══╝    ████╗ ████║╚══██╔══╝██╔════╝ ")
@@ -151,10 +153,10 @@ while z == 0:
 	# Import our Google Sheets generated queeries
 	if choice == "1":
 		z = 1
-		print("Can do! Grab yourself a beer, we might be here a minute..")
+		print("\nCan do! Grab yourself a beer, we might be here a minute..")
 		txt_downloader()
 	elif choice == "2":
 		z = 1
-		print("Loading decklist! Grab yourself a beer, we might be here a minute..")
+		print("\nCan do! Grab yourself a beer, we might be here a minute..")
 		sheet_downloader()
-	else: print("Do you think this is a game? Try again.\n")
+	else: print("\nDo you think this is a game? Try again.\n")
