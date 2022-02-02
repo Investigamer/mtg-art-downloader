@@ -255,4 +255,7 @@ def fix_set_mtgp (set):
 	if set == "pnat": return("pmo")
 	if set == "pvow": return("vow")
 	if set == "pmid": return("mid")
+	if set == "me3": return("3me")
+	if set == "me2": return("2me")
+	if set == "me1": return("1me")
 	else: return(set)
