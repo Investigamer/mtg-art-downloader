@@ -1,7 +1,16 @@
 # MTG Art Downloader
 This tool is intended to mass download arts for MTG Cards using MTGPics with Scryfall as a backup source, images are automaticalled named according to their card name with the artist in parenthesis, set code in brackets. Arts from mtgpics are put in one folder, scryfall art crops in another folder. If any cards couldn't be found from either source a "failed.txt" is populated with names of the missing cards so you can manually look for them.
 
-<img alt="Discord" src="https://img.shields.io/discord/889831317066358815?label=discord&style=plastic">
+<p align="center">
+  <a href="https://discord.gg/3kXw2qQwRH">
+    <img alt="Discord" src="https://img.shields.io/discord/889831317066358815?label=Discord&style=plastic">
+  </a>
+  <a href="https://github.com/MrTeferi/MTG-Art-Downloader/releases">
+    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/MrTeferi/MTG-Art-Downloader/total?style=plastic">
+  </a>
+  <img alt="GitHub" src="https://img.shields.io/github/license/MrTeferi/MTG-Art-Downloader?color=1082C2&style=plastic">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.5%2B-yellow">
+</p>
 
 # Setup - Executable Release
 - Download the latest release
