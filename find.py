@@ -1,16 +1,15 @@
 # Requirements
 import requests
 import settings
-from downloader import download_card, download_cards
-from urllib import request, error, parse
-from colorama import init
-from colorama import Style, Fore, Back
-from contextlib import suppress
-from pathlib import Path
-from bs4 import BeautifulSoup
 import time
 import sys
 import os
+from downloader import download_card, download_cards
+from urllib import request, parse, error
+from colorama import init, Style, Fore, Back
+from contextlib import suppress
+from pathlib import Path
+from bs4 import BeautifulSoup
 
 # System call
 os.system("")

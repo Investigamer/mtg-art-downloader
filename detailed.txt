@@ -1,1 +1,80 @@
-me3--Hammerheim
+neo--Akki Ember-Keeper
+neo--Automated Artificer
+neo--Banishing Slash
+neo--Behold the Unspeakable
+neo--Biting-Palm Ninja
+neo--Boon of Boseiju
+neo--Born to Drive
+neo--Bronze Cudgels
+neo--Brute Suit
+neo--Careful Cultivation
+neo--Cloudsteel Kirin
+neo--Crackling Emergence
+neo--Debt to the Kami
+neo--Dokuchi Silencer
+neo--Dragonfly Suit
+neo--Ecologist's Terrarium
+neo--Eiganjo Exemplar
+neo--Experimental Synthesizer
+neo--Explosive Singularity
+neo--Fade into Antiquity
+neo--Forest
+neo--Futurist Operative
+neo--Futurist Sentinel
+neo--Geothermal Kami
+neo--Gift of Wrath
+neo--Go-Shintai of Ancient Wars
+neo--Go-Shintai of Boundless Vigor
+neo--Go-Shintai of Hidden Cruelty
+neo--Go-Shintai of Lost Wisdom
+neo--Grafted Growth
+neo--Heir of the Ancient Fang
+neo--Hinata, Dawn-Crowned
+neo--Hotshot Mechanic
+neo--Imperial Recovery Unit
+neo--Invigorating Hot Spring
+neo--Iron Apprentice
+neo--Ironhoof Boar
+neo--Island
+neo--Jukai Trainee
+neo--Junji, the Midnight Sky
+neo--Kami of Restless Shadows
+neo--Kami of Terrible Secrets
+neo--Kami's Flare
+neo--Kappa Tech-Wrecker
+neo--Kotose, the Silent Spider
+neo--Leech Gauntlet
+neo--Lizard Blades
+neo--Malicious Malfunction
+neo--March of Swirling Mist
+neo--Master's Rebuke
+neo--Mindlink Mech
+neo--Mirror Box
+neo--Mnemonic Sphere
+neo--Moon-Circuit Hacker
+neo--Mountain
+neo--Mukotai Soulripper
+neo--Ninja's Kunai
+neo--Oni-Cult Anvil
+neo--Papercraft Decoy
+neo--Peerless Samurai
+neo--Plains
+neo--Reckoner Shakedown
+neo--Reito Sentinel
+neo--Roadside Reliquary
+neo--Seismic Wave
+neo--Seven-Tail Mentor
+neo--Short Circuit
+neo--Shrine Steward
+neo--Soul Transfer
+neo--Spirit-Sister's Call
+neo--Suit Up
+neo--Swamp
+neo--Takenuma, Abandoned Mire
+neo--Tempered in Solitude
+neo--Towashi Guide-Bot
+neo--Tranquil Cove
+neo--Upriser Renegade
+neo--Virus Beetle
+neo--Webspinner Cuff
+neo--Wind-Scarred Crag

@@ -4,8 +4,7 @@ import settings
 import urllib.request
 import urllib.error
 import re
-from colorama import init
-from colorama import Style, Fore, Back
+from colorama import init, Style, Fore, Back
 from contextlib import suppress
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -37,7 +36,7 @@ def download_card (txt,set_code,code,name,artist,scrylink,name2,layout,set_type,
 		success = download_mtgp (name,settings.f_mtgp+filename,mtgp_code,False)
 
 		# If failed, download scryfall art
-		if success == False: download_scryfall (name,scrylink,settings.f_scry+filename,False)
+		if success == False: scryfall_success = download_scryfall (name,scrylink,settings.f_scry+filename,False)
 
 		# Filename for back
 		filename2 = "/" + name2 + " (" + artist + ") [" + set_code.upper() + "].jpg"
@@ -46,14 +45,20 @@ def download_card (txt,set_code,code,name,artist,scrylink,name2,layout,set_type,
 		if success: success = download_mtgp (name2,settings.f_mtgp_b+filename2,mtgp_code,True)
 
 		# If failed, download scryfall art
-		if success == False: download_scryfall (name2,scrylink.replace("front","back"),settings.f_scry_b+filename2,True)
+		if success == False: 
+			scryfall_success = download_scryfall (name2,scrylink.replace("front","back"),settings.f_scry_b+filename2,True)
+		else: scryfall_success = True;
 
 	else:
 		# Try downloading from mtgp
 		success = download_mtgp (name,settings.f_mtgp+filename,mtgp_code,False)
 
 		# If failed, download scryfall art
-		if success == False: download_scryfall (name,scrylink,settings.f_scry+filename,False)
+		if success == False: scryfall_success = download_scryfall (name,scrylink,settings.f_scry+filename,False)
+		else: scryfall_success = True;
+	
+	#if scryfall_success == False: txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n") # OLD WAY
+	if scryfall_success == False: txt.write(name+"--"+set_code+"\n")
 
 def download_mtgp (name,filename,mtgp_code,back):
 	try:
@@ -88,7 +93,6 @@ def download_scryfall (name,scrylink,filename,back):
 			print(f"{Fore.GREEN}SUCCESS SCRY: {Style.RESET_ALL}" + name)
 			return(True)
 		except:
-			txt.write(name+" (https://www.mtgpics.com/card?ref="+mtgp_code+")\n")
 			print(f"{Fore.RED}FAILED ALL: {Style.RESET_ALL}" + name)
 			return(False)
 	else:
