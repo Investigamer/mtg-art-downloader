@@ -58,6 +58,8 @@ class Card ():
 		except:
 			if cfg.download_scryfall: self.download_scryfall (self.name, self.scry_path, self.scrylink)
 			elif log_failed: core.log(self.name, self.set)
+			return False
+		return True
 
 	def download_mtgp (self, name, path, mtgp_code, back=False):
 		"""
@@ -298,9 +300,12 @@ class MDFC (Card):
 
 		# Log any failures
 		if log_failed:
-			if not front and not back: core.log(self.name, self.set)
-			elif not front: core.log(self.name, self.set, "failed_front")
+			if not front and not back:
+				core.log(self.name, self.set)
+				return False
+			if not front: core.log(self.name, self.set, "failed_front")
 			elif not back: core.log(self.name_back, self.set, "failed_back")
+		return True
 
 class Transform (MDFC):
 	"""

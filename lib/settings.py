@@ -24,6 +24,9 @@ basic_lands = ["Plains", "Island", "Swamp", "Mountain", "Forest"]
 # Exclude full arts?
 exclude_fullart = config['SETTINGS'].getboolean('Exclude.Fullart')
 
+# Exclude secret lair
+exclude_secret_lair = config['SETTINGS'].getboolean('Exclude.Secret.Lair')
+
 # Download all images available or just most recent?
 download_all = config['SETTINGS'].getboolean('Download.All')
 

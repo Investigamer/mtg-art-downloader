@@ -4,7 +4,6 @@ MODULES
 # pylint: disable=R0912, R1702
 import os
 import sys
-import json
 from urllib import parse
 from colorama import Style, Fore
 import requests as req
@@ -35,39 +34,47 @@ def txt_downloader():
 					if len(land_set) >= 3:
 						try:
 							c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}&set={parse.quote(land_set)}").json()
-							dl.Basic(c).download()
+							dl.Land(c).download()
 							break
 						except: print("Scryfall couldn't find this set. Try again!\n")
 					else: print("Error! Illegitimate set. Try again!\n")
 
-			elif cfg.download_all:
-				try:
-					# Retrieve scryfall data
-					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
-
-					# Loop through prints of this card
-					for c in r['data']:
-						card_class = dl.get_card_class(c)
-						card_class(c).download()
-				except: print(f"{card} not found!")
-
 			else:
-				try:
-					# Retrieve scryfall data
-					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
+				#try:
+				# Retrieve scryfall data
+				r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
 
-					# Remove full art entries?
-					prepared = []
-					if cfg.exclude_fullart:
-						for t in r['data']:
-							if t['full_art'] is False: prepared.append(t)
-					else: prepared = r['data']
+				# Remove full art entries?
+				prepared = []
+				sld = []
+				for t in r['data']:
+					# No fullart to exclude?
+					if not cfg.exclude_fullart or t['full_art'] is False:
+						# No secret lair to exclude
+						if t['set'] != "sld":
+							prepared.append(t)
+						else:
+							sld.append(t)
 
-					# Loop through prints of this card
-					for c in prepared:
-						card_class = dl.get_card_class(c)
-						card_class(c).download()
-				except: print(f"{card} not found!")
+				# Loop through prints of this card
+				done = False
+				sl_num = 1
+				repeat = False
+				for c in prepared:
+					card_class = dl.get_card_class(c)
+					result = card_class(c).download()
+					if not cfg.download_all and result:
+						done = True
+						break
+				for c in sorted(sld, key = lambda i: i['collector_number']):
+					if done or cfg.exclude_secret_lair: break
+					if repeat: c['name'] = c['name']+" "+str(sl_num)
+					sl_num+=1
+					repeat = True
+					card_class = dl.get_card_class(c)
+					result = card_class(c).download()
+
+				#except: print(f"{card} not found!")
 
 def sheet_downloader():
 	"""
