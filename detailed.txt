@@ -1,280 +1,49 @@
-stx--Academic Dispute
-stx--Academic Probation
-stx--Access Tunnel
-stx--Accomplished Alchemist
-stx--Aether Helix
-stx--Ageless Guardian
-stx--Arcane Subtraction
-stx--Archmage Emeritus
-stx--Archway Commons
-stx--Ardent Dustspeaker
-stx--Arrogant Poet
-stx--Augmenter Pugilist
-stx--Baleful Mastery
-stx--Basic Conjuration
-stx--Bayou Groff
-stx--Beaming Defiance
-stx--Beledros Witherbloom
-stx--Biblioplex Assistant
-stx--Big Play
-stx--Biomathematician
-stx--Blade Historian
-stx--Blex, Vexing Pest
-stx--Blood Age General
-stx--Blood Researcher
-stx--Blot Out the Sky
-stx--Body of Research
-stx--Bookwurm
-stx--Brackish Trudge
-stx--Burrog Befuddler
-stx--Bury in Books
-stx--Callous Bloodmage
-stx--Campus Guide
-stx--Charge Through
-stx--Clever Lumimancer
-stx--Closing Statement
-stx--Codie, Vociferous Codex
-stx--Cogwork Archivist
-stx--Combat Professor
-stx--Confront the Past
-stx--Conspiracy Theorist
-stx--Containment Breach
-stx--Crackle with Power
-stx--Cram Session
-stx--Creative Outburst
-stx--Crushing Disappointment
-stx--Culling Ritual
-stx--Culmination of Studies
-stx--Curate
-stx--Daemogoth Titan
-stx--Daemogoth Woe-Eater
-stx--Deadly Brew
-stx--Decisive Denial
-stx--Defend the Campus
-stx--Detention Vortex
-stx--Devastating Mastery
-stx--Devouring Tendrils
-stx--Dina, Soul Steeper
-stx--Divide by Zero
-stx--Double Major
-stx--Draconic Intervention
-stx--Dragon's Approach
-stx--Dragonsguard Elite
-stx--Dramatic Finale
-stx--Dream Strix
-stx--Dueling Coach
-stx--Eager First-Year
-stx--Ecological Appreciation
-stx--Efreet Flamepainter
-stx--Elemental Expressionist
-stx--Elemental Masterpiece
-stx--Elemental Summoning
-stx--Elite Spellbinder
-stx--Emergent Sequence
-stx--Enthusiastic Study
-stx--Environmental Sciences
-stx--Essence Infusion
-stx--Eureka Moment
-stx--Excavated Wall
-stx--Exhilarating Elocution
-stx--Expanded Anatomy
-stx--Expel
-stx--Explosive Welcome
-stx--Exponential Growth
-stx--Expressive Iteration
-stx--Extus, Oriq Overlord
-stx--Eyetwitch
-stx--Fervent Mastery
-stx--Field Trip
-stx--First Day of Class
-stx--Flamescroll Celebrant
-stx--Flunk
-stx--Forest
-stx--Fortifying Draught
-stx--Fractal Summoning
-stx--Fracture
-stx--Frostboil Snarl
-stx--Frost Trickster
-stx--Fuming Effigy
-stx--Furycalm Snarl
-stx--Galazeth Prismari
-stx--Gnarled Professor
-stx--Go Blank
-stx--Golden Ratio
-stx--Grinning Ignus
-stx--Guiding Voice
-stx--Hall Monitor
-stx--Hall of Oracles
-stx--Harness Infinity
-stx--Heated Debate
-stx--Hofri Ghostforge
-stx--Honor Troll
-stx--Humiliate
-stx--Hunt for Specimens
-stx--Igneous Inspiration
-stx--Illuminate History
-stx--Illustrious Historian
-stx--Infuse with Vitality
-stx--Ingenious Mastery
-stx--Inkling Summoning
-stx--Introduction to Annihilation
-stx--Introduction to Prophecy
-stx--Island
-stx--Jadzi, Oracle of Arcavios
-stx--Karok Wrangler
-stx--Kasmina, Enigma Sage
-stx--Kelpie Guide
-stx--Kianne, Dean of Substance
-stx--Killian, Ink Duelist
-stx--Lash of Malice
-stx--Leech Fanatic
-stx--Leonin Lightscribe
-stx--Letter of Acceptance
-stx--Leyline Invocation
-stx--Lorehold Apprentice
-stx--Lorehold Campus
-stx--Lorehold Command
-stx--Lorehold Excavation
-stx--Lorehold Pledgemage
-stx--Maelstrom Muse
-stx--Mage Duel
-stx--Mage Hunter
-stx--Mage Hunters' Onslaught
-stx--Magma Opus
-stx--Make Your Mark
-stx--Manifestation Sage
-stx--Mascot Exhibition
-stx--Mascot Interception
-stx--Master Symmetrist
-stx--Mavinda, Students' Advocate
-stx--Mentor's Guidance
-stx--Mercurial Transformation
-stx--Mila, Crafty Companion
-stx--Moldering Karok
-stx--Mortality Spear
-stx--Mountain
-stx--Multiple Choice
-stx--Necroblossom Snarl
-stx--Necrotic Fumes
-stx--Needlethorn Drake
-stx--Novice Dissector
-stx--Oggyar Battle-Seer
-stx--Oriq Loremage
-stx--Overgrown Arch
-stx--Owlin Shieldmage
-stx--Pestilent Cauldron
-stx--Pest Summoning
-stx--Pigment Storm
-stx--Pilgrim of the Ages
-stx--Pillardrop Rescuer
-stx--Pillardrop Warden
-stx--Plains
-stx--Plargg, Dean of Chaos
-stx--Plumb the Forbidden
-stx--Poet's Quill
-stx--Pop Quiz
-stx--Practical Research
-stx--Prismari Apprentice
-stx--Prismari Campus
-stx--Prismari Command
-stx--Prismari Pledgemage
-stx--Professor of Symbology
-stx--Professor of Zoomancy
-stx--Professor Onyx
-stx--Professor's Warning
-stx--Promising Duskmage
-stx--Quandrix Apprentice
-stx--Quandrix Campus
-stx--Quandrix Command
-stx--Quandrix Cultivator
-stx--Quandrix Pledgemage
-stx--Quintorius, Field Historian
-stx--Radiant Scrollwielder
-stx--Reckless Amplimancer
-stx--Reconstruct History
-stx--Reduce to Memory
-stx--Reflective Golem
-stx--Reject
-stx--Relic Sloth
-stx--Resculpt
-stx--Retriever Phoenix
-stx--Returned Pastcaller
-stx--Rip Apart
-stx--Rise of Extus
-stx--Rootha, Mercurial Artist
-stx--Rowan, Scholar of Sparks
-stx--Rushed Rebirth
-stx--Scurrid Colony
-stx--Secret Rendezvous
-stx--Sedgemoor Witch
-stx--Selfless Glyphweaver
-stx--Semester's End
-stx--Serpentine Curve
-stx--Shadewing Laureate
-stx--Shadrix Silverquill
-stx--Shaile, Dean of Radiance
-stx--Shineshadow Snarl
-stx--Show of Confidence
-stx--Silverquill Apprentice
-stx--Silverquill Campus
-stx--Silverquill Command
-stx--Silverquill Pledgemage
-stx--Silverquill Silencer
-stx--Snow Day
-stx--Solve the Equation
-stx--Soothsayer Adept
-stx--Sparring Regimen
-stx--Spectacle Mage
-stx--Specter of the Fens
-stx--Spell Satchel
-stx--Spined Karok
-stx--Spirit Summoning
-stx--Spiteful Squad
-stx--Springmane Cervin
-stx--Square Up
-stx--Star Pupil
-stx--Start from Scratch
-stx--Stonebinder's Familiar
-stx--Stonebound Mentor
-stx--Stonerise Spirit
-stx--Storm-Kiln Artist
-stx--Strict Proctor
-stx--Strixhaven Stadium
-stx--Study Break
-stx--Sudden Breakthrough
-stx--Swamp
-stx--Symmetry Sage
-stx--Tanazir Quandrix
-stx--Tangletrap
-stx--Teach by Example
-stx--Teachings of the Archaics
-stx--Team Pennant
-stx--Tempted by the Oriq
-stx--Tend the Pests
-stx--Tenured Inkcaster
-stx--Test of Talents
-stx--The Biblioplex
-stx--Thrilling Discovery
-stx--Thunderous Orator
-stx--Tome Shredder
-stx--Torrent Sculptor
-stx--Twinscroll Shaman
-stx--Umbral Juke
-stx--Unwilling Ingredient
-stx--Uvilda, Dean of Perfection
-stx--Valentin, Dean of the Vein
-stx--Vanishing Verse
-stx--Velomachus Lorehold
-stx--Venerable Warsinger
-stx--Verdant Mastery
-stx--Vineglimmer Snarl
-stx--Vortex Runner
-stx--Wandering Archaic
-stx--Waterfall Aerialist
-stx--Witherbloom Apprentice
-stx--Witherbloom Campus
-stx--Witherbloom Command
-stx--Witherbloom Pledgemage
-stx--Wormhole Serpent
-stx--Zephyr Boots
-stx--Zimone, Quandrix Prodigy
+mid--Ambitious Farmhand
+mid--Arlinn, the Pack's Hope
+mid--Baithook Angler
+mid--Baneblade Scoundrel
+mid--Beloved Beggar
+mid--Bereaved Survivor
+mid--Bird Admirer
+mid--Brutal Cathar
+mid--Burly Breaker
+mid--Chaplain of Alms
+mid--Covert Cutpurse
+mid--Covetous Castaway
+mid--Curse of Leeches
+mid--Deathbonnet Sprout
+mid--Delver of Secrets
+mid--Dennick, Pious Apprentice
+mid--Devoted Grafkeeper
+mid--Ecstatic Awakener
+mid--Enduring Angel
+mid--Fangblade Brigand
+mid--Flame Channeler
+mid--Galedrifter
+mid--Graveyard Trespasser
+mid--Harvesttide Infiltrator
+mid--Heirloom Mirror
+mid--Hostile Hostel
+mid--Hound Tamer
+mid--Jerren, Corrupted Bishop
+mid--Kessig Naturalist
+mid--Ludevic, Necrogenius
+mid--Lunarch Veteran
+mid--Malevolent Hermit
+mid--Mourning Patrol
+mid--Mysterious Tome
+mid--Mystic Skull
+mid--Outland Liberator
+mid--Overwhelmed Archivist
+mid--Poppet Stitcher
+mid--Reckless Stormseeker
+mid--Shady Traveler
+mid--Smoldering Egg
+mid--Spellrune Painter
+mid--Suspicious Stowaway
+mid--Tavern Ruffian
+mid--Tireless Hauler
+mid--Tovolar, Dire Overlord
+mid--Tovolar's Huntmaster
+mid--Vengeful Strangler
+mid--Village Watch

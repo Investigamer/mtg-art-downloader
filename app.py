@@ -1,8 +1,10 @@
-"""
+﻿"""
 MODULES
 """
+# pylint: disable=R0912, R1702
 import os
 import sys
+import json
 from urllib import parse
 from colorama import Style, Fore
 import requests as req
@@ -31,37 +33,41 @@ def txt_downloader():
 					# Have user choose the set, then download
 					land_set = input("Basic land found! What set should I pull the art from? ex: vow, m21, eld\n")
 					if len(land_set) >= 3:
-						c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}&set={parse.quote(land_set)}").json()
-						dl.Basic(c).download()
-						break
-					print("Error! Illegitimate set. Try again!\n")
+						try:
+							c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}&set={parse.quote(land_set)}").json()
+							dl.Basic(c).download()
+							break
+						except: print("Scryfall couldn't find this set. Try again!\n")
+					else: print("Error! Illegitimate set. Try again!\n")
 
 			elif cfg.download_all:
+				try:
+					# Retrieve scryfall data
+					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
 
-				# Retrieve scryfall data
-				r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
-
-				# Loop through prints of this card
-				for c in r:
-					card_class = dl.get_card_class(c)
-					card_class(c).download()
+					# Loop through prints of this card
+					for c in r['data']:
+						card_class = dl.get_card_class(c)
+						card_class(c).download()
+				except: print(f"{card} not found!")
 
 			else:
+				try:
+					# Retrieve scryfall data
+					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
 
-				# Retrieve scryfall data
-				r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
+					# Remove full art entries?
+					prepared = []
+					if cfg.exclude_fullart:
+						for t in r['data']:
+							if t['full_art'] is False: prepared.append(t)
+					else: prepared = r['data']
 
-				# Remove full art entries?
-				prepared = []
-				if cfg.exclude_fullart:
-					for t in r['data']:
-						if t['full_art'] is False: prepared.append(t)
-				else: prepared = r['data']
-
-				# Loop through prints of this card
-				for c in prepared:
-					card_class = dl.get_card_class(c)
-					card_class(c).download()
+					# Loop through prints of this card
+					for c in prepared:
+						card_class = dl.get_card_class(c)
+						card_class(c).download()
+				except: print(f"{card} not found!")
 
 def sheet_downloader():
 	"""
@@ -78,17 +84,19 @@ def sheet_downloader():
 			name = card[1]
 
 			# Lookup card
-			c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(name)}&set={parse.quote(set_code)}").json()
-			card_class = dl.get_card_class(c)
-			card_class(c).download()
+			try:
+				c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(name)}&set={parse.quote(set_code)}").json()
+				card_class = dl.get_card_class(c)
+				card_class(c).download()
+			except: print(f"{name} not found in set: {set_code}")
 
 print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
-print("  ██████╗ ███████╗████████╗    ███╗   ███╗████████╗ ██████╗ ")
-print(" ██╔════╝ ██╔════╝╚══██╔══╝    ████╗ ████║╚══██╔══╝██╔════╝ ")
-print(" ██║  ███╗█████╗     ██║       ██╔████╔██║   ██║   ██║  ███╗")
-print(" ██║   ██║██╔══╝     ██║       ██║╚██╔╝██║   ██║   ██║   ██║")
-print(" ╚██████╔╝███████╗   ██║       ██║ ╚═╝ ██║   ██║   ╚██████╔╝")
-print("  ╚═════╝ ╚══════╝   ╚═╝       ╚═╝     ╚═╝   ╚═╝    ╚═════╝ ")
+print("  ██████╗ ███████╗████████╗   ███╗   ███╗████████╗ ██████╗ ")
+print(" ██╔════╝ ██╔════╝╚══██╔══╝   ████╗ ████║╚══██╔══╝██╔════╝ ")
+print(" ██║  ███╗█████╗     ██║      ██╔████╔██║   ██║   ██║  ███╗")
+print(" ██║   ██║██╔══╝     ██║      ██║╚██╔╝██║   ██║   ██║   ██║")
+print(" ╚██████╔╝███████╗   ██║      ██║ ╚═╝ ██║   ██║   ╚██████╔╝")
+print("  ╚═════╝ ╚══════╝   ╚═╝      ╚═╝     ╚═╝   ╚═╝    ╚═════╝ ")
 print("  █████╗ ██████╗ ████████╗    ███╗   ██╗ ██████╗ ██╗    ██╗ ")
 print(" ██╔══██╗██╔══██╗╚══██╔══╝    ████╗  ██║██╔═══██╗██║    ██║ ")
 print(" ███████║██████╔╝   ██║       ██╔██╗ ██║██║   ██║██║ █╗ ██║ ")

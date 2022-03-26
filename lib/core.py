@@ -1,7 +1,7 @@
 """
 CORE FUNCTIONS
 """
-# pylint: disable=E0401
+# pylint: disable=E0401, R0911, R0912
 import os
 import re
 import sys
@@ -52,6 +52,68 @@ def handle (error):
 	"""
 	print(f"{error}\nPress enter to exit...")
 	sys.exit()
+
+def get_card_face(entries, back):
+	"""
+	Determine which images are back and front
+	"""
+	arr = []
+	path = f"https://mtgpics.com/{os.path.dirname(entries[0]['src'])}"
+	path = path.replace("art_th","art")
+
+	for i in entries:
+		arr.append(os.path.basename(i['src']).replace(".jpg",""))
+	if len(arr) == 1:
+		if back: return None
+		return f"{path}/{arr[0]}.jpg"
+	if len(arr) == 2:
+		# Two sides exist
+		try:
+			# Bigger number usually the back
+			if int(arr[0]) > int(arr[1]):
+				if back: return f"{path}/{arr[0]}.jpg"
+				return f"{path}/{arr[1]}.jpg"
+			if int(arr[1]) > int(arr[0]):
+				if back: return f"{path}/{arr[1]}.jpg"
+				return f"{path}/{arr[0]}.jpg"
+		except:
+			try:
+				# In some cases backs have longer string
+				if len(arr[0]) > len(arr[1]):
+					if back: return f"{path}/{arr[0]}.jpg"
+					return f"{path}/{arr[1]}.jpg"
+				if len(arr[1]) > len(arr[0]):
+					if back: return f"{path}/{arr[1]}.jpg"
+					return f"{path}/{arr[0]}.jpg"
+			except: pass
+		# All other cases just go in order
+		if back: return f"{path}/{arr[1]}.jpg"
+		return f"{path}/{arr[0]}.jpg"
+	if len(arr) > 2:
+		img_i = []
+		img_s = []
+		# Separate into string array and int array, sorted
+		arr.sort()
+		for i in arr:
+			if len(i) == 3: img_i.append(i)
+			elif len(i) > 3: img_s.append(i)
+
+		# Try comparing ints
+		if len(img_i) > 1:
+			if back: return f"{path}/{img_i[1]}.jpg"
+			return f"{path}/{img_i[0]}.jpg"
+		# Try comparing strings
+		if len(img_s) > 1:
+			if back: return f"{path}/{img_s[1]}.jpg"
+			return f"{path}/{img_s[0]}.jpg"
+		# Or just go in order
+		if back: return f"{path}/{img_i[0]}.jpg"
+		return f"{path}/{img_s[0]}.jpg"
+
+	# All else failed go in order
+	if back: return f"{path}/{arr[1]}.jpg"
+	return f"{path}/{arr[0]}.jpg"
+
 
 def fix_mtgp_set (set_code):
 	"""

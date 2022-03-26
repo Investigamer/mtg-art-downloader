@@ -69,13 +69,7 @@ class Card ():
 		soup_img = soup.find_all("img", {"style": "display:block;border:4px black solid;cursor:pointer;"})
 
 		# Is this the back face?
-		if back:
-			img_src = soup_img[1]['src']
-			name = name + " (Back)"
-		else: img_src = soup_img[0]['src']
-
-		# Final mtgp IMG link
-		img_link = img_src.replace("pics/art_th/","https://mtgpics.com/pics/art/")
+		img_link = core.get_card_face(soup_img, back)
 
 		# Try to download from MTG Pics
 		request.urlretrieve(img_link, path)
@@ -109,7 +103,7 @@ class Normal (Card):
 		self.scry_path = os.path.join(cwd,
 			f"{cfg.scry}/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
 
-class Basic (Normal):
+class Land (Normal):
 	"""
 	Basic land card
 	"""
@@ -118,12 +112,12 @@ class Basic (Normal):
 
 		# Saved filepath
 		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Basic Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.mtgp}/Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
 		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Basic Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.scry}/Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
 
 		# Ensure save folder exists
-		super().make_folders("Basic Land")
+		super().make_folders("Land")
 
 class Saga (Normal):
 	"""
@@ -205,6 +199,38 @@ class Class (Normal):
 		# Ensure save folder exists
 		super().make_folders("Class")
 
+class Flip (Normal):
+	"""
+	Flip card
+	"""
+	def __init__ (self, c):
+		super().__init__(c)
+
+		# Saved filepath
+		self.mtgp_path = os.path.join(cwd,
+			f"{cfg.mtgp}/Flip/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+		self.scry_path = os.path.join(cwd,
+			f"{cfg.scry}/Flip/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+
+		# Ensure save folder exists
+		super().make_folders("Flip")
+
+class Split (Normal):
+	"""
+	Split card
+	"""
+	def __init__ (self, c):
+		super().__init__(c)
+
+		# Saved filepath
+		self.mtgp_path = os.path.join(cwd,
+			f"{cfg.mtgp}/Split/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+		self.scry_path = os.path.join(cwd,
+			f"{cfg.scry}/Split/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+
+		# Ensure save folder exists
+		super().make_folders("Split")
+
 class Planar (Normal):
 	"""
 	Planar card
@@ -265,7 +291,7 @@ class MDFC (Card):
 
 		# Download back
 		back = True
-		try: self.download_mtgp (self.name_back, self.mtgp_path_back, self.code, True)
+		try: self.download_mtgp (f"{self.name_back} (Back)", self.mtgp_path_back, self.code, True)
 		except:
 			if cfg.download_scryfall: super.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
 			else: back = False
@@ -310,7 +336,6 @@ def get_card_class(c):
 	"""
 	class_map = {
 		"normal": Normal,
-		"basic": Basic,
 	    "transform": Transform,
 	    "modal_dfc": MDFC,
 	    "adventure": Adventure,
@@ -318,12 +343,14 @@ def get_card_class(c):
 	    "saga": Saga,
 	    "planar": Planar,
 	    "meld": Meld,
-	    "class": Class
+	    "class": Class,
+	    "split": Split,
+	    "flip": Flip,
 	}
 
 	# Planeswalker?
 	if "Planeswalker" in c['type_line'] and "card_faces" not in c:
 		return Planeswalker
-	if c['name'] in cfg.basic_lands:
-		return Basic
+	if "Land" in c['type_line'] and "card_faces" not in c:
+		return Land
 	return class_map[c['layout']]
