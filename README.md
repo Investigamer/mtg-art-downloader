@@ -21,7 +21,7 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Python 3
 - pip install -r requirements.txt (python dependencies)
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o (optional)
-- "python find.py" to run
+- "python app.py" to run
 
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
@@ -35,7 +35,6 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Run the downloader, choose option 2. 
 
 # Config.ini
-- You can rename the download folders
 - You can choose whether to download all available arts or only one art
 - You can choose whether to ignore fullarts (supported only when download all is enabled)
 - You can choose whether to download scryfall arts as a fallback
