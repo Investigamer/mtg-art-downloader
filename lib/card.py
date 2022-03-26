@@ -1,7 +1,7 @@
 """
 CARD CLASSES
 """
-# pylint: disable=E0401, R0902, E1101
+# pylint: disable=E0401, R0902, E1101, W0201
 import os
 from pathlib import Path
 from urllib import request
@@ -50,6 +50,10 @@ class Card ():
 				except: self.code = self.set+self.num
 			else: self.code = self.set+self.num
 
+		# Make folders, setup path
+		if self.path != "": self.make_folders()
+		self.make_path()
+
 	def download (self, log_failed=True):
 		"""
 		Download just one version of this card.
@@ -84,170 +88,115 @@ class Card ():
 		print(f"{Fore.YELLOW}MTGP FAILED: {name} downloaded Scryfall")
 		request.urlretrieve(scrylink, path)
 
-	def make_folders(self, name):
+	def make_folders(self):
 		"""
 		Check that the folders exist
 		"""
-		Path(os.path.join(cfg.mtgp, name)).mkdir(mode=511, parents=True, exist_ok=True)
-		Path(os.path.join(cfg.scry, name)).mkdir(mode=511, parents=True, exist_ok=True)
+		if self.path != "":
+			Path(os.path.join(cfg.mtgp, self.path)).mkdir(mode=511, parents=True, exist_ok=True)
+			Path(os.path.join(cfg.scry, self.path)).mkdir(mode=511, parents=True, exist_ok=True)
+
+		# Setup backs folder if exists
+		if hasattr(self, 'path_back'):
+			Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(mode=511, parents=True, exist_ok=True)
+			Path(os.path.join(cfg.scry, self.path_back)).mkdir(mode=511, parents=True, exist_ok=True)
+
+	def make_path(self):
+		"""
+		Define save paths for this card
+		"""
+		self.mtgp_path = os.path.join(cwd,
+			f"{cfg.mtgp}/{self.path}{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+		self.scry_path = os.path.join(cwd,
+			f"{cfg.scry}/{self.path}{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+
+		# Setup back path if exists
+		if hasattr(self, 'path_back'):
+			self.mtgp_path_back = os.path.join(cwd,
+				f"{cfg.mtgp}/{self.path_back}{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
+			self.scry_path_back = os.path.join(cwd,
+				f"{cfg.scry}/{self.path_back}{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
 
 class Normal (Card):
 	"""
 	Normal frame card
 	"""
 	def __init__ (self, c):
+		self.path = ""
 		super().__init__(c)
 		self.scrylink = c['image_uris']['art_crop']
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
 
 class Land (Normal):
 	"""
 	Basic land card
 	"""
 	def __init__ (self, c):
+		self.path = "Land/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Land/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Land")
 
 class Saga (Normal):
 	"""
 	Saga card
 	"""
 	def __init__ (self, c):
+		self.path = "Saga/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Saga/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Saga/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Saga")
 
 class Adventure (Normal):
 	"""
 	Adventure card
 	"""
 	def __init__ (self, c):
+		self.path = "Adventure/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Adventure/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Adventure/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Adventure")
 
 class Leveler (Normal):
 	"""
 	Leveler card
 	"""
 	def __init__ (self, c):
+		self.path = "Leveler/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Leveler/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Leveler/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Leveler")
 
 class Planeswalker (Normal):
 	"""
 	Planeswalker card
 	"""
 	def __init__ (self, c):
+		self.path = "Planeswalker/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Planeswalker/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Planeswalker/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Planeswalker")
 
 class Class (Normal):
 	"""
 	Class card
 	"""
 	def __init__ (self, c):
+		self.path = "Class/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Class/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Class/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Class")
 
 class Flip (Normal):
 	"""
 	Flip card
 	"""
 	def __init__ (self, c):
+		self.path = "Flip/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Flip/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Flip/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Flip")
 
 class Split (Normal):
 	"""
 	Split card
 	"""
 	def __init__ (self, c):
+		self.path = "Split/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Split/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Split/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Split")
 
 class Planar (Normal):
 	"""
 	Planar card
 	"""
 	def __init__ (self, c):
+		self.path = "Planar/"
 		super().__init__(c)
-
-		# Saved filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/Planar/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/Planar/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folder exists
-		super().make_folders("Planar")
 
 # MULTIPLE IMAGE CARDS
 class MDFC (Card):
@@ -261,24 +210,11 @@ class MDFC (Card):
 		self.name_back = c['card_faces'][1]['name']
 		self.scrylink = c['card_faces'][0]['image_uris']['art_crop']
 		self.scrylink_back = c['card_faces'][1]['image_uris']['art_crop']
-
+		if hasattr(self, 'path'): pass
+		else:
+			self.path = "MDFC Front/"
+			self.path_back = "MDFC Back/"
 		super().__init__(c)
-
-		# Front filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/MDFC Front/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/MDFC Front/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Back filepath
-		self.mtgp_path_back = os.path.join(cwd,
-			f"{cfg.mtgp}/MDFC Back/{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path_back = os.path.join(cwd,
-			f"{cfg.scry}/MDFC Back/{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folders exist
-		super().make_folders("MDFC Front")
-		super().make_folders("MDFC Back")
 
 	def download (self, log_failed=True):
 		"""
@@ -312,23 +248,10 @@ class Transform (MDFC):
 	Transform card
 	"""
 	def __init__(self, c):
+		self.nopath = True
+		self.path = "TF Front/"
+		self.path_back = "TF Back/"
 		super().__init__(c)
-
-		# Front filepath
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/TF Front/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/TF Front/{self.name} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Back filepath
-		self.mtgp_path_back = os.path.join(cwd,
-			f"{cfg.mtgp}/TF Back/{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
-		self.scry_path_back = os.path.join(cwd,
-			f"{cfg.scry}/TF Back/{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
-
-		# Ensure save folders exist
-		super().make_folders("TF Front")
-		super().make_folders("TF Back")
 
 class Meld (Card):
 	"""
