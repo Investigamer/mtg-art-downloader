@@ -42,7 +42,7 @@ def txt_downloader():
 			else:
 				try:
 					# Retrieve scryfall data
-					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\" is:hires&unique="+cfg.unique+"&order=released").json()
+					r = req.get(f"https://api.scryfall.com/cards/search?q=!\"{parse.quote(card)}\"&unique="+cfg.unique+"&order=released").json()
 
 					# Remove full art entries?
 					prepared = []

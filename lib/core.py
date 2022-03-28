@@ -190,4 +190,7 @@ def fix_mtgp_set (set_code):
 	if set_code == "me3": return "3me"
 	if set_code == "me2": return "2me"
 	if set_code == "me1": return "1me"
+	if set_code == "cma": return "can"
+	if set_code == "ulg": return "url"
+	if set_code == "ddo": return "evk"
 	return set_code
