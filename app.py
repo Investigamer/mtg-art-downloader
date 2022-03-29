@@ -1,5 +1,5 @@
 ﻿"""
-MODULES
+APP TO EXECUTE THE SEARCH
 """
 # pylint: disable=R0912, R1702
 import os

@@ -122,7 +122,9 @@ class Normal (Card):
 	Normal frame card
 	"""
 	def __init__ (self, c):
-		self.path = ""
+		# Create empty path if no path is set
+		if hasattr(self, 'path'): pass
+		else: self.path = ""
 		super().__init__(c)
 		self.scrylink = c['image_uris']['art_crop']
 
@@ -276,9 +278,11 @@ def get_card_class(c):
 	    "flip": Flip,
 	}
 
-	# Planeswalker?
+	# Planeswalker, saga, or land? (non mdfc)
 	if "Planeswalker" in c['type_line'] and "card_faces" not in c:
 		return Planeswalker
+	if "Saga" in c['type_line'] and "card_faces" not in c:
+		return Saga
 	if "Land" in c['type_line'] and "card_faces" not in c:
 		return Land
 	return class_map[c['layout']]

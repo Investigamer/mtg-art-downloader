@@ -1,5 +1,5 @@
 """
-MODULES
+ESTABLISH USER SETTINGS
 """
 import os
 import configparser
