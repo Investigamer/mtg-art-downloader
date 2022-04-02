@@ -1,7 +1,7 @@
 ﻿"""
 APP TO EXECUTE THE SEARCH
 """
-# pylint: disable=R0912, R1702
+# pylint: disable=R0912, R1702, R0915
 import os
 import sys
 from urllib import parse
@@ -74,7 +74,13 @@ def txt_downloader():
 						card_class = dl.get_card_class(c)
 						result = card_class(c).download()
 
-				except: print(f"{card} not found!")
+				except:
+					# Try named lookup
+					try:
+						c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}").json()
+						card_class = dl.get_card_class(c)
+						card_class(c).download()
+					except: print(f"{card} not found!")
 
 def sheet_downloader():
 	"""

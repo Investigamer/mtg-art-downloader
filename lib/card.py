@@ -1,7 +1,7 @@
 """
 CARD CLASSES
 """
-# pylint: disable=E0401, R0902, E1101, W0201
+# pylint: disable=E0401, R0902, E1101, W0201, R0912
 import os
 from pathlib import Path
 from urllib import request
@@ -36,9 +36,27 @@ class Card ():
 
 		# Alternate version or promo card
 		self.alt = bool(c['border_color'] == "borderless" or self.num[-1] == "s")
-		self.promo = bool(c['set_type'] == "promo")
+		self.promo = self.check_for_promo(c['set_type'])
 
-		# Get the correct mtgp URL code
+		# Get the MTGP code
+		self.get_mtgp_code()
+
+		# Make folders, setup path
+		if self.path != "": self.make_folders()
+		self.make_path()
+
+	def check_for_promo(self, set_type):
+		"""
+		Check if this is a promo card
+		"""
+		set_types = ['funny','promo']
+		if set_type in set_types: return True
+		return False
+
+	def get_mtgp_code(self):
+		"""
+		Get the correct mtgp URL code
+		"""
 		try:
 			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, self.name, True)
 			else: self.code = core.get_mtgp_code(self.mtgp_set, self.name)
@@ -50,14 +68,16 @@ class Card ():
 				except: self.code = self.set+self.num
 			else: self.code = self.set+self.num
 
-		# Make folders, setup path
-		if self.path != "": self.make_folders()
-		self.make_path()
-
 	def download (self, log_failed=True):
 		"""
 		Download just one version of this card.
 		"""
+		# Download only scryfall?
+		if cfg.only_scryfall:
+			self.download_scryfall (self.name, self.scry_path, self.scrylink)
+			return True
+
+		# Try downloading MTGP
 		try: self.download_mtgp (self.name, self.mtgp_path, self.code)
 		except:
 			if cfg.download_scryfall: self.download_scryfall (self.name, self.scry_path, self.scrylink)
@@ -79,13 +99,13 @@ class Card ():
 
 		# Try to download from MTG Pics
 		request.urlretrieve(img_link, path)
-		print(f"{Fore.GREEN}SUCCESS: {Style.RESET_ALL}" + name)
+		print(f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name}")
 
 	def download_scryfall (self, name, path, scrylink):
 		"""
 		Download scryfall art crop
 		"""
-		print(f"{Fore.YELLOW}MTGP FAILED: {name} downloaded Scryfall")
+		print(f"{Fore.YELLOW}SCRYFALL: {name}{Style.RESET_ALL}")
 		request.urlretrieve(scrylink, path)
 
 	def make_folders(self):
@@ -182,15 +202,29 @@ class Flip (Normal):
 	"""
 	def __init__ (self, c):
 		self.path = "Flip/"
+		self.savename = c['card_faces'][0]['name']
 		super().__init__(c)
 
-class Split (Normal):
-	"""
-	Split card
-	"""
-	def __init__ (self, c):
-		self.path = "Split/"
-		super().__init__(c)
+	def get_mtgp_code(self):
+		# Override this method because flip names are different
+		name = self.name.replace("//","/")
+		try:
+			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
+			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
+		except:
+			if self.promo:
+				try:
+					if self.alt: self.code = core.get_mtgp_code("pmo", name, True)
+					else: self.code = core.get_mtgp_code("pmo", name)
+				except: self.code = self.set+self.num
+			else: self.code = self.set+self.num
+
+	def make_path(self):
+		# Override this method because // isn't valid in filenames
+		self.mtgp_path = os.path.join(cwd,
+			f"{cfg.mtgp}/{self.path}{self.savename} ({self.artist}) [{self.set.upper()}].jpg")
+		self.scry_path = os.path.join(cwd,
+			f"{cfg.scry}/{self.path}{self.savename} ({self.artist}) [{self.set.upper()}].jpg")
 
 class Planar (Normal):
 	"""
@@ -210,10 +244,10 @@ class MDFC (Card):
 		# Face variables
 		self.name = c['card_faces'][0]['name']
 		self.name_back = c['card_faces'][1]['name']
-		self.scrylink = c['card_faces'][0]['image_uris']['art_crop']
-		self.scrylink_back = c['card_faces'][1]['image_uris']['art_crop']
-		if hasattr(self, 'path'): pass
-		else:
+		if not hasattr(self, 'scrylink'):
+			self.scrylink = c['card_faces'][0]['image_uris']['art_crop']
+			self.scrylink_back = c['card_faces'][1]['image_uris']['art_crop']
+		if not hasattr(self, 'path'):
 			self.path = "MDFC Front/"
 			self.path_back = "MDFC Back/"
 		super().__init__(c)
@@ -222,18 +256,40 @@ class MDFC (Card):
 		"""
 		Download each card
 		"""
-		# Download Front
+		# Default success value, change on failure
 		front = True
+		back = True
+
+		# Download only scryfall?
+		if cfg.only_scryfall:
+			try: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+			except: front = False
+			try: self.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
+			except: back = True
+
+			# Log any failures
+			if log_failed:
+				if not front and not back:
+					core.log(self.name, self.set)
+					return False
+				if not front: core.log(self.name, self.set, "failed_front")
+				elif not back: core.log(self.name_back, self.set, "failed_back")
+			return True
+
+		# Download Front
 		try: self.download_mtgp (self.name, self.mtgp_path, self.code)
 		except:
-			if cfg.download_scryfall: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+			if cfg.download_scryfall:
+				try: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+				except: front = False
 			else: front = False
 
 		# Download back
-		back = True
 		try: self.download_mtgp (f"{self.name_back} (Back)", self.mtgp_path_back, self.code, True)
 		except:
-			if cfg.download_scryfall: super.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
+			if cfg.download_scryfall:
+				try: self.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
+				except: back = False
 			else: back = False
 
 		# Log any failures
@@ -254,6 +310,32 @@ class Transform (MDFC):
 		self.path = "TF Front/"
 		self.path_back = "TF Back/"
 		super().__init__(c)
+
+class Split (MDFC):
+	"""
+	Split card
+	"""
+	def __init__ (self, c):
+		self.fullname = c['name']
+		self.nopath = True
+		self.path = "Split/"
+		self.path_back = "Split/"
+		self.scrylink = c['image_uris']['art_crop']
+		super().__init__(c)
+
+	def get_mtgp_code(self):
+		# Override this method because split names are different
+		name = self.fullname.replace("//","/")
+		try:
+			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
+			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
+		except:
+			if self.promo:
+				try:
+					if self.alt: self.code = core.get_mtgp_code("pmo", name, True)
+					else: self.code = core.get_mtgp_code("pmo", name)
+				except: self.code = self.set+self.num
+			else: self.code = self.set+self.num
 
 class Meld (Card):
 	"""

@@ -36,3 +36,6 @@ else: unique = "prints"
 
 # Download scryfall if mtgpics missing?
 download_scryfall = config['SETTINGS'].getboolean('If.Missing.Download.Scryfall')
+
+# ONLY download scryfall?
+only_scryfall = config['SETTINGS'].getboolean('Only.Download.Scryfall')
