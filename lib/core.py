@@ -1,7 +1,6 @@
 """
 CORE FUNCTIONS
 """
-# pylint: disable=E0401, R0911, R0912
 import os
 import re
 import sys
@@ -119,7 +118,6 @@ def fix_mtgp_set (set_code):
 	"""
 	Replace the real set code with MTGP's weird code
 	"""
-	# pylint: disable=R0911, R0912, R0915
 	if set_code == "arb": return "alr"
 	if set_code == "mp2": return "aki"
 	if set_code == "atq": return "ant"

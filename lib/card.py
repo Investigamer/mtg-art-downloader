@@ -1,7 +1,6 @@
 """
 CARD CLASSES
 """
-# pylint: disable=E0401, R0902, E1101, W0201, R0912
 import os
 from pathlib import Path
 from urllib import request
@@ -19,6 +18,8 @@ class Card ():
 	"""
 
 	def __init__ (self, c):
+		# Defined for later use
+		self.code = None
 
 		# Inherited card info
 		self.set = c['set']
@@ -27,8 +28,8 @@ class Card ():
 		self.mtgp_set = core.fix_mtgp_set(self.set)
 
 		# Name if not defined
-		try: self.name
-		except: self.name = c['name']
+		if not hasattr(self, 'name'):
+			self.name = c['name']
 
 		# Make sure card num is 3 digits
 		if len(self.num) == 1: self.num = f"00{self.num}"
@@ -42,14 +43,14 @@ class Card ():
 		self.get_mtgp_code()
 
 		# Make folders, setup path
-		if self.path != "": self.make_folders()
+		if hasattr(self, 'path'): self.make_folders()
 		self.make_path()
 
 	def check_for_promo(self, set_type):
 		"""
 		Check if this is a promo card
 		"""
-		set_types = ['funny','promo']
+		set_types = ['funny', 'promo']
 		if set_type in set_types: return True
 		return False
 
@@ -60,12 +61,12 @@ class Card ():
 		try:
 			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, self.name, True)
 			else: self.code = core.get_mtgp_code(self.mtgp_set, self.name)
-		except:
+		except Exception:
 			if self.promo:
 				try:
 					if self.alt: self.code = core.get_mtgp_code("pmo", self.name, True)
 					else: self.code = core.get_mtgp_code("pmo", self.name)
-				except: self.code = self.set+self.num
+				except Exception: self.code = self.set+self.num
 			else: self.code = self.set+self.num
 
 	def download (self, log_failed=True):
