@@ -1,7 +1,6 @@
 ﻿"""
 APP TO EXECUTE THE SEARCH
 """
-# pylint: disable=R0912, R1702, R0915
 import os
 import sys
 import time
@@ -75,35 +74,33 @@ class Download:
 				"&order=released"
 			).json()
 
-			# Remove full art entries?
+			# Remove full art entries
+			# Add our numbered sets
 			prepared = []
-			sld = []
+			special = {}
+			for kind in cfg.special_sets:
+				special[kind] = []
 			for t in r['data']:
 				# No fullart to exclude?
 				if not cfg.exclude_fullart or t['full_art'] is False:
-					# No secret lair to exclude
-					if t['set'] != "sld":
-						prepared.append(t)
-					else:
-						sld.append(t)
+					# No numbered set to separate?
+					t['accounted'] = False
+					for kind in special:
+						if t['set'] in cfg.special_sets[kind]:
+							special[kind].append(t)
+							t['accounted'] = True
+					if not t['accounted']: prepared.append(t)
 
 			# Loop through prints of this card
-			done = False
-			sl_num = 1
-			repeat = False
 			for c in prepared:
 				card_class = dl.get_card_class(c)
 				result = card_class(c).download()
+				# If we're not downloading all, break
 				if not cfg.download_all and result:
-					done = True
-					break
-			for c in sorted(sld, key=lambda i: i['collector_number']):
-				if done or cfg.exclude_secret_lair: break
-				if repeat: c['name'] = c['name'] + " " + str(sl_num)
-				sl_num += 1
-				repeat = True
-				card_class = dl.get_card_class(c)
-				card_class(c).download()
+					return None
+
+			# Loop through numbered sets
+			self.download_special(special)
 
 		except Exception:
 			# Try named lookup
@@ -156,6 +153,51 @@ class Download:
 			else: print("Error! Illegitimate set. Try again!")
 
 	@staticmethod
+	def download_special(special):
+		"""
+		Download cards from sets with special requirements
+		:param special: {Set code : [list of cards]}
+		"""
+		for s, cards in special.items():
+			# Promo sets with numbered items
+			if s in ('secret lair', "mystical archive"):
+				num = 1
+				if len(cards) == 1:
+					# One card
+					for c in cards:
+						c['list_order'] = 0
+						card_class = dl.get_card_class(c)
+						result = card_class(c).download()
+						if not cfg.download_all and result:
+							return None
+				else:
+					# A list of cards
+					for c in sorted(cards, key=lambda i: i['collector_number']):
+						c['list_order'] = 0
+						c['name'] = f"{c['name']} {str(num)}"
+						card_class = dl.get_card_class(c)
+						result = card_class(c).download()
+						if not cfg.download_all and result:
+							return None
+						num += 1
+			# Judge promos
+			if s == 'judge promo':
+				for i, c in enumerate(cards):
+					c['list_order'] = i
+					card_class = dl.get_card_class(c)
+					result = card_class(c).download()
+					if not cfg.download_all and result:
+						return None
+			if s == "misc promo":
+				for i, c in enumerate(cards):
+					c['list_order'] = i
+					card_class = dl.get_card_class(c)
+					result = card_class(c).download()
+					if not cfg.download_all and result:
+						return None
+
+
+	@staticmethod
 	def complete(elapsed):
 		"""
 		Tell the user the download process is complete.
@@ -183,7 +225,7 @@ if __name__ == "__main__":
 	print(" ██╔══██║██╔══██╗   ██║       ██║╚██╗██║██║   ██║██║███╗██║ ")
 	print(" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
 	print(" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ")
-	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi")
+	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v1.1.4")
 	print("Additional thanks to Trix are for Scoot + Gikkman")
 	print(f"http://mpcfill.com --- Support great MTG Proxies!{Style.RESET_ALL}\n")
 

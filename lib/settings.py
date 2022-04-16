@@ -3,6 +3,7 @@ ESTABLISH USER SETTINGS
 """
 import os
 import configparser
+import json
 cwd = os.getcwd()
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -12,7 +13,10 @@ config.read("config.ini")
 CONSTANTS
 """
 basic_lands = ["Plains", "Island", "Swamp", "Mountain", "Forest"]
-
+with open(os.path.join(cwd, "lib/special.json")) as js:
+    special_sets = json.load(js)
+with open(os.path.join(cwd, "lib/codes.json")) as js:
+    replace_sets = json.load(js)
 
 """
 FILES AND FOLDERS
@@ -47,14 +51,11 @@ except ValueError: only_scryfall = False
 SEARCH SETTINGS
 """
 # Exclude full arts?
-try: exclude_fullart = config['SETTINGS'].getboolean('Exclude.Fullart')
+try: exclude_fullart = config['SEARCH'].getboolean('Exclude.Fullart')
 except ValueError: exclude_fullart = False
-# Exclude secret lair
-try: exclude_secret_lair = config['SETTINGS'].getboolean('Exclude.Secret.Lair')
-except ValueError: exclude_secret_lair = False
 # Download unique or ALL?
 try:
-    if config['SETTINGS'].getboolean('Only.Search.Unique.Art'): unique = "art"
+    if config['SEARCH'].getboolean('Only.Search.Unique.Art'): unique = "art"
     else: unique = "prints"
 except ValueError: unique = "art"
 # Include extras in search

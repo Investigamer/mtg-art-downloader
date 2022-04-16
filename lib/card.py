@@ -25,7 +25,11 @@ class Card ():
 		self.set = c['set']
 		self.artist = c['artist']
 		self.num = c['collector_number']
-		self.mtgp_set = core.fix_mtgp_set(self.set)
+
+		# Fix mtgp setcode
+		if self.set in cfg.replace_sets:
+			self.mtgp_set = cfg.replace_sets[self.set]
+		else: self.mtgp_set = self.set
 
 		# Name if not defined
 		if not hasattr(self, 'name'):
@@ -36,7 +40,7 @@ class Card ():
 		elif len(self.num) == 2: self.num = f"0{self.num}"
 
 		# Alternate version or promo card
-		self.alt = bool(c['border_color'] == "borderless" or self.num[-1] == "s")
+		self.alt = self.check_for_alternate(c)
 		self.promo = self.check_for_promo(c['set_type'])
 
 		# Get the MTGP code
@@ -45,6 +49,20 @@ class Card ():
 		# Make folders, setup path
 		if hasattr(self, 'path'): self.make_folders()
 		self.make_path()
+
+	def check_for_alternate(self, c):
+		"""
+		Checks if this is an alternate art card
+		:param c: Card info
+		:return: bool
+		"""
+		if 'list_order' in c: return c['list_order']
+		if (c['border_color'] == "borderless"
+			and c['set'] not in cfg.special_sets
+		):
+			return True
+		if self.num[-1] == "s": return True
+		return False
 
 	def check_for_promo(self, set_type):
 		"""
@@ -58,14 +76,10 @@ class Card ():
 		"""
 		Get the correct mtgp URL code
 		"""
-		try:
-			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, self.name, True)
-			else: self.code = core.get_mtgp_code(self.mtgp_set, self.name)
+		try: self.code = core.get_mtgp_code(self.mtgp_set, self.name, self.alt)
 		except Exception:
 			if self.promo:
-				try:
-					if self.alt: self.code = core.get_mtgp_code("pmo", self.name, True)
-					else: self.code = core.get_mtgp_code("pmo", self.name)
+				try: self.code = core.get_mtgp_code("pmo", self.name, self.alt)
 				except Exception: self.code = self.set+self.num
 			else: self.code = self.set+self.num
 
@@ -100,7 +114,7 @@ class Card ():
 
 		# Try to download from MTG Pics
 		request.urlretrieve(img_link, path)
-		print(f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name}")
+		print(f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]")
 
 	def download_scryfall (self, name, path, scrylink):
 		"""
@@ -349,16 +363,16 @@ def get_card_class(c):
 	"""
 	class_map = {
 		"normal": Normal,
-	    "transform": Transform,
-	    "modal_dfc": MDFC,
-	    "adventure": Adventure,
-	    "leveler": Leveler,
-	    "saga": Saga,
-	    "planar": Planar,
-	    "meld": Meld,
-	    "class": Class,
-	    "split": Split,
-	    "flip": Flip,
+		"transform": Transform,
+		"modal_dfc": MDFC,
+		"adventure": Adventure,
+		"leveler": Leveler,
+		"saga": Saga,
+		"planar": Planar,
+		"meld": Meld,
+		"class": Class,
+		"split": Split,
+		"flip": Flip,
 	}
 
 	# Planeswalker, saga, or land? (non mdfc)
