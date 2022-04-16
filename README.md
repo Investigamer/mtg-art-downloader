@@ -34,6 +34,12 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Run the downloader
 
 # Config.ini
-- You can choose whether to download all available arts or only one art
+- You can choose the download folder and cards.txt naming conventions.
+- You can choose whether to download all available arts or only one art.
+- You can choose whether to only download unique art or all art even when duplicats are present.
 - You can choose whether to ignore fullarts (supported only when download all is enabled)
 - You can choose whether to download scryfall arts as a fallback
+- You can choose whether to download ONLY scryfall arts.
+- You can choose whether to include extras in the search, this includes un-sets and special championship cards.
+- You can increase or decrease threads added per second depending on the speed of your internet.
+- 
