@@ -42,4 +42,3 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - You can choose whether to download ONLY scryfall arts.
 - You can choose whether to include extras in the search, this includes un-sets and special championship cards.
 - You can increase or decrease threads added per second depending on the speed of your internet.
-- 
