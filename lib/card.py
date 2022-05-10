@@ -140,17 +140,33 @@ class Card ():
 		"""
 		Define save paths for this card
 		"""
+		# Front image path
+		front_name = self.naming_convention(self.name, self.artist, self.set.upper())
 		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/{self.path}{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.mtgp}/{self.path}{front_name}.jpg")
 		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/{self.path}{self.name} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.scry}/{self.path}{front_name}.jpg")
 
 		# Setup back path if exists
 		if hasattr(self, 'path_back'):
+			back_name = self.naming_convention(self.name_back, self.artist, self.set.upper())
 			self.mtgp_path_back = os.path.join(cwd,
-				f"{cfg.mtgp}/{self.path_back}{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
+				f"{cfg.mtgp}/{self.path_back}{back_name}.jpg")
 			self.scry_path_back = os.path.join(cwd,
-				f"{cfg.scry}/{self.path_back}{self.name_back} ({self.artist}) [{self.set.upper()}].jpg")
+				f"{cfg.scry}/{self.path_back}{back_name}.jpg")
+
+	@staticmethod
+	def naming_convention(name, artist, setcode):
+		"""
+		Generates filename using config naming convention.
+		:param name: Name of card
+		:param artist: Card artist
+		:param setcode: Set card was printed in
+		:return: Correct filename
+		"""
+		result = cfg.naming.replace("NAME", name)
+		result = result.replace("ARTIST", artist).replace("SET", setcode)
+		return result
 
 class Normal (Card):
 	"""
@@ -236,10 +252,11 @@ class Flip (Normal):
 
 	def make_path(self):
 		# Override this method because // isn't valid in filenames
+		front_name = self.naming_convention(self.savename, self.artist, self.set.upper())
 		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/{self.path}{self.savename} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.mtgp}/{self.path}{front_name}.jpg")
 		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/{self.path}{self.savename} ({self.artist}) [{self.set.upper()}].jpg")
+			f"{cfg.scry}/{self.path}{front_name}.jpg")
 
 class Planar (Normal):
 	"""

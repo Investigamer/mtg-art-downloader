@@ -1,1 +1,266 @@
-Counterspell
+A Little Chat (SNC)
+All-Seeing Arbiter (SNC)
+Angelic Observer (SNC)
+snc--Angel of Suffering
+snc--An Offer You Can't Refuse
+snc--Antagonize
+snc--Arcane Bombardment
+snc--Arc Spitter
+snc--Attended Socialite
+snc--Aven Heartstabber
+snc--Backstreet Bruiser
+snc--Backup Agent
+snc--Ballroom Brawlers
+snc--Big Score
+snc--Black Market Tycoon
+snc--Body Dropper
+snc--Body Launderer
+snc--Boon of Safety
+snc--Bootleggers' Stash
+snc--Botanical Plaza
+snc--Bouncer's Beatdown
+snc--Brass Knuckles
+snc--Brazen Upstart
+snc--Broken Wings
+snc--Brokers Ascendancy
+snc--Brokers Charm
+snc--Brokers Hideout
+snc--Brokers Initiate
+snc--Brokers Veteran
+snc--Buy Your Silence
+snc--Cabaretti Ascendancy
+snc--Cabaretti Charm
+snc--Cabaretti Courtyard
+snc--Cabaretti Initiate
+snc--Caldaia Strongarm
+snc--Call In a Professional
+snc--Capenna Express
+snc--Case the Joint
+snc--Celebrity Fencer
+snc--Celestial Regulator
+snc--Cement Shoes
+snc--Cemetery Tampering
+snc--Ceremonial Groundbreaker
+snc--Chrome Cat
+snc--Citizen's Crowbar
+snc--Civic Gardener
+snc--Civil Servant
+snc--Cleanup Crew
+snc--Cormela, Glamour Thief
+snc--Corpse Appraiser
+snc--Corpse Explosion
+snc--Corrupt Court Official
+snc--Courier's Briefcase
+snc--Crew Captain
+snc--Crooked Custodian
+snc--Cut of the Profits
+snc--Cutthroat Contender
+snc--Cut Your Losses
+snc--Dapper Shieldmate
+snc--Daring Escape
+snc--Darling of the Masses
+snc--Deal Gone Bad
+snc--Demon's Due
+snc--Depopulate
+snc--Devilish Valet
+snc--Dig Up the Body
+snc--Disciplined Duelist
+snc--Disdainful Stroke
+snc--Dusk Mangler
+snc--Echo Inspector
+snc--Elegant Entourage
+snc--Elspeth Resplendent
+snc--Endless Detour
+snc--Errant, Street Artist
+snc--Evelyn, the Covetous
+snc--Even the Score
+snc--Evolving Door
+snc--Exhibition Magician
+snc--Exotic Pets
+snc--Expendable Lackey
+snc--Extraction Specialist
+snc--Extract the Truth
+snc--Faerie Vandal
+snc--Fake Your Own Death
+snc--Falco Spara, Pactweaver
+snc--Fatal Grudge
+snc--Fight Rigging
+snc--Fleetfoot Dancer
+snc--Forest
+snc--Forge Boss
+snc--For the Family
+snc--Freelance Muscle
+snc--Gala Greeters
+snc--Gathering Throng
+snc--Getaway Car
+snc--Giada, Font of Hope
+snc--Gilded Pinions
+snc--Girder Goons
+snc--Glamorous Outlaw
+snc--Glittering Stockpile
+snc--Glittermonger
+snc--Goldhound
+snc--Graveyard Shift
+snc--Grisly Sigil
+snc--Halo Fountain
+snc--Halo Scarab
+snc--High-Rise Sawjack
+snc--Hoard Hauler
+snc--Hold for Ransom
+snc--Hostile Takeover
+snc--Hypnotic Grifter
+snc--Illicit Shipment
+snc--Illuminator Virtuoso
+snc--Incandescent Aria
+snc--Incriminate
+snc--Inspiring Overseer
+snc--Involuntary Employment
+snc--Island
+snc--Jackhammer
+snc--Jaxis, the Troublemaker
+snc--Jetmir, Nexus of Revels
+snc--Jetmir's Fixer
+snc--Jetmir's Garden
+snc--Jewel Thief
+snc--Jinnie Fay, Jetmir's Second
+snc--Join the Maestros
+snc--Kill Shot
+snc--Knockout Blow
+snc--Lagrella, the Magpie
+snc--Ledger Shredder
+snc--Light 'Em Up
+snc--Lord Xander, the Collector
+snc--Luxior, Giada's Gift
+snc--Luxurious Libation
+snc--Maestros Ascendancy
+snc--Maestros Charm
+snc--Maestros Diabolist
+snc--Maestros Initiate
+snc--Maestros Theater
+snc--Mage's Attendant
+snc--Majestic Metamorphosis
+snc--Make Disappear
+snc--Masked Bandits
+snc--Mayhem Patrol
+snc--Meeting of the Five
+snc--Metropolis Angel
+snc--Midnight Assassin
+snc--Most Wanted
+snc--Mountain
+snc--Mr. Orfeo, the Boulder
+snc--Murder
+snc--Mysterious Limousine
+snc--Night Clubber
+snc--Nimble Larcenist
+snc--Ob Nixilis, the Adversary
+snc--Obscura Ascendancy
+snc--Obscura Charm
+snc--Obscura Initiate
+snc--Obscura Interceptor
+snc--Obscura Storefront
+snc--Ognis, the Dragon's Lash
+snc--Ominous Parcel
+snc--Out of the Way
+snc--Paragon of Modernity
+snc--Park Heights Pegasus
+snc--Patch Up
+snc--Plains
+snc--Plasma Jockey
+snc--Prizefight
+snc--Professional Face-Breaker
+snc--Psionic Snoop
+snc--Psychic Pickpocket
+snc--Public Enemy
+snc--Pugnacious Pugilist
+snc--Pyre-Sledge Arsonist
+snc--Queza, Augur of Agonies
+snc--Quick-Draw Dagger
+snc--Rabble Rousing
+snc--Racers' Ring
+snc--Raffine, Scheming Seer
+snc--Raffine's Guidance
+snc--Raffine's Informant
+snc--Raffine's Silencer
+snc--Raffine's Tower
+snc--Rakish Revelers
+snc--Ready to Rumble
+snc--Refuse to Yield
+snc--Reservoir Kraken
+snc--Revelation of Power
+snc--Revel Ruiner
+snc--Rhox Pummeler
+snc--Rigo, Streetwise Mentor
+snc--Riveteers Ascendancy
+snc--Riveteers Charm
+snc--Riveteers Decoy
+snc--Riveteers Initiate
+snc--Riveteers Overlook
+snc--Riveteers Requisitioner
+snc--Rob the Archives
+snc--Rocco, Cabaretti Caterer
+snc--Rogues' Gallery
+snc--Rooftop Nuisance
+snc--Rumor Gatherer
+snc--Run Out of Town
+snc--Sanctuary Warden
+snc--Sanguine Spy
+snc--Scheming Fence
+snc--Scuttling Butler
+snc--Security Bypass
+snc--Security Rhox
+snc--Sewer Crocodile
+snc--Shadow of Mortality
+snc--Shakedown Heavy
+snc--Shattered Seraph
+snc--Sizzling Soloist
+snc--Skybridge Towers
+snc--Sky Crier
+snc--Sleep with the Fishes
+snc--Slip Out the Back
+snc--Snooping Newsie
+snc--Social Climber
+snc--Soul of Emancipation
+snc--Spara's Adjudicators
+snc--Spara's Headquarters
+snc--Speakeasy Server
+snc--Sticky Fingers
+snc--Stimulus Package
+snc--Strangle
+snc--Structural Assault
+snc--Suspicious Bookcase
+snc--Swamp
+snc--Swooping Protector
+snc--Syndicate Infiltrator
+snc--Tainted Indulgence
+snc--Take to the Streets
+snc--Tavern Swindler
+snc--Tenacious Underdog
+snc--Titan of Industry
+snc--Toluz, Clever Conductor
+snc--Topiary Stomper
+snc--Torch Breath
+snc--Tramway Station
+snc--Undercover Operative
+snc--Unleash the Inferno
+snc--Unlicensed Hearse
+snc--Unlucky Witness
+snc--Urabrask, Heretic Praetor
+snc--Vampire Scrivener
+snc--Venom Connoisseur
+snc--Vivien on the Hunt
+snc--Voice of the Vermin
+snc--Void Rend
+snc--Warm Welcome
+snc--Waterfront District
+snc--Whack
+snc--Widespread Thieving
+snc--Wingshield Agent
+snc--Wiretapping
+snc--Witness Protection
+snc--Witty Roastmaster
+snc--Workshop Warchief
+snc--Wrecking Crew
+snc--Xander's Lounge
+snc--Ziatora's Envoy
+snc--Ziatora's Proving Ground
+snc--Ziatora, the Incinerator

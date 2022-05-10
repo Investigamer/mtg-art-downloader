@@ -2,6 +2,7 @@
 APP TO EXECUTE THE SEARCH
 """
 import os
+import re
 import sys
 import time
 import threading
@@ -28,7 +29,8 @@ class Download:
 		with open(self.list, 'r', encoding="utf-8") as cards:
 			# For each card create new thread
 			for i, card in enumerate(cards):
-				if "--" in card:
+				# Detailed card including set?
+				if "--" or " (" in card:
 					self.thr.append(threading.Thread(
 						target=self.download_detailed,
 						args=(card,))
@@ -118,15 +120,24 @@ class Download:
 		:param item: Card name -- set code
 		"""
 		# Setup card detailed
-		card = item.split("--")
-		set_code = card[0]
-		name = card[1]
+		if " (" in item:
+			reg = r"(.*) \((.*)\)"
+			card = re.match(reg, item)
+			name = card[1]
+			set_code = card[2]
+		else:
+			card = item.split("--")
+			set_code = card[0]
+			name = card[1]
 
 		# Try to find the card
 		try:
 			# Lookup card
 			c = req.get(
-				f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(name)}&set={parse.quote(set_code)}").json()
+				f"https://api.scryfall.com/cards/named?"
+				f"fuzzy={parse.quote(name)}"
+				f"&set={parse.quote(set_code.lower())}"
+			).json()
 			card_class = dl.get_card_class(c)
 			card_class(c).download()
 		except Exception:

@@ -29,6 +29,8 @@ folder = os.path.join(cwd, config['FILES']['Download.Folder'])
 scry = os.path.join(cwd, folder+"/"+config['FILES']['Scryfall.Art.Folder'])
 # MTG Pics sub folder
 mtgp = os.path.join(cwd, folder+"/"+config['FILES']['MTGPics.Art.Folder'])
+# Output naming convention
+naming = config['FILES']['Naming.Convention']
 
 
 """
