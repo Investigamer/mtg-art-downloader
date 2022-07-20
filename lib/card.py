@@ -11,13 +11,16 @@ from lib import settings as cfg
 from lib import core
 cwd = os.getcwd()
 
+
 # SINGLE IMAGE CARDS
-class Card ():
+class Card:
 	"""
 	Base class to extend all cards to.
 	"""
+	path = ""
+	path_back = None
 
-	def __init__ (self, c):
+	def __init__(self, c):
 		# Defined for later use
 		self.code = None
 
@@ -25,6 +28,10 @@ class Card ():
 		self.set = c['set']
 		self.artist = c['artist']
 		self.num = c['collector_number']
+
+		# Scrylink
+		if not hasattr(self, 'scrylink'):
+			self.scrylink = c['image_uris']['art_crop']
 
 		# Fix mtgp setcode
 		if self.set in cfg.replace_sets:
@@ -47,7 +54,7 @@ class Card ():
 		self.get_mtgp_code()
 
 		# Make folders, setup path
-		if hasattr(self, 'path'): self.make_folders()
+		if self.path: self.make_folders()
 		self.make_path()
 
 	def check_for_alternate(self, c):
@@ -64,14 +71,6 @@ class Card ():
 		if self.num[-1] == "s": return True
 		return False
 
-	def check_for_promo(self, set_type):
-		"""
-		Check if this is a promo card
-		"""
-		set_types = ['funny', 'promo']
-		if set_type in set_types: return True
-		return False
-
 	def get_mtgp_code(self):
 		"""
 		Get the correct mtgp URL code
@@ -83,24 +82,26 @@ class Card ():
 				except Exception: self.code = self.set+self.num
 			else: self.code = self.set+self.num
 
-	def download (self, log_failed=True):
+	def download(self, log_failed=True):
 		"""
 		Download just one version of this card.
 		"""
 		# Download only scryfall?
 		if cfg.only_scryfall:
-			self.download_scryfall (self.name, self.scry_path, self.scrylink)
-			return True
+			try:
+				self.download_scryfall(self.name, self.filename, self.scrylink)
+				return True
+			except: return False
 
 		# Try downloading MTGP
-		try: self.download_mtgp (self.name, self.mtgp_path, self.code)
+		try: self.download_mtgp(self.name, self.filename, self.code)
 		except:
-			if cfg.download_scryfall: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+			if cfg.download_scryfall: self.download_scryfall(self.name, self.filename, self.scrylink)
 			elif log_failed: core.log(self.name, self.set)
 			return False
 		return True
 
-	def download_mtgp (self, name, path, mtgp_code, back=False):
+	def download_mtgp(self, name, path, mtgp_code, back=False):
 		"""
 		Download from MTG Pics
 		"""
@@ -113,28 +114,31 @@ class Card ():
 		img_link = core.get_card_face(soup_img, back)
 
 		# Try to download from MTG Pics
-		request.urlretrieve(img_link, path)
+		request.urlretrieve(img_link, f"{cfg.mtgp}/{path}.jpg")
 		print(f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]")
 
-	def download_scryfall (self, name, path, scrylink):
+	def download_scryfall(self, name, path, scrylink):
 		"""
 		Download scryfall art crop
 		"""
-		print(f"{Fore.YELLOW}SCRYFALL: {name}{Style.RESET_ALL}")
-		request.urlretrieve(scrylink, path)
+		request.urlretrieve(scrylink, f"{cfg.scry}/{path}.jpg")
+		print(f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]")
 
 	def make_folders(self):
 		"""
 		Check that the folders exist
 		"""
-		if self.path != "":
-			Path(os.path.join(cfg.mtgp, self.path)).mkdir(mode=511, parents=True, exist_ok=True)
-			Path(os.path.join(cfg.scry, self.path)).mkdir(mode=511, parents=True, exist_ok=True)
+		Path(os.path.join(cfg.mtgp, self.path)).mkdir(
+			mode=511, parents=True, exist_ok=True)
+		Path(os.path.join(cfg.scry, self.path)).mkdir(
+			mode=511, parents=True, exist_ok=True)
 
-		# Setup backs folder if exists
-		if hasattr(self, 'path_back'):
-			Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(mode=511, parents=True, exist_ok=True)
-			Path(os.path.join(cfg.scry, self.path_back)).mkdir(mode=511, parents=True, exist_ok=True)
+		# Setup backs folder if needed
+		if self.path_back:
+			Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(
+				mode=511, parents=True, exist_ok=True)
+			Path(os.path.join(cfg.scry, self.path_back)).mkdir(
+				mode=511, parents=True, exist_ok=True)
 
 	def make_path(self):
 		"""
@@ -142,18 +146,21 @@ class Card ():
 		"""
 		# Front image path
 		front_name = self.naming_convention(self.name, self.artist, self.set.upper())
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/{self.path}{front_name}.jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/{self.path}{front_name}.jpg")
+		self.filename = f"{self.path}{front_name}.jpg"
 
 		# Setup back path if exists
-		if hasattr(self, 'path_back'):
+		if self.path_back:
 			back_name = self.naming_convention(self.name_back, self.artist, self.set.upper())
-			self.mtgp_path_back = os.path.join(cwd,
-				f"{cfg.mtgp}/{self.path_back}{back_name}.jpg")
-			self.scry_path_back = os.path.join(cwd,
-				f"{cfg.scry}/{self.path_back}{back_name}.jpg")
+			self.filename_back = f"{self.path_back}{back_name}.jpg"
+
+	@staticmethod
+	def check_for_promo(set_type):
+		"""
+		Check if this is a promo card
+		"""
+		set_types = ['funny', 'promo']
+		if set_type in set_types: return True
+		return False
 
 	@staticmethod
 	def naming_convention(name, artist, setcode):
@@ -168,77 +175,69 @@ class Card ():
 		result = result.replace("ARTIST", artist).replace("SET", setcode)
 		return result
 
-class Normal (Card):
-	"""
-	Normal frame card
-	"""
-	def __init__ (self, c):
-		# Create empty path if no path is set
-		if hasattr(self, 'path'): pass
-		else: self.path = ""
-		super().__init__(c)
-		self.scrylink = c['image_uris']['art_crop']
 
-class Land (Normal):
+class Land (Card):
 	"""
 	Basic land card
 	"""
-	def __init__ (self, c):
-		self.path = "Land/"
-		super().__init__(c)
+	path = "Land/"
 
-class Saga (Normal):
+
+class Saga (Card):
 	"""
 	Saga card
 	"""
-	def __init__ (self, c):
-		self.path = "Saga/"
-		super().__init__(c)
+	path = "Saga/"
 
-class Adventure (Normal):
+
+class Adventure (Card):
 	"""
 	Adventure card
 	"""
-	def __init__ (self, c):
-		self.path = "Adventure/"
-		super().__init__(c)
+	path = "Adventure/"
 
-class Leveler (Normal):
+
+class Leveler (Card):
 	"""
 	Leveler card
 	"""
-	def __init__ (self, c):
-		self.path = "Leveler/"
-		super().__init__(c)
+	path = "Leveler/"
 
-class Planeswalker (Normal):
+
+class Mutate (Card):
+	"""
+	Mutate card
+	"""
+	path = "Mutate/"
+
+
+class Planeswalker (Card):
 	"""
 	Planeswalker card
 	"""
-	def __init__ (self, c):
-		self.path = "Planeswalker/"
-		super().__init__(c)
+	path = "Planeswalker/"
 
-class Class (Normal):
+
+class Class (Card):
 	"""
 	Class card
 	"""
-	def __init__ (self, c):
-		self.path = "Class/"
-		super().__init__(c)
+	path = "Class/"
 
-class Flip (Normal):
+
+class Flip (Card):
 	"""
 	Flip card
 	"""
-	def __init__ (self, c):
-		self.path = "Flip/"
+	path = "Flip/"
+
+	def __init__(self, c):
 		self.savename = c['card_faces'][0]['name']
 		super().__init__(c)
 
 	def get_mtgp_code(self):
 		# Override this method because flip names are different
-		name = self.name.replace("//","/")
+		name = self.name.replace("//", "/")
 		try:
 			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
 			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
@@ -253,24 +252,24 @@ class Flip (Normal):
 	def make_path(self):
 		# Override this method because // isn't valid in filenames
 		front_name = self.naming_convention(self.savename, self.artist, self.set.upper())
-		self.mtgp_path = os.path.join(cwd,
-			f"{cfg.mtgp}/{self.path}{front_name}.jpg")
-		self.scry_path = os.path.join(cwd,
-			f"{cfg.scry}/{self.path}{front_name}.jpg")
+		self.filename = f"{self.path}{front_name}.jpg"
 
-class Planar (Normal):
+
+class Planar (Card):
 	"""
 	Planar card
 	"""
-	def __init__ (self, c):
-		self.path = "Planar/"
-		super().__init__(c)
+	path = "Planar/"
+
 
 # MULTIPLE IMAGE CARDS
 class MDFC (Card):
 	"""
 	Double faced card
 	"""
+	path = "MDFC Front/"
+	path_back = "MDFC Back/"
+
 	def __init__(self, c):
 
 		# Face variables
@@ -279,12 +278,9 @@ class MDFC (Card):
 		if not hasattr(self, 'scrylink'):
 			self.scrylink = c['card_faces'][0]['image_uris']['art_crop']
 			self.scrylink_back = c['card_faces'][1]['image_uris']['art_crop']
-		if not hasattr(self, 'path'):
-			self.path = "MDFC Front/"
-			self.path_back = "MDFC Back/"
 		super().__init__(c)
 
-	def download (self, log_failed=True):
+	def download(self, log_failed=True):
 		"""
 		Download each card
 		"""
@@ -294,10 +290,10 @@ class MDFC (Card):
 
 		# Download only scryfall?
 		if cfg.only_scryfall:
-			try: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+			try: self.download_scryfall(self.name, self.filename, self.scrylink)
 			except: front = False
-			try: self.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
-			except: back = True
+			try: self.download_scryfall(self.name_back, self.filename_back, self.scrylink_back)
+			except: back = False
 
 			# Log any failures
 			if log_failed:
@@ -309,18 +305,18 @@ class MDFC (Card):
 			return True
 
 		# Download Front
-		try: self.download_mtgp (self.name, self.mtgp_path, self.code)
+		try: self.download_mtgp (self.name, self.filename, self.code)
 		except:
 			if cfg.download_scryfall:
-				try: self.download_scryfall (self.name, self.scry_path, self.scrylink)
+				try: self.download_scryfall (self.name, self.filename, self.scrylink)
 				except: front = False
 			else: front = False
 
 		# Download back
-		try: self.download_mtgp (f"{self.name_back} (Back)", self.mtgp_path_back, self.code, True)
+		try: self.download_mtgp (f"{self.name_back} (Back)", self.filename_back, self.code, True)
 		except:
 			if cfg.download_scryfall:
-				try: self.download_scryfall (self.name_back, self.scry_path_back, self.scrylink_back)
+				try: self.download_scryfall (self.name_back, self.filename_back, self.scrylink_back)
 				except: back = False
 			else: back = False
 
@@ -333,31 +329,30 @@ class MDFC (Card):
 			elif not back: core.log(self.name_back, self.set, "failed_back")
 		return True
 
+
 class Transform (MDFC):
 	"""
 	Transform card
 	"""
-	def __init__(self, c):
-		self.nopath = True
-		self.path = "TF Front/"
-		self.path_back = "TF Back/"
-		super().__init__(c)
+	path = "TF Front/"
+	path_back = "TF Back/"
+
 
 class Split (MDFC):
 	"""
 	Split card
 	"""
+	path = "Split/"
+	path_back = "Split/"
+
 	def __init__ (self, c):
 		self.fullname = c['name']
-		self.nopath = True
-		self.path = "Split/"
-		self.path_back = "Split/"
 		self.scrylink = c['image_uris']['art_crop']
 		super().__init__(c)
 
 	def get_mtgp_code(self):
 		# Override this method because split names are different
-		name = self.fullname.replace("//","/")
+		name = self.fullname.replace("//", "/")
 		try:
 			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
 			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
@@ -366,20 +361,23 @@ class Split (MDFC):
 				try:
 					if self.alt: self.code = core.get_mtgp_code("pmo", name, True)
 					else: self.code = core.get_mtgp_code("pmo", name)
-				except: self.code = self.set+self.num
-			else: self.code = self.set+self.num
+				except: self.code = self.set + self.num
+			else: self.code = self.set + self.num
+
 
 class Meld (Card):
 	"""
 	Meld card -- Will do later
 	"""
+	path = "Meld/"
+
 
 def get_card_class(c):
 	"""
 	Return the card class
 	"""
 	class_map = {
-		"normal": Normal,
+		"normal": Card,
 		"transform": Transform,
 		"modal_dfc": MDFC,
 		"adventure": Adventure,
@@ -397,6 +395,8 @@ def get_card_class(c):
 		return Planeswalker
 	if "Saga" in c['type_line'] and "card_faces" not in c:
 		return Saga
+	if 'keywords' in c and "Mutate" in c['keywords']:
+		return Mutate
 	if "Land" in c['type_line'] and "card_faces" not in c:
 		return Land
 	return class_map[c['layout']]

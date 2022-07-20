@@ -17,6 +17,8 @@ with open(os.path.join(cwd, "lib/special.json")) as js:
     special_sets = json.load(js)
 with open(os.path.join(cwd, "lib/codes.json")) as js:
     replace_sets = json.load(js)
+with open(os.path.join(cwd, "lib/links.json")) as js:
+    links = json.load(js)
 
 """
 FILES AND FOLDERS

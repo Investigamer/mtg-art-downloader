@@ -18,7 +18,41 @@ Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
 Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
 
 
-def get_mtgp_code (set_code, name, alternate=False):
+def get_command(com):
+	"""
+	See if the command is listed in links.json
+	:param com: String given by the user
+	:return: The appropriate link, None if nothing matches
+	"""
+	for k, v in cfg.links.items():
+		if com in v:
+			return v[com]
+	return None
+
+
+def get_list(com):
+	"""
+	Webscrape to create list of cards to download from a given list.
+	:param com: Command array including name, and url
+	:return: Filename of the newly created list
+	"""
+	Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
+	cards = requests.get(com["url"]).json()
+	with open(os.path.join(cwd, f"lists/{com['name']}.txt"), "w", encoding="utf-8") as f:
+		# Clear out the txt file if used before
+		f.truncate(0)
+
+		# Get our card list
+		for k in com['keys']:
+			cards = cards[k]
+
+		# Loop through cards adding them to the txt list
+		for card in cards:
+			f.write(f"{card['name']}\n")
+	return os.path.join(cwd, f"lists/{com['name']}.txt")
+
+
+def get_mtgp_code(set_code, name, alternate=False):
 	"""
 	Webscrape to find the correct MTG Pics code for the card.
 	"""
@@ -38,7 +72,7 @@ def get_mtgp_code (set_code, name, alternate=False):
 	return soup_src.replace("../pics/reg/","").replace("/","").replace(".jpg","")
 
 
-def log (name, set_code=None, txt="failed"):
+def log(name, set_code=None, txt="failed"):
 	"""
 	Log card that couldn't be found.
 	"""
@@ -49,7 +83,7 @@ def log (name, set_code=None, txt="failed"):
 	print(f"{Fore.RED}FAILED: {Style.RESET_ALL}{name} [{set_code.upper()}]")
 
 
-def handle (error):
+def handle(error):
 	"""
 	Handle error messages
 	"""

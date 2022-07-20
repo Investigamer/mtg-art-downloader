@@ -1,0 +1,56 @@
+{
+  "EDHREC": {
+    "T100": {
+      "name": "Top 100",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/year.json"
+    },
+    "TSALT": {
+      "name": "Top Salt",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/salt.json"
+    },
+    "TW": {
+      "name": "Top White Cards",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/w.json"
+    },
+    "TU": {
+      "name": "Top Blue Cards",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/u.json"
+    },
+    "TB": {
+      "name": "Top Black Cards",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/b.json"
+    },
+    "TR": {
+      "name": "Top Red Cards",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/r.json"
+    },
+    "TG": {
+      "name": "Top Green Cards",
+      "keys": ["container","json_dict","cardlists",0,"cardviews"],
+      "url": "https://json.edhrec.com/v2/top/g.json"
+    }
+  },
+  "Scryfall": {
+    "LArtifact": {
+      "name": "Legendary Artifacts",
+      "keys": ["data"],
+      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Aartifact+type%3Alegendary%29"
+    },
+    "LEnchantment": {
+      "name": "Legendary Enchantments",
+      "keys": ["data"],
+      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Aenchantment+type%3Alegendary%29"
+    },
+    "LCreature B": {
+      "name": "Legendary Black Creatures",
+      "keys": ["data"],
+      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Acreature+type%3Alegendary%29+color%3DB"
+    }
+  }
+}

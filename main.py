@@ -12,25 +12,34 @@ from colorama import Style, Fore
 import requests as req
 from lib import card as dl
 from lib import settings as cfg
+from lib import core
 os.system("")
 
 
 class Download:
-	def __init__(self):
+	def __init__(self, command = None):
 		self.thr = []
 		self.basics = []
 		self.list = cfg.cardlist
 		self.time = perf_counter()
+		self.command = command
+
+	def start_command(self):
+		"""
+		Initiate download procedure based on the command.
+		"""
+		self.list = core.get_list(self.command)
+		self.start()
 
 	def start(self):
 		"""
-		Open cards.txt, for each card initiate a download
+		Open card list, for each card initiate a download
 		"""
 		with open(self.list, 'r', encoding="utf-8") as cards:
 			# For each card create new thread
 			for i, card in enumerate(cards):
 				# Detailed card including set?
-				if "--" or " (" in card:
+				if "--" in card or " (" in card:
 					self.thr.append(threading.Thread(
 						target=self.download_detailed,
 						args=(card,))
@@ -140,7 +149,8 @@ class Download:
 			).json()
 			card_class = dl.get_card_class(c)
 			card_class(c).download()
-		except Exception:
+		except Exception as e:
+			print(e)
 			print(f"{name} not found!")
 
 	@staticmethod
@@ -191,22 +201,14 @@ class Download:
 						if not cfg.download_all and result:
 							return None
 						num += 1
-			# Judge promos
-			if s == 'judge promo':
+			# Judge and misc promos
+			if s in ('judge promo', 'misc promo'):
 				for i, c in enumerate(cards):
 					c['list_order'] = i
 					card_class = dl.get_card_class(c)
 					result = card_class(c).download()
 					if not cfg.download_all and result:
 						return None
-			if s == "misc promo":
-				for i, c in enumerate(cards):
-					c['list_order'] = i
-					card_class = dl.get_card_class(c)
-					result = card_class(c).download()
-					if not cfg.download_all and result:
-						return None
-
 
 	@staticmethod
 	def complete(elapsed):
@@ -222,7 +224,7 @@ class Download:
 
 
 if __name__ == "__main__":
-
+	__VER__ = "1.1.6"
 	print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
 	print("  ██████╗ ███████╗████████╗   ███╗   ███╗████████╗ ██████╗ ")
 	print(" ██╔════╝ ██╔════╝╚══██╔══╝   ████╗ ████║╚══██╔══╝██╔════╝ ")
@@ -236,14 +238,18 @@ if __name__ == "__main__":
 	print(" ██╔══██║██╔══██╗   ██║       ██║╚██╗██║██║   ██║██║███╗██║ ")
 	print(" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
 	print(" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ")
-	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v1.1.4")
+	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi {__VER__}")
 	print("Additional thanks to Trix are for Scoot + Gikkman")
 	print(f"http://mpcfill.com --- Support great MTG Proxies!{Style.RESET_ALL}\n")
 
 	# Does the user want to use Google Sheet queries or cards from txt file?
-	input("Please view the README for detailed instructions.\n"
+	choice = input("Please view the README for detailed instructions.\n"
 	"Cards in cards.txt can either be listed as 'Name' or 'SET--Name'\n"
 	"Full Github and README available at: mprox.link/art-downloader\n")
 
-	# Start the download operation
-	Download().start()
+	# See if the command matches any known links
+	com = core.get_command(choice)
+
+	# If the command is valid, download based on that, otherwise cards.txt
+	if com: Download(com).start_command()
+	else: Download().start()
