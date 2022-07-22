@@ -5,11 +5,12 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
   <a href="https://discord.gg/3kXw2qQwRH">
     <img alt="Discord" src="https://img.shields.io/discord/889831317066358815?label=Discord&style=plastic">
   </a>
+  <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-brightgreen?style=plastic">
   <img alt="GitHub" src="https://img.shields.io/github/license/MrTeferi/MTG-Art-Downloader?color=1082C2&style=plastic">
   <a href="https://github.com/MrTeferi/MTG-Art-Downloader/releases">
     <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/MrTeferi/MTG-Art-Downloader/total?style=plastic">
   </a>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.5%2B-yellow?style=plastic">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.6%2B-yellow?style=plastic">
 </p>
 
 # Setup - Executable Release
@@ -17,7 +18,7 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk (optional)
 
 # Setup - Python Version
-- Python 3
+- Python 3.6+
 - pip install -r requirements.txt (python dependencies)
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o (optional)
 - "python app.py" to run
