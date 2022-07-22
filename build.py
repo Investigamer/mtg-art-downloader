@@ -25,6 +25,7 @@ files = [
     {'src': os.path.join(MTG, 'codes.json'), 'dst': os.path.join(DIST_MTG, 'codes.json')},
     {'src': os.path.join(MTG, 'links.json'), 'dst': os.path.join(DIST_MTG, 'links.json')},
     {'src': os.path.join(MTG, 'special.json'), 'dst': os.path.join(DIST_MTG, 'special.json')},
+    {'src': os.path.join(MTG, 'scryfall.json'), 'dst': os.path.join(DIST_MTG, 'scryfall.json')},
 ]
 
 # Folders that need to be copied
