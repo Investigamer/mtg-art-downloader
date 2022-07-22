@@ -13,12 +13,12 @@ config.read("config.ini")
 CONSTANTS
 """
 basic_lands = ["Plains", "Island", "Swamp", "Mountain", "Forest"]
-with open(os.path.join(cwd, "lib/special.json")) as js:
-    special_sets = json.load(js)
 with open(os.path.join(cwd, "lib/codes.json")) as js:
     replace_sets = json.load(js)
 with open(os.path.join(cwd, "lib/links.json")) as js:
     links = json.load(js)
+with open(os.path.join(cwd, "lib/scryfall.json")) as js:
+    scry_args = json.load(js)
 
 """
 FILES AND FOLDERS

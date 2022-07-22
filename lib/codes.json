@@ -88,5 +88,6 @@
 	"lea": "alp",
 	"cm1": "cma",
 	"j20": "dci",
-	"g08": "dci"
+	"g08": "dci",
+	"jgp": "dci"
 }

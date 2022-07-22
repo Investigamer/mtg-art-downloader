@@ -2,12 +2,14 @@
 CARD CLASSES
 """
 import os
+import requests
 from pathlib import Path
 from urllib import request
 from bs4 import BeautifulSoup
 from colorama import Style, Fore
-import requests
+from unidecode import unidecode
 from lib import settings as cfg
+from lib.constants import console
 from lib import core
 cwd = os.getcwd()
 
@@ -26,8 +28,9 @@ class Card:
 
 		# Inherited card info
 		self.set = c['set']
-		self.artist = c['artist']
+		self.artist = unidecode(c['artist'])
 		self.num = c['collector_number']
+		self.set_name = c['set_name']
 
 		# Scrylink
 		if not hasattr(self, 'scrylink'):
@@ -42,45 +45,34 @@ class Card:
 		if not hasattr(self, 'name'):
 			self.name = c['name']
 
-		# Make sure card num is 3 digits
-		if len(self.num) == 1: self.num = f"00{self.num}"
-		elif len(self.num) == 2: self.num = f"0{self.num}"
-
-		# Alternate version or promo card
-		self.alt = self.check_for_alternate(c)
+		# Possible promo card?
 		self.promo = self.check_for_promo(c['set_type'])
 
 		# Get the MTGP code
-		self.get_mtgp_code()
+		self.code = self.get_mtgp_code(self.name)
 
 		# Make folders, setup path
 		if self.path: self.make_folders()
 		self.make_path()
 
-	def check_for_alternate(self, c):
-		"""
-		Checks if this is an alternate art card
-		:param c: Card info
-		:return: bool
-		"""
-		if 'list_order' in c: return c['list_order']
-		if (c['border_color'] == "borderless"
-			and c['set'] not in cfg.special_sets
-		):
-			return True
-		if self.num[-1] == "s": return True
-		return False
-
-	def get_mtgp_code(self):
+	def get_mtgp_code(self, name):
 		"""
 		Get the correct mtgp URL code
 		"""
-		try: self.code = core.get_mtgp_code(self.mtgp_set, self.name, self.alt)
-		except Exception:
-			if self.promo:
-				try: self.code = core.get_mtgp_code("pmo", self.name, self.alt)
-				except Exception: self.code = self.set+self.num
-			else: self.code = self.set+self.num
+		# Try looking for the card under its collector number
+		code = core.get_mtgp_code(self.mtgp_set, self.num)
+		if code: return code
+
+		# Judge promo?
+		if self.mtgp_set == "dci":
+			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name, "dci")
+			if code: return code
+
+		# Possible promo set
+		if self.promo:
+			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name)
+			if code: return code
+		return self.set+self.num
 
 	def download(self, log_failed=True):
 		"""
@@ -114,15 +106,17 @@ class Card:
 		img_link = core.get_card_face(soup_img, back)
 
 		# Try to download from MTG Pics
-		request.urlretrieve(img_link, f"{cfg.mtgp}/{path}.jpg")
-		print(f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]")
+		request.urlretrieve(img_link, f"{cfg.mtgp}/{path}")
+		console.out.append(
+			f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]")
 
 	def download_scryfall(self, name, path, scrylink):
 		"""
 		Download scryfall art crop
 		"""
 		request.urlretrieve(scrylink, f"{cfg.scry}/{path}.jpg")
-		print(f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]")
+		console.out.append(
+			f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]")
 
 	def make_folders(self):
 		"""
@@ -238,16 +232,7 @@ class Flip (Card):
 	def get_mtgp_code(self):
 		# Override this method because flip names are different
 		name = self.name.replace("//", "/")
-		try:
-			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
-			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
-		except:
-			if self.promo:
-				try:
-					if self.alt: self.code = core.get_mtgp_code("pmo", name, True)
-					else: self.code = core.get_mtgp_code("pmo", name)
-				except: self.code = self.set+self.num
-			else: self.code = self.set+self.num
+		super().get_mtgp_code(name)
 
 	def make_path(self):
 		# Override this method because // isn't valid in filenames
@@ -353,16 +338,7 @@ class Split (MDFC):
 	def get_mtgp_code(self):
 		# Override this method because split names are different
 		name = self.fullname.replace("//", "/")
-		try:
-			if self.alt: self.code = core.get_mtgp_code(self.mtgp_set, name, True)
-			else: self.code = core.get_mtgp_code(self.mtgp_set, name)
-		except:
-			if self.promo:
-				try:
-					if self.alt: self.code = core.get_mtgp_code("pmo", name, True)
-					else: self.code = core.get_mtgp_code("pmo", name)
-				except: self.code = self.set + self.num
-			else: self.code = self.set + self.num
+		super().get_mtgp_code(name)
 
 
 class Meld (Card):

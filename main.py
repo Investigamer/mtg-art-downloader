@@ -8,11 +8,13 @@ import time
 import threading
 from time import perf_counter
 from urllib import parse
-from colorama import Style, Fore
 import requests as req
 from lib import card as dl
 from lib import settings as cfg
 from lib import core
+from lib.constants import console
+from colorama import Style, Fore
+
 os.system("")
 
 
@@ -28,7 +30,14 @@ class Download:
 		"""
 		Initiate download procedure based on the command.
 		"""
-		self.list = core.get_list(self.command)
+		# Valid command received?
+		if ":" in self.command:
+			self.list = core.get_list_from_scryfall(self.command)
+		elif self.command:
+			self.command = core.get_command(self.command)
+			if self.command:
+				self.list = core.get_list_from_link(self.command)
+		else: self.command = None
 		self.start()
 
 	def start(self):
@@ -36,6 +45,14 @@ class Download:
 		Open card list, for each card initiate a download
 		"""
 		with open(self.list, 'r', encoding="utf-8") as cards:
+			# Remove blank lines, print total cards
+			cards = cards.readlines()
+			try: cards.remove("")
+			except ValueError: pass
+			try: cards.remove(" ")
+			except ValueError: pass
+			print(f"{Fore.GREEN}---- Downloading {len(cards)} cards! ----{Style.RESET_ALL}")
+
 			# For each card create new thread
 			for i, card in enumerate(cards):
 				# Detailed card including set?
@@ -88,19 +105,10 @@ class Download:
 			# Remove full art entries
 			# Add our numbered sets
 			prepared = []
-			special = {}
-			for kind in cfg.special_sets:
-				special[kind] = []
 			for t in r['data']:
 				# No fullart to exclude?
 				if not cfg.exclude_fullart or t['full_art'] is False:
-					# No numbered set to separate?
-					t['accounted'] = False
-					for kind in special:
-						if t['set'] in cfg.special_sets[kind]:
-							special[kind].append(t)
-							t['accounted'] = True
-					if not t['accounted']: prepared.append(t)
+					prepared.append(t)
 
 			# Loop through prints of this card
 			for c in prepared:
@@ -110,17 +118,13 @@ class Download:
 				if not cfg.download_all and result:
 					return None
 
-			# Loop through numbered sets
-			self.download_special(special)
-
 		except Exception:
 			# Try named lookup
 			try:
 				c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}").json()
 				card_class = dl.get_card_class(c)
 				card_class(c).download()
-			except Exception:
-				print(f"{card} not found!")
+			except Exception: console.out.append(f"{card} not found!")
 
 	@staticmethod
 	def download_detailed(item):
@@ -149,9 +153,7 @@ class Download:
 			).json()
 			card_class = dl.get_card_class(c)
 			card_class(c).download()
-		except Exception as e:
-			print(e)
-			print(f"{name} not found!")
+		except Exception: console.out.append(f"{name} not found!")
 
 	@staticmethod
 	def download_basic(card):
@@ -170,45 +172,8 @@ class Download:
 						f"&set={parse.quote(land_set)}").json()
 					dl.Land(c).download()
 					break
-				except Exception: print("Scryfall couldn't find this set. Try again!")
-			else: print("Error! Illegitimate set. Try again!")
-
-	@staticmethod
-	def download_special(special):
-		"""
-		Download cards from sets with special requirements
-		:param special: {Set code : [list of cards]}
-		"""
-		for s, cards in special.items():
-			# Promo sets with numbered items
-			if s in ('secret lair', "mystical archive"):
-				num = 1
-				if len(cards) == 1:
-					# One card
-					for c in cards:
-						c['list_order'] = 0
-						card_class = dl.get_card_class(c)
-						result = card_class(c).download()
-						if not cfg.download_all and result:
-							return None
-				else:
-					# A list of cards
-					for c in sorted(cards, key=lambda i: i['collector_number']):
-						c['list_order'] = 0
-						c['name'] = f"{c['name']} {str(num)}"
-						card_class = dl.get_card_class(c)
-						result = card_class(c).download()
-						if not cfg.download_all and result:
-							return None
-						num += 1
-			# Judge and misc promos
-			if s in ('judge promo', 'misc promo'):
-				for i, c in enumerate(cards):
-					c['list_order'] = i
-					card_class = dl.get_card_class(c)
-					result = card_class(c).download()
-					if not cfg.download_all and result:
-						return None
+				except Exception: console.out.append("Scryfall couldn't find this set. Try again!")
+			else: console.out.append("Error! Illegitimate set. Try again!")
 
 	@staticmethod
 	def complete(elapsed):
@@ -216,10 +181,13 @@ class Download:
 		Tell the user the download process is complete.
 		:param elapsed: Time to complete downloads (seconds)
 		"""
-		print(f"Downloads finished in {elapsed} seconds!")
-		input("\nAll available files downloaded.\n"
+		time.sleep(1)
+		console.out.append(f"Downloads finished in {elapsed} seconds!")
+		time.sleep(.02)
+		console.out.append("\nAll available files downloaded.\n"
 		"See failed.txt for images that couldn't be located.\n"
 		"Press enter to exit :)")
+		input()
 		sys.exit()
 
 
@@ -238,7 +206,7 @@ if __name__ == "__main__":
 	print(" ██╔══██║██╔══██╗   ██║       ██║╚██╗██║██║   ██║██║███╗██║ ")
 	print(" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
 	print(" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ")
-	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi {__VER__}")
+	print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v{__VER__}")
 	print("Additional thanks to Trix are for Scoot + Gikkman")
 	print(f"http://mpcfill.com --- Support great MTG Proxies!{Style.RESET_ALL}\n")
 
@@ -247,9 +215,6 @@ if __name__ == "__main__":
 	"Cards in cards.txt can either be listed as 'Name' or 'SET--Name'\n"
 	"Full Github and README available at: mprox.link/art-downloader\n")
 
-	# See if the command matches any known links
-	com = core.get_command(choice)
-
 	# If the command is valid, download based on that, otherwise cards.txt
-	if com: Download(com).start_command()
-	else: Download().start()
+	if choice != "": print()  # Add newline gap
+	Download(choice).start_command()

@@ -4,3 +4,4 @@ contextlib3
 bs4
 requests
 pyclean
+unidecode

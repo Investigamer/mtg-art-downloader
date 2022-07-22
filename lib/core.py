@@ -1,13 +1,15 @@
 """
 CORE FUNCTIONS
 """
+import json
 import os
-import re
-import sys
+from urllib.parse import quote_plus
+import requests
+from difflib import SequenceMatcher
 from pathlib import Path
 from colorama import Style, Fore
-import requests
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 from lib import settings as cfg
 cwd = os.getcwd()
 
@@ -30,7 +32,7 @@ def get_command(com):
 	return None
 
 
-def get_list(com):
+def get_list_from_link(com):
 	"""
 	Webscrape to create list of cards to download from a given list.
 	:param com: Command array including name, and url
@@ -52,24 +54,114 @@ def get_list(com):
 	return os.path.join(cwd, f"lists/{com['name']}.txt")
 
 
-def get_mtgp_code(set_code, name, alternate=False):
+def get_list_from_scryfall(com):
+	"""
+	User scryfall query to return a list.
+	:return: Return path to the list file
+	"""
+	command = {}
+	query = "https://api.scryfall.com/cards/search?page=0&q="
+
+	# Split command by argument
+	com = com.split(",")
+	for c in com:
+		# Obtain key and value for argument
+		arg = c.split(":")
+
+		# Get the correct separator
+		ops = ["!", "<", ">"]
+		param = "".join(["" if c in ops else c for c in arg[0]])
+		if param in cfg.scry_args:
+			sep = cfg.scry_args[param]
+		else: sep = "="
+
+		# Add to commands
+		try:
+			if arg[0][0] == " ": arg[0] = arg[0][1:]
+			if arg[1][0] == " ": arg[1] = arg[1][1:]
+		except: pass
+		command.update({arg[0]+sep: arg[1]})
+		if "set:" in command and "is:" not in command:
+			command.update({"is:": "booster"})
+
+	# Add each argument to scryfall search
+	for k, v in command.items():
+		query += quote_plus(f" {k}{v}")
+	query += "&unique=print"
+
+	# Query scryfall
+	res = requests.get(query).json()
+
+	# Add additional pages if any exist
+	cards = []
+	while True:
+		cards.extend(res['data'])
+		if res['has_more']:
+			res = requests.get(res['next_page']).json()
+		else: break
+
+	# Write the list
+	with open(os.path.join(cwd, f"lists/scry_search.txt"), "w", encoding="utf-8") as f:
+		# Clear out the txt file if used before
+		f.truncate(0)
+
+		# Loop through cards adding them to the txt list
+		for card in cards:
+			f.write(f"{card['set']}--{card['name']}\n")
+	return os.path.join(cwd, f"lists/scry_search.txt")
+
+
+def get_mtgp_code(set_code, num):
 	"""
 	Webscrape to find the correct MTG Pics code for the card.
 	"""
-	# Crawl the mtgpics site to find correct set code
-	r = requests.get("https://www.mtgpics.com/card?ref="+set_code+"001")
-	soup = BeautifulSoup(r.content, "html.parser")
-	soup_td = soup.find("td", {"width": "170", "align": "center"})
-	mtgp_link = f"https://mtgpics.com/{soup_td.find('a')['href']}"
+	try:
+		# Crawl the mtgpics site to find correct set code
+		r = requests.get("https://www.mtgpics.com/card?ref="+set_code+"001")
+		soup = BeautifulSoup(r.content, "html.parser")
+		soup_td = soup.find("td", {"width": "170", "align": "center"})
+		replaced = soup_td.find('a')['href'].replace("set?", "set_checklist?")
+		mtgp_link = f"https://mtgpics.com/{replaced}"
 
-	# Crawl the set page to find the correct link
-	r = requests.get(mtgp_link)
-	soup = BeautifulSoup(r.content, "html.parser")
-	soup_i = soup.find_all("img", attrs={"alt": re.compile(f"^({name})(.)*")})
-	if isinstance(alternate, int): soup_src = soup_i[alternate]['src']
-	elif alternate: soup_src = soup_i[1]['src']
-	else: soup_src = soup_i[0]['src']
-	return soup_src.replace("../pics/reg/","").replace("/","").replace(".jpg","")
+		# Crawl the set page to find the correct link
+		r = requests.get(mtgp_link)
+		soup = BeautifulSoup(r.content, "html.parser")
+		rows = soup.find_all("div", {"style": "display:block;margin:0px 2px 0px 2px;border-top:1px #cccccc dotted;"})
+		for row in rows:
+			cols = row.find_all('td')
+			if cols[0].text == num:
+				return cols[2].find("a")['href'].replace("card?ref=", "")
+		return None
+	except: return None
+
+
+def get_mtgp_code_pmo(name, artist, set_name, promo="pmo"):
+	"""
+	Webscrape to find the correct MTG Pics code for the card.
+	"""
+	try:
+		# Track matches
+		matches = []
+
+		# Which promo set?
+		if promo == "dci": req = "https://mtgpics.com/set_checklist?set=72"
+		else: req = "https://mtgpics.com/set_checklist?set=72"
+
+		# Crawl the set page to find the correct link
+		r = requests.get(req)
+		soup = BeautifulSoup(r.content, "html.parser")
+		rows = soup.find_all("div", {"style": "display:block;margin:0px 2px 0px 2px;border-top:1px #cccccc dotted;"})
+		for row in rows:
+			cols = row.find_all('td')
+			if artist in unidecode(cols[6].text) and name.lower() in cols[2].text.lower():
+				matches.append(
+					{
+						"code": cols[2].find("a")['href'].replace("card?ref=", ""),
+						"match": SequenceMatcher(a=cols[2].text.replace(name, ""), b=set_name).ratio()
+					}
+				)
+		return sorted(matches, key=lambda i: i['match'])[0]["code"]
+	except: return None
 
 
 def log(name, set_code=None, txt="failed"):
@@ -81,14 +173,6 @@ def log(name, set_code=None, txt="failed"):
 		if set_code: l.write(f"{set_code}--{name}\n")
 		else: l.write(f"{name}\n")
 	print(f"{Fore.RED}FAILED: {Style.RESET_ALL}{name} [{set_code.upper()}]")
-
-
-def handle(error):
-	"""
-	Handle error messages
-	"""
-	print(f"{error}\nPress enter to exit...")
-	sys.exit()
 
 
 def get_card_face(entries, back):
