@@ -27,6 +27,11 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
 - Runt he downloader
 
+# How to use with scryfall commands?
+- After running the app, you can enter commands like so:
+`set:mh2, power>:3, type:creature`
+- This example will download images for all MH2 creatures with power greater than or equal to 3. Separate arguments with a comma, separate the key and value of the argument with a colon. Refer to the scryfall API documentation for more use cases.
+
 # How to use with Google Sheet Script
 - Open up your copy of the "MTG Art Downloader Script" google sheet
 - In the FX for box A2 you can customize arguments for what cards you want to pull using the first variable, for example choose a given set, a given rarity (or range of rarities). Don't change the second variable, those are the columns that are generated. You can read more about arguments for this scryfall script here: https://github.com/scryfall/google-sheets
