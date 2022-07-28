@@ -44,6 +44,7 @@ class Download:
         else:
             self.command = None
         self.start(dry_run)
+        return self.fails
 
     def start(self, dry_run=False):
         """

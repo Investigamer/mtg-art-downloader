@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 
+# Add cwd to path
 sys.path.append(str(Path(os.getcwd())))
 import main as app
 
@@ -29,5 +30,4 @@ def test_detailed_cards():
 
 def test_scryfall_command():
     dl = app.Download("set:2x2, power>:15, color:C")
-    dl.start_command(dry_run=True)
-    assert len(dl.fails) == 0
+    assert len(dl.start_command(dry_run=True)) == 0
