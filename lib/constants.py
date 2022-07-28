@@ -14,7 +14,9 @@ class Console:
             if len(self.out) > 1:
                 msg = self.out.pop()
                 print(msg)
-            else: time.sleep(.01)
+            else:
+                time.sleep(0.01)
+
 
 console = Console()
 Thread(target=console.wait, daemon=True).start()

@@ -1,9 +1,11 @@
-colorama
-urllib3
-contextlib3
+black
 bs4
-requests
-pyclean
-unidecode
+colorama
+contextlib3
 mypy
+pre-commit
+pyclean
 pytest
+requests
+unidecode
+urllib3

@@ -10,21 +10,30 @@ import PyInstaller.__main__
 
 # Folder definitions
 CWD = os.getcwd()
-DIST = os.path.join(CWD, 'dist')
-MTG = os.path.join(os.getcwd(), 'lib')
-DIST_MTG = os.path.join(os.getcwd(), 'dist/lib')
+DIST = os.path.join(CWD, "dist")
+MTG = os.path.join(os.getcwd(), "lib")
+DIST_MTG = os.path.join(os.getcwd(), "dist/lib")
 
 # All individual files that need to be copied upon pyinstaller completion
 files = [
     # --- WORKING DIRECTORY
-    {'src': os.path.join(CWD, 'LICENSE'), 'dst': os.path.join(DIST, 'LICENSE')},
-    {'src': os.path.join(CWD, 'README.md'), 'dst': os.path.join(DIST, 'README.md')},
-    {'src': os.path.join(CWD, 'cards.txt'), 'dst': os.path.join(DIST, 'cards.txt')},
-    {'src': os.path.join(CWD, 'config.ini'), 'dst': os.path.join(DIST, 'config.ini')},
+    {"src": os.path.join(CWD, "LICENSE"), "dst": os.path.join(DIST, "LICENSE")},
+    {"src": os.path.join(CWD, "README.md"), "dst": os.path.join(DIST, "README.md")},
+    {"src": os.path.join(CWD, "cards.txt"), "dst": os.path.join(DIST, "cards.txt")},
+    {"src": os.path.join(CWD, "config.ini"), "dst": os.path.join(DIST, "config.ini")},
     # --- SOURCE DIRECTORY
-    {'src': os.path.join(MTG, 'codes.json'), 'dst': os.path.join(DIST_MTG, 'codes.json')},
-    {'src': os.path.join(MTG, 'links.json'), 'dst': os.path.join(DIST_MTG, 'links.json')},
-    {'src': os.path.join(MTG, 'scryfall.json'), 'dst': os.path.join(DIST_MTG, 'scryfall.json')},
+    {
+        "src": os.path.join(MTG, "codes.json"),
+        "dst": os.path.join(DIST_MTG, "codes.json"),
+    },
+    {
+        "src": os.path.join(MTG, "links.json"),
+        "dst": os.path.join(DIST_MTG, "links.json"),
+    },
+    {
+        "src": os.path.join(MTG, "scryfall.json"),
+        "dst": os.path.join(DIST_MTG, "scryfall.json"),
+    },
 ]
 
 # Folders that need to be copied
@@ -39,11 +48,15 @@ def clear_build_files(clear_dist=True):
     Clean out all PYCACHE files and Pyinstaller files
     """
     os.system("pyclean -v .")
-    try: rmtree(os.path.join(os.getcwd(), 'build'))
-    except Exception as e: print(e)
+    try:
+        rmtree(os.path.join(os.getcwd(), "build"))
+    except Exception as e:
+        print(e)
     if clear_dist:
-        try: rmtree(os.path.join(os.getcwd(), 'dist'))
-        except Exception as e: print(e)
+        try:
+            rmtree(os.path.join(os.getcwd(), "dist"))
+        except Exception as e:
+            print(e)
 
 
 def make_dirs():
@@ -62,11 +75,13 @@ def move_data():
     """
     # Transfer our necessary files
     print("Transferring data files...")
-    for f in files: copy2(f['src'], f['dst'])
+    for f in files:
+        copy2(f["src"], f["dst"])
 
     # Transfer our necessary folders
     print("Transferring data folders...")
-    for f in folders: copytree(f['src'], f['dst'])
+    for f in folders:
+        copytree(f["src"], f["dst"])
 
 
 def build_zip(version):
@@ -74,8 +89,8 @@ def build_zip(version):
     Create a zip of this release.
     """
     print("Building ZIP...")
-    ZIP = os.path.join(CWD, 'MTG Art Downloader.v{}.zip'.format(version))
-    ZIP_DIST = os.path.join(DIST, 'MTG Art Downloader.v{}.zip'.format(version))
+    ZIP = os.path.join(CWD, "MTG Art Downloader.v{}.zip".format(version))
+    ZIP_DIST = os.path.join(DIST, "MTG Art Downloader.v{}.zip".format(version))
     with zipfile.ZipFile(ZIP, "w", zipfile.ZIP_DEFLATED) as zipf:
         for fp in glob(os.path.join(DIST, "**/*"), recursive=True):
             base = os.path.commonpath([DIST, fp])
@@ -83,7 +98,7 @@ def build_zip(version):
     move(ZIP, ZIP_DIST)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Prompt user to start
     v = input("ENTER VERSION NUMBER, EX: 1.2.0\n")
@@ -94,10 +109,7 @@ if __name__ == '__main__':
 
     # Run pyinstaller
     print("Starting PyInstaller...")
-    PyInstaller.__main__.run([
-        'main.spec',
-        '--clean'
-    ])
+    PyInstaller.__main__.run(["main.spec", "--clean"])
 
     # Post-build steps
     move_data()

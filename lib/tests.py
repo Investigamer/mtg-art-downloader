@@ -4,6 +4,7 @@ BASIC PYTEST MODULE
 import os
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path(os.getcwd())))
 import main as app
 
