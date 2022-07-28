@@ -11,3 +11,4 @@ run.bat
 main.spec
 /lists
 tester.py
+/venv

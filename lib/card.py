@@ -31,6 +31,7 @@ class Card:
 		self.artist = unidecode(c['artist'])
 		self.num = c['collector_number']
 		self.set_name = c['set_name']
+		self.set_type = c['set_type']
 
 		# Scrylink
 		if not hasattr(self, 'scrylink'):
@@ -46,7 +47,7 @@ class Card:
 			self.name = c['name']
 
 		# Possible promo card?
-		self.promo = self.check_for_promo(c['set_type'])
+		self.promo = self.check_for_promo()
 
 		# Get the MTGP code
 		self.code = self.get_mtgp_code(self.name)
@@ -63,14 +64,9 @@ class Card:
 		code = core.get_mtgp_code(self.mtgp_set, self.num)
 		if code: return code
 
-		# Judge promo?
-		if self.mtgp_set == "dci":
-			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name, "dci")
-			if code: return code
-
 		# Possible promo set
 		if self.promo:
-			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name)
+			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name, self.mtgp_set)
 			if code: return code
 		return self.set+self.num
 
@@ -147,13 +143,23 @@ class Card:
 			back_name = self.naming_convention(self.name_back, self.artist, self.set.upper())
 			self.filename_back = f"{self.path_back}{back_name}.jpg"
 
-	@staticmethod
-	def check_for_promo(set_type):
+	def check_for_promo(self):
 		"""
 		Check if this is a promo card
 		"""
 		set_types = ['funny', 'promo']
-		if set_type in set_types: return True
+		if "Alchemy" in self.set_name:
+			self.mtgp_set = "a22"
+			return True
+		if "Judge Gift" in self.set_name or self.set == "dci":
+			self.mtgp_set = "dci"
+			return True
+		if self.set_name in ("Legacy Championship", "Vintage Championship"):
+			self.mtgp_set = "uni"
+			return True
+		if self.set_type in set_types:
+			self.mtgp_set = "pmo"
+			return True
 		return False
 
 	@staticmethod
@@ -229,7 +235,7 @@ class Flip (Card):
 		self.savename = c['card_faces'][0]['name']
 		super().__init__(c)
 
-	def get_mtgp_code(self):
+	def get_mtgp_code(self, name):
 		# Override this method because flip names are different
 		name = self.name.replace("//", "/")
 		super().get_mtgp_code(name)
@@ -335,7 +341,7 @@ class Split (MDFC):
 		self.scrylink = c['image_uris']['art_crop']
 		super().__init__(c)
 
-	def get_mtgp_code(self):
+	def get_mtgp_code(self, name):
 		# Override this method because split names are different
 		name = self.fullname.replace("//", "/")
 		super().get_mtgp_code(name)

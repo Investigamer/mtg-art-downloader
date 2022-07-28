@@ -144,7 +144,9 @@ def get_mtgp_code_pmo(name, artist, set_name, promo="pmo"):
 		matches = []
 
 		# Which promo set?
-		if promo == "dci": req = "https://mtgpics.com/set_checklist?set=72"
+		if promo == "dci": req = "https://mtgpics.com/set_checklist?set=18"
+		elif promo == "a22": req = "https://mtgpics.com/set_checklist?set=375"
+		elif promo == "uni": req = "https://mtgpics.com/set_checklist?set=201"
 		else: req = "https://mtgpics.com/set_checklist?set=72"
 
 		# Crawl the set page to find the correct link

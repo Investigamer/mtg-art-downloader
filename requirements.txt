@@ -5,3 +5,4 @@ bs4
 requests
 pyclean
 unidecode
+mypy
