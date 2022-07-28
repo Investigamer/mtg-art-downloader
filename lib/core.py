@@ -101,7 +101,7 @@ def get_list_from_scryfall(com):
 		else: break
 
 	# Write the list
-	with open("lists/scry_search.txt", "w", encoding="utf-8") as f:
+	with open(os.path.join(cwd, f"lists/scry_search.txt"), "w", encoding="utf-8") as f:
 		# Clear out the txt file if used before
 		f.truncate(0)
 
