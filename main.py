@@ -109,7 +109,6 @@ class Download:
         # Remove line break
         card = card.replace("\n", "")
         results = []
-        fail = True
 
         # Basic land?
         if card in cfg.basic_lands:

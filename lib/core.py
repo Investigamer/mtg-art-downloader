@@ -1,7 +1,6 @@
 """
 CORE FUNCTIONS
 """
-import json
 import os
 from urllib.parse import quote_plus
 import requests
@@ -120,7 +119,7 @@ def get_list_from_scryfall(com):
         # Loop through cards adding them to the txt list
         for card in cards:
             f.write(f"{card['set']}--{card['name']}\n")
-    return os.path.join(cwd, f"lists/scry_search.txt")
+    return os.path.join(cwd, "lists/scry_search.txt")
 
 
 def get_mtgp_code(set_code, num):
