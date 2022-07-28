@@ -1,8 +1,8 @@
 # MTG Art Downloader
-Mass download MTG card arts using MTGPics with Scryfall as a backup source, downloaded images are named according to their card name with the artist in parenthesis, set code in brackets. Arts from mtgpics are put in one folder, scryfall art crops in another folder. If any cards couldn't be found from either source a "failed.txt" is populated with names of the missing cards so you can manually look for them.
+Mass download MTG card arts using MTGPics with Scryfall as a backup source, downloaded images are named according to their card name with the artist in parenthesis, set code in brackets. Arts from mtgpics are put in one folder, scryfall art crops in another folder. If any cards couldn't be found from either source a "failed.txt" is populated with names of the missing cards so you can manually look for them. For additional help using this app, join our discord server (click the discord button below), we have a #downloader channel and can help with any questions.
 
 <p align="center">
-  <a href="https://discord.gg/3kXw2qQwRH">
+  <a href="http://mprox.link/discord">
     <img alt="Discord" src="https://img.shields.io/discord/889831317066358815?label=Discord&style=plastic">
   </a>
   <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-brightgreen?style=plastic">
@@ -26,6 +26,11 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
 - Runt he downloader
+
+# How to use with scryfall commands?
+- After running the app, you can enter commands like so:
+`set:mh2, power>:3, type:creature`
+- This example will download images for all MH2 creatures with power greater than or equal to 3. Separate arguments with a comma, separate the key and value of the argument with a colon. Refer to the scryfall API documentation for more use cases.
 
 # How to use with Google Sheet Script
 - Open up your copy of the "MTG Art Downloader Script" google sheet
