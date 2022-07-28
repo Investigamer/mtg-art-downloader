@@ -60,15 +60,15 @@ class Card:
 		"""
 		Get the correct mtgp URL code
 		"""
-		# Try looking for the card under its collector number
-		code = core.get_mtgp_code(self.mtgp_set, self.num)
-		if code: return code
-
 		# Possible promo set
 		if self.promo:
 			code = core.get_mtgp_code_pmo(name, self.artist, self.set_name, self.mtgp_set)
 			if code: return code
-		return self.set+self.num
+
+		# Try looking for the card under its collector number
+		code = core.get_mtgp_code(self.mtgp_set, self.num)
+		if code: return code
+		else: return self.set + self.num
 
 	def download(self, log_failed=True):
 		"""
@@ -238,7 +238,7 @@ class Flip (Card):
 	def get_mtgp_code(self, name):
 		# Override this method because flip names are different
 		name = self.name.replace("//", "/")
-		super().get_mtgp_code(name)
+		return super().get_mtgp_code(name)
 
 	def make_path(self):
 		# Override this method because // isn't valid in filenames
@@ -344,7 +344,7 @@ class Split (MDFC):
 	def get_mtgp_code(self, name):
 		# Override this method because split names are different
 		name = self.fullname.replace("//", "/")
-		super().get_mtgp_code(name)
+		return super().get_mtgp_code(name)
 
 
 class Meld (Card):

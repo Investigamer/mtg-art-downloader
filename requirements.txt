@@ -6,3 +6,4 @@ requests
 pyclean
 unidecode
 mypy
+pytest

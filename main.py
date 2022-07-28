@@ -19,10 +19,13 @@ os.system("")
 
 
 class Download:
-	def __init__(self, command = None):
+	def __init__(self, command = None, card_list = None):
 		self.thr = []
+		self.fails = []
 		self.basics = []
-		self.list = cfg.cardlist
+		if not card_list:
+			self.list = cfg.cardlist
+		else: self.list = card_list
 		self.time = perf_counter()
 		self.command = command
 
@@ -40,59 +43,70 @@ class Download:
 		else: self.command = None
 		self.start()
 
-	def start(self):
+	def start(self, dry_run = False):
 		"""
 		Open card list, for each card initiate a download
 		"""
-		with open(self.list, 'r', encoding="utf-8") as cards:
-			# Remove blank lines, print total cards
-			cards = cards.readlines()
-			try: cards.remove("")
-			except ValueError: pass
-			try: cards.remove(" ")
-			except ValueError: pass
-			print(f"{Fore.GREEN}---- Downloading {len(cards)} cards! ----{Style.RESET_ALL}")
+		if isinstance(self.list, str):
+			with open(self.list, 'r', encoding="utf-8") as cards:
+				# Remove blank lines, print total cards
+				cards = cards.readlines()
+				try: cards.remove("")
+				except ValueError: pass
+				try: cards.remove(" ")
+				except ValueError: pass
+		elif isinstance(self.list, list):
+			cards = self.list
+		else:
+			print(f"{Fore.RED}---- NO CARD LIST FOUND! ----{Style.RESET_ALL}")
+			return None
 
-			# For each card create new thread
-			for i, card in enumerate(cards):
-				# Detailed card including set?
-				if "--" in card or " (" in card:
-					self.thr.append(threading.Thread(
-						target=self.download_detailed,
-						args=(card,))
-					)
-				else:
-					self.thr.append(threading.Thread(
-						target=self.download_normal,
-						args=(card,))
-					)
+		# Alert the user
+		if not dry_run: print(f"{Fore.GREEN}---- Downloading {len(cards)} cards! ----{Style.RESET_ALL}")
 
-				# Start thread, then sleep to manage thread overload
-				self.thr[i].start()
-				time.sleep(float(1/cfg.threads_per_second))
+		# For each card create new thread
+		for i, card in enumerate(cards):
+			# Detailed card including set?
+			if "--" in card or " (" in card:
+				self.thr.append(threading.Thread(
+					target=self.download_detailed,
+					args=(card,))
+				)
+			else:
+				self.thr.append(threading.Thread(
+					target=self.download_normal,
+					args=(card,))
+				)
 
-			# Ensure each thread completes
-			for t in self.thr:
-				t.join()
-			# Check for basics encountered
-			for b in self.basics:
-				self.download_basic(b)
+			# Start thread, then sleep to manage thread overload
+			self.thr[i].start()
+			time.sleep(float(1/cfg.threads_per_second))
 
-			# Output completion time
-			self.complete(int(perf_counter()) - self.time)
+		# Ensure each thread completes
+		for t in self.thr:
+			t.join()
+		# Check for basics encountered
+		for b in self.basics:
+			self.download_basic(b)
 
-	def download_normal(self, card):
+		# Output completion time
+		if not dry_run: self.complete(int(perf_counter()) - self.time)
+
+	def download_normal(self, card, disable_all=False):
 		"""
 		Download a card with no defined set code.
 		:param card: Card name
+		:param disable_all: Disable download all
 		"""
 		# Remove line break
 		card = card.replace("\n", "")
+		results = []
+		fail = True
 
 		# Basic land?
 		if card in cfg.basic_lands:
 			self.basics.append(card)
-			return None
+			return True
 		try:
 			# Retrieve scryfall data
 			r = req.get(
@@ -115,19 +129,25 @@ class Download:
 				card_class = dl.get_card_class(c)
 				result = card_class(c).download()
 				# If we're not downloading all, break
-				if not cfg.download_all and result:
-					return None
+				if (not cfg.download_all or disable_all) and result:
+					results = [True]
+					break
+				results.append(result)
 
 		except Exception:
 			# Try named lookup
 			try:
 				c = req.get(f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}").json()
 				card_class = dl.get_card_class(c)
-				card_class(c).download()
-			except Exception: console.out.append(f"{card} not found!")
+				result = card_class(c).download()
+			except Exception:
+				console.out.append(f"{card} not found!")
+				result = False
+			results.append(result)
+		if sum(results) == 0: self.fails.append(card)
+		return results
 
-	@staticmethod
-	def download_detailed(item):
+	def download_detailed(self, item):
 		"""
 		Download card with defined set code.
 		:param item: Card name -- set code
@@ -152,8 +172,12 @@ class Download:
 				f"&set={parse.quote(set_code.lower())}"
 			).json()
 			card_class = dl.get_card_class(c)
-			card_class(c).download()
-		except Exception: console.out.append(f"{name} not found!")
+			result = card_class(c).download()
+		except Exception:
+			console.out.append(f"{name} not found!")
+			result = False
+		if not result: self.fails.append(item)
+		return result
 
 	@staticmethod
 	def download_basic(card):
