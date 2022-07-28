@@ -27,6 +27,6 @@ def test_detailed_cards():
 
 
 def test_scryfall_command():
-    dl = app.Download("set:mh2, power>:15, color:C")
-    dl.start(dry_run=True)
+    dl = app.Download("set:2x2, power>:15, color:C")
+    dl.start_command(dry_run=True)
     assert len(dl.fails) == 0

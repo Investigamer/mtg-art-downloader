@@ -29,7 +29,7 @@ class Download:
 		self.time = perf_counter()
 		self.command = command
 
-	def start_command(self):
+	def start_command(self, dry_run = False):
 		"""
 		Initiate download procedure based on the command.
 		"""
@@ -41,7 +41,7 @@ class Download:
 			if self.command:
 				self.list = core.get_list_from_link(self.command)
 		else: self.command = None
-		self.start()
+		self.start(dry_run)
 
 	def start(self, dry_run = False):
 		"""
