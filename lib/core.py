@@ -94,14 +94,17 @@ def get_list_from_scryfall(com):
 
 	# Add additional pages if any exist
 	cards = []
-	while True:
-		cards.extend(res['data'])
-		if res['has_more']:
-			res = requests.get(res['next_page']).json()
-		else: break
+	try:
+		while True:
+			cards.extend(res['data'])
+			if res['has_more']:
+				res = requests.get(res['next_page']).json()
+			else: break
+	except KeyError: return None
 
 	# Write the list
-	with open(os.path.join(cwd, f"lists/scry_search.txt"), "w", encoding="utf-8") as f:
+	Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
+	with open(os.path.join(cwd, "lists/scry_search.txt"), "w", encoding="utf-8") as f:
 		# Clear out the txt file if used before
 		f.truncate(0)
 
