@@ -6,6 +6,8 @@ import re
 import sys
 import time
 import threading
+from typing import Union
+from pathlib import Path
 from time import perf_counter
 from urllib import parse
 import requests as req
@@ -15,14 +17,16 @@ from lib import core
 from lib.constants import console
 from colorama import Style, Fore
 
+cwd = os.getcwd()
+__VER__ = "1.1.6"
 os.system("")
 
 
 class Download:
-    def __init__(self, command=None, card_list=None):
-        self.thr = []
-        self.fails = []
-        self.basics = []
+    def __init__(self, command: str = None, card_list: Union[str, list] = None):
+        self.thr: list[threading.Thread] = []
+        self.fails: list[str] = []
+        self.basics: list[str] = []
         if not card_list:
             self.list = cfg.cardlist
         else:
@@ -30,30 +34,30 @@ class Download:
         self.time = perf_counter()
         self.command = command
 
-    def start_command(self, dry_run=False):
+    def start_command(self, dry_run: bool = False) -> list:
         """
         Initiate download procedure based on the command.
         """
         # Valid command received?
-        if ":" in self.command:
-            self.list = core.get_list_from_scryfall(self.command)
-        elif self.command:
-            self.command = core.get_command(self.command)
-            if self.command:
-                self.list = core.get_list_from_link(self.command)
-        else:
-            self.command = None
+        if isinstance(self.command, str):
+            if ":" in self.command:
+                self.list = core.get_list_from_scryfall(self.command)
+            else:
+                link = core.get_command(self.command)
+                if link:
+                    self.list = core.get_list_from_link(self.command)
+
         self.start(dry_run)
         return self.fails
 
-    def start(self, dry_run=False):
+    def start(self, dry_run: bool = False) -> None:
         """
         Open card list, for each card initiate a download
         """
         if isinstance(self.list, str):
-            with open(self.list, "r", encoding="utf-8") as cards:
+            with open(self.list, "r", encoding="utf-8") as f:
                 # Remove blank lines, print total cards
-                cards = cards.readlines()
+                cards = f.readlines()
                 try:
                     cards.remove("")
                 except ValueError:
@@ -99,9 +103,9 @@ class Download:
 
         # Output completion time
         if not dry_run:
-            self.complete(int(perf_counter()) - self.time)
+            self.complete(int(perf_counter() - self.time))
 
-    def download_normal(self, card, disable_all=False):
+    def download_normal(self, card: str, disable_all: bool = False) -> list[bool]:
         """
         Download a card with no defined set code.
         :param card: Card name
@@ -114,7 +118,7 @@ class Download:
         # Basic land?
         if card in cfg.basic_lands:
             self.basics.append(card)
-            return True
+            return [True]
         try:
             # Retrieve scryfall data
             r = req.get(
@@ -158,7 +162,7 @@ class Download:
             self.fails.append(card)
         return results
 
-    def download_detailed(self, item):
+    def download_detailed(self, item: str) -> bool:
         """
         Download card with defined set code.
         :param item: Card name -- set code
@@ -166,9 +170,9 @@ class Download:
         # Setup card detailed
         if " (" in item:
             reg = r"(.*) \((.*)\)"
-            card = re.match(reg, item)
-            name = card[1]
-            set_code = card[2]
+            card = re.findall(reg, item)[0]
+            name = card[0]
+            set_code = card[1]
         else:
             card = item.split("--")
             set_code = card[0]
@@ -192,7 +196,7 @@ class Download:
         return result
 
     @staticmethod
-    def download_basic(card):
+    def download_basic(card: str):
         """
         Prompt user for set info for basic land, then download.
         :param card: Basic land name
@@ -217,7 +221,7 @@ class Download:
                 console.out.append("Error! Illegitimate set. Try again!")
 
     @staticmethod
-    def complete(elapsed):
+    def complete(elapsed: int):
         """
         Tell the user the download process is complete.
         :param elapsed: Time to complete downloads (seconds)
@@ -235,7 +239,14 @@ class Download:
 
 
 if __name__ == "__main__":
-    __VER__ = "1.1.6"
+
+    # Add necessary directories
+    Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
+
     print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
     print("  ██████╗ ███████╗████████╗   ███╗   ███╗████████╗ ██████╗ ")
     print(" ██╔════╝ ██╔════╝╚══██╔══╝   ████╗ ████║╚══██╔══╝██╔════╝ ")

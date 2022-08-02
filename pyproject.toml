@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "MTG-Art-Downloader"
+version = "1.1.6"
+description = "Mass download MTG card arts using MTG Pics with Scryfall as a backup source."
+authors = ["MrTeferi <freethoughtleft@gmail.com>"]
+license = "GNU General Public License v3.0"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+black = "^22.6.0"
+bs4 = "^0.0.1"
+colorama = "^0.4.5"
+contextlib3 = "^3.10.0"
+mypy = "^0.971"
+pre-commit = "^2.20.0"
+pyclean = "^2.2.0"
+pytest = "^7.1.2"
+requests = "^2.28.1"
+Unidecode = "^1.3.4"
+urllib3 = "^1.26.11"
+
+[tool.poetry.dev-dependencies]
+commitizen = "^2.29.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

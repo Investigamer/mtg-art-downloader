@@ -24,7 +24,7 @@ class Card:
     path = ""
     path_back = None
 
-    def __init__(self, c):
+    def __init__(self, c: dict) -> None:
         # Defined for later use
         self.code = None
 
@@ -60,7 +60,7 @@ class Card:
             self.make_folders()
         self.make_path()
 
-    def get_mtgp_code(self, name):
+    def get_mtgp_code(self, name: str) -> str:
         """
         Get the correct mtgp URL code
         """
@@ -79,7 +79,7 @@ class Card:
         else:
             return self.set + self.num
 
-    def download(self, log_failed=True):
+    def download(self, log_failed: bool = True) -> bool:
         """
         Download just one version of this card.
         """
@@ -102,7 +102,7 @@ class Card:
             return False
         return True
 
-    def download_mtgp(self, name, path, mtgp_code, back=False):
+    def download_mtgp(self, name: str, path: str, mtgp_code: str, back: bool = False):
         """
         Download from MTG Pics
         """

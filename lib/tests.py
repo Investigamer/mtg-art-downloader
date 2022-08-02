@@ -7,7 +7,9 @@ from pathlib import Path
 
 # Add cwd to path
 sys.path.append(str(Path(os.getcwd())))
+os.chdir(str(Path(os.getcwd()).resolve()))
 import main as app
+import core
 
 
 def test_normal_cards():
@@ -31,3 +33,44 @@ def test_detailed_cards():
 def test_scryfall_command():
     dl = app.Download("set:2x2, power>:15, color:C")
     assert len(dl.start_command(dry_run=True)) == 0
+
+
+def test_mtgp_image_determination():
+    longer_string_test = [
+        {"src": "pics/art_th/mh2/030b.jpg"},
+        {"src": "pics/art_th/mh2/030.jpg"},
+    ]
+    bigger_number_test = [
+        {"src": "pics/art_th/mh2/051.jpg"},
+        {"src": "pics/art_th/mh2/050.jpg"},
+    ]
+    underscore_letter_test = [
+        {"src": "pics/art_th/mh2/030_b.jpg"},
+        {"src": "pics/art_th/mh2/030_a.jpg"},
+    ]
+    underscore_number_test = [
+        {"src": "pics/art_th/mh2/030_2.jpg"},
+        {"src": "pics/art_th/mh2/030_1.jpg"},
+    ]
+
+    longer_string_test = [
+        os.path.basename(core.get_card_face(longer_string_test)),
+        os.path.basename(core.get_card_face(longer_string_test, True)),
+    ]
+    underscore_letter_test = [
+        os.path.basename(core.get_card_face(underscore_letter_test)),
+        os.path.basename(core.get_card_face(underscore_letter_test, True)),
+    ]
+    underscore_number_test = [
+        os.path.basename(core.get_card_face(underscore_number_test)),
+        os.path.basename(core.get_card_face(underscore_number_test, True)),
+    ]
+    bigger_number_test = [
+        os.path.basename(core.get_card_face(bigger_number_test)),
+        os.path.basename(core.get_card_face(bigger_number_test, True)),
+    ]
+
+    assert longer_string_test == ["030.jpg", "030b.jpg"]
+    assert bigger_number_test == ["050.jpg", "051.jpg"]
+    assert underscore_letter_test == ["030_a.jpg", "030_b.jpg"]
+    assert underscore_number_test == ["030_1.jpg", "030_2.jpg"]

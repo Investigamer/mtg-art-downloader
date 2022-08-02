@@ -13,12 +13,6 @@ from lib import settings as cfg
 
 cwd = os.getcwd()
 
-# Create folders if they don't exist
-Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
-Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
-Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
-Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
-
 
 def get_command(com):
     """
@@ -38,19 +32,16 @@ def get_list_from_link(com):
     :param com: Command array including name, and url
     :return: Filename of the newly created list
     """
-    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
     cards = requests.get(com["url"]).json()
     with open(
         os.path.join(cwd, f"lists/{com['name']}.txt"), "w", encoding="utf-8"
     ) as f:
-        # Clear out the txt file if used before
-        f.truncate(0)
-
         # Get our card list
         for k in com["keys"]:
             cards = cards[k]
 
-        # Loop through cards adding them to the txt list
+        # Clear file then write card list
+        f.truncate(0)
         for card in cards:
             f.write(f"{card['name']}\n")
     return os.path.join(cwd, f"lists/{com['name']}.txt")
@@ -62,7 +53,7 @@ def get_list_from_scryfall(com):
     :return: Return path to the list file
     """
     command = {}
-    query = "https://api.scryfall.com/cards/search?page=0&q="
+    query = "https://api.scryfall.com/cards/search?q="
 
     # Split command by argument
     com = com.split(",")
@@ -84,7 +75,7 @@ def get_list_from_scryfall(com):
                 arg[0] = arg[0][1:]
             if arg[1][0] == " ":
                 arg[1] = arg[1][1:]
-        except:
+        except (KeyError, TypeError):
             pass
         command.update({arg[0] + sep: arg[1]})
         if "set:" in command and "is:" not in command:
@@ -211,54 +202,34 @@ def log(name, set_code=None, txt="failed"):
     print(f"{Fore.RED}FAILED: {Style.RESET_ALL}{name} [{set_code.upper()}]")
 
 
-def get_card_face(entries, back):
+def get_card_face(entries, back=False):
     """
-    Determine which images are back and front
+    Determine which image should be downloaded when multiple are present.
     """
     arr = []
     path = f"https://mtgpics.com/{os.path.dirname(entries[0]['src'])}"
     path = path.replace("art_th", "art")
 
-    for i in entries:
-        arr.append(os.path.basename(i["src"]).replace(".jpg", ""))
+    # Isolate the image code
+    for e in entries:
+        arr.append(os.path.basename(e["src"]).replace(".jpg", ""))
+
+    # Strategy based on number of entries
     if len(arr) == 1:
         if back:
             return None
         return f"{path}/{arr[0]}.jpg"
     if len(arr) == 2:
-        # Two sides exist
-        try:
-            # Bigger number usually the back
-            if int(arr[0]) > int(arr[1]):
-                if back:
-                    return f"{path}/{arr[0]}.jpg"
-                return f"{path}/{arr[1]}.jpg"
-            if int(arr[1]) > int(arr[0]):
-                if back:
-                    return f"{path}/{arr[1]}.jpg"
-                return f"{path}/{arr[0]}.jpg"
-        except:
-            try:
-                # In some cases backs have longer string
-                if len(arr[0]) > len(arr[1]):
-                    if back:
-                        return f"{path}/{arr[0]}.jpg"
-                    return f"{path}/{arr[1]}.jpg"
-                if len(arr[1]) > len(arr[0]):
-                    if back:
-                        return f"{path}/{arr[1]}.jpg"
-                    return f"{path}/{arr[0]}.jpg"
-            except:
-                pass
-        # All other cases just go in order
         if back:
-            return f"{path}/{arr[1]}.jpg"
-        return f"{path}/{arr[0]}.jpg"
+            return f"{path}/{sorted(arr)[1]}.jpg"
+        return f"{path}/{sorted(arr)[0]}.jpg"
     if len(arr) > 2:
+
+        # Separate into string array and int array, sorted
         img_i = []
         img_s = []
-        # Separate into string array and int array, sorted
         arr.sort()
+
         for i in arr:
             if len(i) == 3:
                 img_i.append(i)
@@ -270,11 +241,13 @@ def get_card_face(entries, back):
             if back:
                 return f"{path}/{img_i[1]}.jpg"
             return f"{path}/{img_i[0]}.jpg"
+
         # Try comparing strings
         if len(img_s) > 1:
             if back:
                 return f"{path}/{img_s[1]}.jpg"
             return f"{path}/{img_s[0]}.jpg"
+
         # Or just go in order
         if back:
             return f"{path}/{img_i[0]}.jpg"
