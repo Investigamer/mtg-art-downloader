@@ -2,6 +2,8 @@
 CARD CLASSES
 """
 import os
+from urllib.error import HTTPError
+
 import requests
 from pathlib import Path
 from urllib import request
@@ -22,12 +24,9 @@ class Card:
     """
 
     path = ""
-    path_back = None
+    path_back = ""
 
     def __init__(self, c: dict) -> None:
-        # Defined for later use
-        self.code = None
-
         # Inherited card info
         self.set = c["set"]
         self.artist = unidecode(c["artist"])
@@ -85,51 +84,63 @@ class Card:
         """
         # Download only scryfall?
         if cfg.only_scryfall:
-            try:
-                self.download_scryfall(self.name, self.filename, self.scrylink)
-                return True
-            except:
+            if not self.download_scryfall(self.name, self.filename, self.scrylink):
                 return False
 
         # Try downloading MTGP
-        try:
-            self.download_mtgp(self.name, self.filename, self.code)
-        except:
+        if not self.download_mtgp(self.name, self.filename, self.code):
             if cfg.download_scryfall:
                 self.download_scryfall(self.name, self.filename, self.scrylink)
-            elif log_failed:
+            if log_failed:
                 core.log(self.name, self.set)
             return False
         return True
 
     def download_mtgp(self, name: str, path: str, mtgp_code: str, back: bool = False):
         """
-        Download from MTG Pics
+        Download image from MTG Pics
+        :param name: Name of card to use for console output
+        :param path: Image save path
+        :param mtgp_code: MTGP linkage
+        :param back: Is this the back side?
+        :return:
         """
-        # Crawl the mtgpics site to find correct link for mdfc card
-        r = requests.get("https://www.mtgpics.com/card?ref=" + mtgp_code)
-        soup = BeautifulSoup(r.content, "html.parser")
-        soup_img = soup.find_all(
-            "img", {"style": "display:block;border:4px black solid;cursor:pointer;"}
-        )
+        try:
+            # Crawl the mtgpics site to find correct link for mdfc card
+            r = requests.get("https://www.mtgpics.com/card?ref=" + mtgp_code)
+            soup = BeautifulSoup(r.content, "html.parser")
+            soup_img = soup.find_all(
+                "img", {"style": "display:block;border:4px black solid;cursor:pointer;"}
+            )
 
-        # Is this the back face?
-        img_link = core.get_card_face(soup_img, back)
+            # Is this the back face?
+            img_link = core.get_card_face(soup_img, back)
 
-        # Try to download from MTG Pics
-        request.urlretrieve(img_link, f"{cfg.mtgp}/{path}")
-        console.out.append(
-            f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]"
-        )
+            # Try to download from MTG Pics
+            request.urlretrieve(img_link, f"{cfg.mtgp}/{path}")
+            console.out.append(
+                f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]"
+            )
+            return True
+        except (TypeError, AttributeError, HTTPError):
+            return False
 
-    def download_scryfall(self, name, path, scrylink):
+    def download_scryfall(self, name: str, path: str, scrylink: str):
         """
         Download scryfall art crop
+        :param name: Name of card to use in console output
+        :param path: Image save path
+        :param scrylink: Art crop scryfall URI
+        :return:
         """
-        request.urlretrieve(scrylink, f"{cfg.scry}/{path}.jpg")
-        console.out.append(
-            f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]"
-        )
+        try:
+            request.urlretrieve(scrylink, f"{cfg.scry}/{path}.jpg")
+            console.out.append(
+                f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]"
+            )
+            return True
+        except (TypeError, AttributeError, HTTPError):
+            return False
 
     def make_folders(self):
         """
@@ -143,7 +154,7 @@ class Card:
         )
 
         # Setup backs folder if needed
-        if self.path_back:
+        if self.path_back is not "":
             Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(
                 mode=511, parents=True, exist_ok=True
             )
@@ -160,7 +171,7 @@ class Card:
         self.filename = f"{self.path}{front_name}.jpg"
 
         # Setup back path if exists
-        if self.path_back:
+        if self.path_back is not "":
             back_name = self.naming_convention(
                 self.name_back, self.artist, self.set.upper()
             )
@@ -186,7 +197,7 @@ class Card:
         return False
 
     @staticmethod
-    def naming_convention(name, artist, setcode):
+    def naming_convention(name: str, artist: str, setcode: str):
         """
         Generates filename using config naming convention.
         :param name: Name of card
@@ -266,13 +277,19 @@ class Flip(Card):
         self.savename = c["card_faces"][0]["name"]
         super().__init__(c)
 
-    def get_mtgp_code(self, name):
-        # Override this method because flip names are different
+    def get_mtgp_code(self, name: str):
+        """
+        Override this method because flip names are displayed differently.
+        :param name: Card name to reformat
+        :return: The MTGP code linkage
+        """
         name = self.name.replace("//", "/")
         return super().get_mtgp_code(name)
 
     def make_path(self):
-        # Override this method because // isn't valid in filenames
+        """
+        Override this method because // isn't valid in filenames
+        """
         front_name = self.naming_convention(
             self.savename, self.artist, self.set.upper()
         )
@@ -306,72 +323,39 @@ class MDFC(Card):
             self.scrylink_back = c["card_faces"][1]["image_uris"]["art_crop"]
         super().__init__(c)
 
-    def download(self, log_failed=True):
+    def download(self, log_failed: bool = True):
         """
-        Download each card
+        Download each card side.
+        :param log_failed: Whether to log failed download attempts.
+        :return:
         """
-        # Default success value, change on failure
-        front = True
-        back = True
+        # Call super to download the front
+        front = super().download()
+        back = False
 
-        # Download only scryfall?
+        # Download the back.
         if cfg.only_scryfall:
-            try:
-                self.download_scryfall(self.name, self.filename, self.scrylink)
-            except:
-                front = False
-            try:
-                self.download_scryfall(
-                    self.name_back, self.filename_back, self.scrylink_back
-                )
-            except:
-                back = False
-
-            # Log any failures
-            if log_failed:
-                if not front and not back:
-                    core.log(self.name, self.set)
-                    return False
-                if not front:
-                    core.log(self.name, self.set, "failed_front")
-                elif not back:
-                    core.log(self.name_back, self.set, "failed_back")
-            return True
-
-        # Download Front
-        try:
-            self.download_mtgp(self.name, self.filename, self.code)
-        except:
-            if cfg.download_scryfall:
-                try:
-                    self.download_scryfall(self.name, self.filename, self.scrylink)
-                except:
-                    front = False
-            else:
-                front = False
-
-        # Download back
-        try:
-            self.download_mtgp(
+            if self.download_scryfall(
+                self.name_back, self.filename_back, self.scrylink_back
+            ):
+                back = True
+        else:
+            if not self.download_mtgp(
                 f"{self.name_back} (Back)", self.filename_back, self.code, True
-            )
-        except:
-            if cfg.download_scryfall:
-                try:
+            ):
+                if cfg.download_scryfall:
                     self.download_scryfall(
                         self.name_back, self.filename_back, self.scrylink_back
                     )
-                except:
-                    back = False
             else:
-                back = False
+                back = True
 
         # Log any failures
         if log_failed:
             if not front and not back:
                 core.log(self.name, self.set)
                 return False
-            if not front:
+            elif not front:
                 core.log(self.name, self.set, "failed_front")
             elif not back:
                 core.log(self.name_back, self.set, "failed_back")
@@ -395,13 +379,17 @@ class Split(MDFC):
     path = "Split/"
     path_back = "Split/"
 
-    def __init__(self, c):
+    def __init__(self, c: dict):
         self.fullname = c["name"]
         self.scrylink = c["image_uris"]["art_crop"]
         super().__init__(c)
 
-    def get_mtgp_code(self, name):
-        # Override this method because split names are different
+    def get_mtgp_code(self, name: str):
+        """
+        Override this method because split names are displayed differently.
+        :param name: Card name to reformat
+        :return: The MTGP code linkage
+        """
         name = self.fullname.replace("//", "/")
         return super().get_mtgp_code(name)
 
@@ -414,9 +402,11 @@ class Meld(Card):
     path = "Meld/"
 
 
-def get_card_class(c):
+def get_card_class(c: dict):
     """
     Return the card class
+    :param c: Card json data.
+    :return: The correct card class to use.
     """
     class_map = {
         "normal": Card,
