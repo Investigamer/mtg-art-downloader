@@ -240,13 +240,6 @@ class Download:
 
 if __name__ == "__main__":
 
-    # Add necessary directories
-    Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
-
     print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
     print("  ██████╗ ███████╗████████╗   ███╗   ███╗████████╗ ██████╗ ")
     print(" ██╔════╝ ██╔════╝╚══██╔══╝   ████╗ ████║╚══██╔══╝██╔════╝ ")

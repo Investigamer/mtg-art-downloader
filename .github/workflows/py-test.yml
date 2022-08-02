@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test:
-    name: Test on Python ${{ matrix.python_version }} and ${{ matrix.os }}
+    name: Test on Python ${{ matrix.python_version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

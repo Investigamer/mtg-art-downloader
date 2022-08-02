@@ -12,6 +12,12 @@ from unidecode import unidecode
 from lib import settings as cfg
 
 cwd = os.getcwd()
+# Add necessary directories
+Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
+Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
+Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
+Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
+Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
 
 
 def get_command(com):
