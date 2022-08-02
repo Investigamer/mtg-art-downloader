@@ -24,9 +24,9 @@ os.system("")
 
 class Download:
     def __init__(self, command: str = None, card_list: Union[str, list] = None):
-        self.thr: list[threading.Thread] = []
-        self.fails: list[str] = []
-        self.basics: list[str] = []
+        self.thr: list = []
+        self.fails: list = []
+        self.basics: list = []
         if not card_list:
             self.list = cfg.cardlist
         else:
