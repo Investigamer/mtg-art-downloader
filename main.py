@@ -105,7 +105,7 @@ class Download:
         if not dry_run:
             self.complete(int(perf_counter() - self.time))
 
-    def download_normal(self, card: str, disable_all: bool = False) -> list[bool]:
+    def download_normal(self, card: str, disable_all: bool = False) -> list:
         """
         Download a card with no defined set code.
         :param card: Card name
