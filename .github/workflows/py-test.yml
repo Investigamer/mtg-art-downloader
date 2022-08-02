@@ -39,7 +39,7 @@ jobs:
     - name: Pytest and Mypy
       run: |
         poetry run pytest lib/tests.py
-        poetry run mypy main.py --ignore-missing-imports
+        poetry run mypy main.py --ignore-missing-imports --exclude 'requests'
 
   pre-commit:
     #----------------------------------------------
