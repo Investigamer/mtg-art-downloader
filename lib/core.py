@@ -2,6 +2,7 @@
 CORE FUNCTIONS
 """
 import os
+from typing import Union
 from urllib.parse import quote_plus
 import requests
 from difflib import SequenceMatcher
@@ -20,50 +21,51 @@ Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
 Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
 
 
-def get_command(com):
+def get_command(command: str) -> Union[dict, None]:
     """
     See if the command is listed in links.json
-    :param com: String given by the user
+    :param command: String representing a pre-programmed command from links.json.
     :return: The appropriate link, None if nothing matches
     """
     for k, v in cfg.links.items():
-        if com in v:
-            return v[com]
+        if command in v:
+            return v[command]
     return None
 
 
-def get_list_from_link(com):
+def get_list_from_link(command: dict) -> str:
     """
     Webscrape to create list of cards to download from a given list.
-    :param com: Command array including name, and url
+    :param command: Command array including name, and url
     :return: Filename of the newly created list
     """
-    cards = requests.get(com["url"]).json()
+    cards = requests.get(command["url"]).json()
     with open(
-        os.path.join(cwd, f"lists/{com['name']}.txt"), "w", encoding="utf-8"
+        os.path.join(cwd, f"lists/{command['name']}.txt"), "w", encoding="utf-8"
     ) as f:
         # Get our card list
-        for k in com["keys"]:
+        for k in command["keys"]:
             cards = cards[k]
 
         # Clear file then write card list
         f.truncate(0)
         for card in cards:
             f.write(f"{card['name']}\n")
-    return os.path.join(cwd, f"lists/{com['name']}.txt")
+    return os.path.join(cwd, f"lists/{command['name']}.txt")
 
 
-def get_list_from_scryfall(com):
+def get_list_from_scryfall(com: str):
     """
-    User scryfall query to return a list.
+    Use Scryfall API compliant query to return a list.
+    :param com: Command string containing scryfall arguments.
     :return: Return path to the list file
     """
     command = {}
     query = "https://api.scryfall.com/cards/search?q="
 
     # Split command by argument
-    com = com.split(",")
-    for c in com:
+    com_arr = com.split(",")
+    for c in com_arr:
         # Obtain key and value for argument
         arg = c.split(":")
 
@@ -119,9 +121,12 @@ def get_list_from_scryfall(com):
     return os.path.join(cwd, "lists/scry_search.txt")
 
 
-def get_mtgp_code(set_code, num):
+def get_mtgp_code(set_code: str, num: str):
     """
     Webscrape to find the correct MTG Pics code for the card.
+    :param set_code: Set code of this card, ex: mh2
+    :param num: Collector number of this card, ex: 220
+    :return: Accurate mtgp linkage for this card
     """
     try:
         # Crawl the mtgpics site to find correct set code
@@ -145,11 +150,11 @@ def get_mtgp_code(set_code, num):
             if cols[0].text == num:
                 return cols[2].find("a")["href"].replace("card?ref=", "")
         return None
-    except:
+    except (KeyError, TypeError, IndexError, AttributeError):
         return None
 
 
-def get_mtgp_code_pmo(name, artist, set_name, promo="pmo"):
+def get_mtgp_code_pmo(name: str, artist: str, set_name: str, promo: str = "pmo"):
     """
     Webscrape to find the correct MTG Pics code for the card.
     """
@@ -191,27 +196,30 @@ def get_mtgp_code_pmo(name, artist, set_name, promo="pmo"):
                     }
                 )
         return sorted(matches, key=lambda i: i["match"])[0]["code"]
-    except:
+    except (KeyError, TypeError, IndexError, AttributeError):
         return None
 
 
-def log(name, set_code=None, txt="failed"):
+def log(name: str, set_code: str, txt: str = "failed"):
     """
     Log card that couldn't be found.
     """
     Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
-    with open(os.path.join(cwd, f"logs/{txt}.txt"), "a", encoding="utf-8") as l:
-        if set_code:
-            l.write(f"{set_code}--{name}\n")
-        else:
-            l.write(f"{name}\n")
+    with open(os.path.join(cwd, f"logs/{txt}.txt"), "a", encoding="utf-8") as f:
+        f.write(f"{set_code}--{name}\n") if set_code else f.write(f"{name}\n")
     print(f"{Fore.RED}FAILED: {Style.RESET_ALL}{name} [{set_code.upper()}]")
 
 
-def get_card_face(entries, back=False):
+def get_card_face(entries: list, back: bool = False):
     """
     Determine which image should be downloaded when multiple are present.
     """
+
+    # Return none if entry list empty
+    if len(entries) == 0:
+        return
+
+    # Format the image path
     arr = []
     path = f"https://mtgpics.com/{os.path.dirname(entries[0]['src'])}"
     path = path.replace("art_th", "art")
@@ -258,8 +266,3 @@ def get_card_face(entries, back=False):
         if back:
             return f"{path}/{img_i[0]}.jpg"
         return f"{path}/{img_s[0]}.jpg"
-
-    # All else failed go in order
-    if back:
-        return f"{path}/{arr[1]}.jpg"
-    return f"{path}/{arr[0]}.jpg"

@@ -25,3 +25,13 @@ commitizen = "^2.29.2"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "bs4",
+    "colorama"
+]
+ignore_missing_imports = true

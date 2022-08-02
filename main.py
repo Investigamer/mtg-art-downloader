@@ -7,7 +7,6 @@ import sys
 import time
 import threading
 from typing import Union
-from pathlib import Path
 from time import perf_counter
 from urllib import parse
 import requests as req
