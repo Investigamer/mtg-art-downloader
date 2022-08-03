@@ -154,7 +154,7 @@ class Card:
         )
 
         # Setup backs folder if needed
-        if self.path_back is not "":
+        if self.path_back != "":
             Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(
                 mode=511, parents=True, exist_ok=True
             )
@@ -171,7 +171,7 @@ class Card:
         self.filename = f"{self.path}{front_name}.jpg"
 
         # Setup back path if exists
-        if self.path_back is not "":
+        if self.path_back != "":
             back_name = self.naming_convention(
                 self.name_back, self.artist, self.set.upper()
             )

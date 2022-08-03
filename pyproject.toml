@@ -35,3 +35,6 @@ module = [
     "colorama"
 ]
 ignore_missing_imports = true
+
+[tool.commitizen]
+changelog_start_rev = 'v1.1.6'

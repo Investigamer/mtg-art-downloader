@@ -2,7 +2,9 @@
 GLOBAL CONSTANTS
 """
 import time
-from threading import Thread
+from threading import Thread, Lock
+
+LOCK = Lock()
 
 
 class Console:
@@ -11,11 +13,12 @@ class Console:
 
     def wait(self):
         while True:
-            if len(self.out) > 1:
-                msg = self.out.pop()
-                print(msg)
-            else:
-                time.sleep(0.01)
+            with LOCK:
+                if len(self.out) > 1:
+                    msg = self.out.pop()
+                    print(msg)
+                    time.sleep(0.05)
+            time.sleep(0.01)
 
 
 console = Console()
