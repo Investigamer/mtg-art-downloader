@@ -2,6 +2,7 @@
 SCRIPT TO BUILD PROXYSHOP AS EXE RELEASE
 """
 import os
+import sys
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -89,8 +90,8 @@ def build_zip(version):
     Create a zip of this release.
     """
     print("Building ZIP...")
-    ZIP = os.path.join(CWD, "MTG Art Downloader.v{}.zip".format(version))
-    ZIP_DIST = os.path.join(DIST, "MTG Art Downloader.v{}.zip".format(version))
+    ZIP = os.path.join(CWD, "mtg-art-downloader.{}.zip".format(version))
+    ZIP_DIST = os.path.join(DIST, "mtg-art-downloader.{}.zip".format(version))
     with zipfile.ZipFile(ZIP, "w", zipfile.ZIP_DEFLATED) as zipf:
         for fp in glob(os.path.join(DIST, "**/*"), recursive=True):
             base = os.path.commonpath([DIST, fp])
@@ -99,9 +100,6 @@ def build_zip(version):
 
 
 if __name__ == "__main__":
-
-    # Prompt user to start
-    v = input("ENTER VERSION NUMBER, EX: 1.2.0\n")
 
     # Pre-build steps
     clear_build_files()
@@ -113,5 +111,5 @@ if __name__ == "__main__":
 
     # Post-build steps
     move_data()
-    build_zip(v)
+    build_zip(sys.argv[1])
     clear_build_files(False)
