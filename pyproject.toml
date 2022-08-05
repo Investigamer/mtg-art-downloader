@@ -38,4 +38,5 @@ module = [
 ignore_missing_imports = true
 
 [tool.commitizen]
-changelog_start_rev = 'v1.1.6'
+changelog_start_rev = '1.1.6'
+version = "1.1.7"
