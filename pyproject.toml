@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "MTG-Art-Downloader"
-version = "1.1.6"
+version = "v1.1.7"
 description = "Mass download MTG card arts using MTG Pics with Scryfall as a backup source."
 authors = ["MrTeferi <freethoughtleft@gmail.com>"]
 license = "GNU General Public License v3.0"
@@ -38,5 +38,8 @@ module = [
 ignore_missing_imports = true
 
 [tool.commitizen]
-changelog_start_rev = '1.1.6'
-version = "1.1.7"
+update_changelog_on_bump = true
+tag_format = "v$major.$minor.$patch$prerelease"
+changelog_start_rev = 'v1.1.6'
+version = "v1.1.7"
+annotated_tag = true
