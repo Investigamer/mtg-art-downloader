@@ -225,14 +225,13 @@ class Download:
         Tell the user the download process is complete.
         :param elapsed: Time to complete downloads (seconds)
         """
-        time.sleep(1)
         console.out.append(f"Downloads finished in {elapsed} seconds!")
-        time.sleep(0.02)
         console.out.append(
             "\nAll available files downloaded.\n"
             "See failed.txt for images that couldn't be located.\n"
             "Press enter to exit :)"
         )
+        console.flush()
         input()
         sys.exit()
 

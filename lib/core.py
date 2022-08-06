@@ -121,7 +121,7 @@ def get_list_from_scryfall(com: str):
     return os.path.join(cwd, "lists/scry_search.txt")
 
 
-def get_mtgp_code(set_code: str, num: str):
+def get_mtgp_code(set_code: str, num: str, name: str):
     """
     Webscrape to find the correct MTG Pics code for the card.
     :param set_code: Set code of this card, ex: mh2
@@ -148,7 +148,13 @@ def get_mtgp_code(set_code: str, num: str):
         for row in rows:
             cols = row.find_all("td")
             if cols[0].text == num:
-                return cols[2].find("a")["href"].replace("card?ref=", "")
+                if name in cols[2].text:
+                    return cols[2].find("a")["href"].replace("card?ref=", "")
+                else:  # Name doesn't match, look for the name
+                    for r in rows:
+                        cols = r.find_all("td")
+                        if name in cols[2].text:
+                            return cols[2].find("a")["href"].replace("card?ref=", "")
         return None
     except (KeyError, TypeError, IndexError, AttributeError):
         return None

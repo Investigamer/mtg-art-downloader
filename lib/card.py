@@ -72,7 +72,7 @@ class Card:
                 return code
 
         # Try looking for the card under its collector number
-        code = core.get_mtgp_code(self.mtgp_set, self.num)
+        code = core.get_mtgp_code(self.mtgp_set, self.num, name)
         if code:
             return code
         else:
