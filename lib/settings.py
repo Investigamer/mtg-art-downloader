@@ -3,6 +3,7 @@ ESTABLISH USER SETTINGS
 """
 import os
 import configparser
+import hjson
 import json
 
 cwd = os.getcwd()
@@ -14,8 +15,8 @@ config.read("config.ini")
 CONSTANTS
 """
 basic_lands = ["Plains", "Island", "Swamp", "Mountain", "Forest"]
-with open(os.path.join(cwd, "lib/codes.json")) as js:
-    replace_sets = json.load(js)
+with open(os.path.join(cwd, "lib/codes.hjson")) as js:
+    replace_sets = hjson.load(js)
 with open(os.path.join(cwd, "lib/links.json")) as js:
     links = json.load(js)
 with open(os.path.join(cwd, "lib/scryfall.json")) as js:

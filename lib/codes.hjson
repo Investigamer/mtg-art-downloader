@@ -1,0 +1,493 @@
+{
+    # === Alchemy === #
+    ysnc: a22
+    yneo: a22
+    ymid: a22
+
+    # === Archenemy === #
+    oarc: arc
+    arc: ard
+    oe01: anb
+    e01: and
+    parc: gat
+
+    # === Arsenal === #
+    # cc1: cc1
+    # cc2: cc2
+    cm1: cma
+
+    # === Box === #
+    e02: eoi
+    dpa: dop
+    btd: bea
+    brb: bro
+    # gnt: gnt
+    # gn2: gn2
+    # gn3: gn3
+    # ha1: ha1
+    # ha2: ha2
+    # ha3: ha3
+    # ha4: ha4
+    # ha5: ha5
+    # ha6: ha6
+    # gk1: gk1
+    # gk2: gk2
+    g17: pmo
+    g18: pmo
+    md1: med
+    psal: sh1
+    ps11: sh2
+    phuk: sh1
+    # cst: cst
+    dkm: dec
+    # ath: ath
+    past: vir
+    rqs: i2p
+
+    # === Commander === #
+    # cmd: cmd
+    c13: 13c
+    c14: 14c
+    c15: 15c
+    c16: 16c
+    c17: 17c
+    # c18: 18c
+    # c19: 19c
+    # c20: 20c
+    # c21: 21c
+    # ncc: ncc
+    phed: sld
+    # nec: nec
+    # afc: afc
+    # znc: znc
+    cma : can
+
+    # === Core === #
+    # m21: m21
+    # m20: m20
+    # m19: m19
+    m15: 15m
+    m14: 14m
+    m13: 13m
+    m12: 12m
+    m11: 11m
+    m10: 10m
+    # ori: ori
+    10e: xth
+    9ed: 9th
+    8ed: 8th
+    7ed: 7th
+    6ed: 6th
+    5ed: 5th
+    4ed: 4th
+    4bb: 4th
+    3ed: rev
+    2ed: abu
+    leb: bet
+    lea: alp
+    # sum: sum
+
+    # === Draft Innovation === #
+    cn2: 2cn
+    # mh1: mh1
+    # mh2: mh2
+
+    # === DUEL DECKS === #
+    ddu: evi
+    dds: mvm
+    ddr: nvo
+    ddq: bvc
+    ddp: zve
+    ddo: evk
+    jvc: dda
+    ddn: svc
+    ddl: hvm
+    ddk: svt
+    ddj: ivg
+    ddi: vvk
+    ddh: avn
+    ddg: kvd
+    ddf: evt
+    dd2: jvc
+    ddt: mvg
+    ddm: jvv
+    # td2:
+    dde: pvc
+    ddd: gvl
+    ddc: dvd
+    dd1: evg
+
+    # === EXPANSION === #
+    arb: alr
+    ala: soa
+    shm: sha
+    lrw: lor
+    csp: col
+    gpt: gui
+    sok: sak
+    bok: bek
+    5dn: fda
+    dst: drs
+    scg: sco
+    lgn: lgi
+    apc: apo
+    pls: pla
+    pcy: pro
+    mmq: mer
+    uds: urd
+    ulg: url
+    usg: urs
+    sth: str
+    tmp: tem
+    wth: wea
+    atq: ant
+    arn: ara
+    tsb: tsp
+    hml: hom
+    fem: fal
+    drk: dar
+
+    # === FROM THE VAULT === #
+    v17: ftr
+    v16: fvo
+    v15: fva
+    v14: anh
+    v13: fvt
+    v12: fre
+    v11: fvl
+    v10: fvr
+    v09: fve
+    drb: fvd
+
+    # === FUNNY === #
+    # mmh2: MINIGAMES NOT SUPPORTED
+    cmb2: mb2
+    cmb1: myb
+    ugl: ung
+    htr20: pmo
+    htr19: pmo
+    htr18: pmo
+    htr17: pmo
+    htr16: pmo
+    ptg: pmo
+    h17: pmo
+    hho: pmo
+
+    # === MASTERPIECE === #
+    sta: stm
+    exp: zex
+    # zne: zne
+    med: myt
+    mp2: aki
+    mps: kli
+
+    # === MASTERS === #
+    uma: ulm
+    a25: 25m
+    mm3: mmc
+    mm2: mmb
+    me4: 4me
+    me3: 3me
+    me2: 2me
+    me1: 1me
+    plist: tli
+    fmb1: mys
+    mb1: mys
+    # rin: NOT SUPPORTEd
+
+    # === PLANECHASE === #
+    opc2: 2pc
+    pc2: pad
+    ohop: pch
+    hop: pcd
+    opca: pca
+
+    # === PREMIUM DECKS  === #
+    pd3: gra
+    pd2: fir
+    h09: sli
+
+    # === PROMO === #
+    parb: pre
+    pala: pre
+    pshm: pre
+    pcsp: pre
+    pgpt: pre
+    psok: pre
+    pbok: pre
+    p5dn: pre
+    papc: pre
+    ppls: pre
+    ppcy: pre
+    pelp: eur
+    pmmq: pre
+    puds: pre
+    pulg: pre
+    pusg: pre
+    palp: apa
+    psth: pre
+    ptmp: pre
+    prcq: pmo
+    p30a: 30a
+    # psvc: NONE
+    sch: pmo
+    plg22: pmo
+    gdy: pmo
+    pw22: pmo
+    pl22: pmo
+    p22: dci
+    plg21: pmo
+    pmh2: pre
+    pw21: pmo
+    pl21: pmo
+    pf21: pmo
+    pj21: dci
+    plg20: pmo
+    pf20: pmo
+    j20: dci
+    ps19: pmo
+    ppp1: pmo
+    j19: dci
+    prw2: pmo
+    pf19: pmo
+    prwk: pmo
+    ps18: pmo
+    # pana: None
+    pm19: pmo
+    pss3: pmo
+    plny: pmo
+    pnat: pmo
+    j18: dci
+    # f18: None
+    pxtc: pmo
+    pxln: pre
+    pss2: pmo
+    ps17: pmo
+    j17: dci
+    f17: fnm
+    ps16: pmo
+    j16: dci
+    f16: fnm
+    pss1: pmo
+    ps15: pmo
+    ptkdf: pmo
+    ugin: pmo
+    f15: fnm
+    j15: dci
+    pm15: pre
+    ps14: pmo
+    pdp15: pmo
+    pi14: p14
+    f14: fnm
+    j14: dci
+    pths: pre
+    pm14: pre
+    psdc: pre
+    wmc: pmo
+    pdp14: pmo
+    pi13: pmo
+    f13: fnm
+    j13: dci
+    pm13: pre
+    pidw: pmo
+    pw12: gat
+    pdp13: pmo
+    j12: dci
+    f12: fnm
+    pm12: pre
+    pmps11: mps
+    pdp12: pmo
+    pw11: gat
+    f11: fnm
+    p11: rew
+    g11: dci
+    pm11: pre
+    pdp10: pmo
+    pw10: gat
+    pmps10: mps
+    g10: dci
+    f10: fnm
+    p10: rew
+    pzen: pre
+    phop: pre
+    pm10: pre
+    # purl: None
+    pbook: pmo
+    pw09: gat
+    pdtp: pmo
+    pmps09: mps
+    f09: fnm
+    p09: rew
+    g09: dci
+    pwpn: gat
+    p15a: pmo
+    pmps08: mps
+    pg08: gat
+    f08: fnm
+    p08: rew
+    g08: dci
+    plrw: pre
+    p10e: pre
+    pgpx: pmo
+    ppro: pmo
+    # pres: None
+    pg07: gat
+    pmps07: mps
+    p07: rew
+    f07: fnm
+    g07: dci
+    pcmp: pmo
+    pal06: are
+    pmps06: mps
+    pjas: jss
+    g06: dci
+    pgtw: gat
+    p06: rew
+    f06: fnm
+    p2hg: pmo
+    p9ed: pre
+    pal05: are
+    pjse: jss
+    g05: dci
+    p05: rew
+    f05: fnm
+    pdst: pre
+    pal04: are
+    p04: rew
+    f04: fnm
+    g04: dci
+    p8ed: pre
+    pscg: pre
+    plgn: pmo
+    pjjt: jss
+    pal03: are
+    g03: dci
+    p03: rew
+    f03: fnm
+    # phj: None
+    # prm: None
+    pjud: pre
+    ptor: pre
+    pal02: are
+    pr2: mpt
+    f02: fnm
+    g02: dci
+    pal01: are
+    f01: fnm
+    g01: dci
+    mpr: rew
+    pnem: pre
+    pal00: are
+    g00: dci
+    fnm: fnm
+    psus: jss
+    pwos: pmo
+    pwor: pmo
+    pgru: gur
+    pal99: are
+    g99: dci
+    pexo: pre
+    jgp: dci
+    pred: pmo
+    parl: are
+    pmei: pmo
+    plgm: pmo
+    phpr: pmo
+    pdrc: pmo
+
+    # === PSET === #
+    puma: uma
+    pclb: pre
+    psnc: pre
+    pncc: pre
+    pneo: pre
+    pvow: pre
+    pmid: pre
+    pafr: pre
+    pstx: pre
+    pkhm: pre
+    pznr: pre
+    pm21: pre
+    piko: pre
+    pthb: pre
+    peld: pre
+    pm20: pre
+    pmh1: pre
+    pwar: pre
+    prna: pre
+    pgrn: pre
+    pbbd: pre
+    pdom: pre
+    prix: pre
+    pust: pre
+    phou: pre
+    pakh: pre
+    paer: pre
+    pkld: pre
+    pemn: pre
+    psoi: pre
+    pogw: pre
+    pbfz: pre
+    pori: pre
+    pdtk: pre
+    pfrf: pre
+    pktk: pre
+    pcns: pre
+    pjou: pre
+    pbng: pre
+    pdgm: pre
+    pgtc: pre
+    prtr: pre
+    pavr: pre
+    pdka: pre
+    pisd: pre
+    pnph: pre
+    pmbs: pre
+    psom: pre
+    proe: pre
+    pwwk: pre
+    pcon: pre
+    peve: pre
+    pmor: pre
+    psum: pre
+    pfut: pre
+    pplc: pre
+    ptsp: pre
+    pdis: pre
+    prav: pre
+    pmps: pre
+    punh: pre
+    pchk: pre
+    pmrd: pre
+    pons: pre
+    pody: pre
+    pinv: pre
+    pptk: pre
+    pvan: pre
+
+    # === SPELLBOOK === #
+    # All good
+
+    # === STARTER === #
+    oana: an2
+    anb: an2
+    ajmp: ana
+    w17: 17w
+    w16: 16w
+    cp3: pmo
+    cp2: pmo
+    cp1: pmo
+    p02: psa
+    # ana: None
+    s00: s2k
+    s99: sta
+    itp: i2p
+
+    # === TREASURE CHEST === #
+    # pz2: NONE
+    # pz1: NONE
+
+    # === VANGUARD === #
+    # pmoa: None
+
+}

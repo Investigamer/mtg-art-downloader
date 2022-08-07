@@ -24,8 +24,8 @@ files = [
     {"src": os.path.join(CWD, "config.ini"), "dst": os.path.join(DIST, "config.ini")},
     # --- SOURCE DIRECTORY
     {
-        "src": os.path.join(MTG, "codes.json"),
-        "dst": os.path.join(DIST_MTG, "codes.json"),
+        "src": os.path.join(MTG, "codes.hjson"),
+        "dst": os.path.join(DIST_MTG, "codes.hjson"),
     },
     {
         "src": os.path.join(MTG, "links.json"),

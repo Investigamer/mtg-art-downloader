@@ -64,7 +64,7 @@ class Card:
         Get the correct mtgp URL code
         """
         # Possible promo set
-        if self.promo:
+        if self.promo or self.mtgp_set == "pmo":
             code = core.get_mtgp_code_pmo(
                 name, self.artist, self.set_name, self.mtgp_set
             )
@@ -214,10 +214,12 @@ class Card:
         Check if this is a promo card
         """
         set_types = ["funny", "promo"]
+        if self.mtgp_set == "pre":
+            return True
         if "Alchemy" in self.set_name:
             self.mtgp_set = "a22"
             return True
-        if "Judge Gift" in self.set_name or self.set == "dci":
+        if "Judge Gift" in self.set_name or self.mtgp_set == "dci":
             self.mtgp_set = "dci"
             return True
         if self.set_name in ("Legacy Championship", "Vintage Championship"):
