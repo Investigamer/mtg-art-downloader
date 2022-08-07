@@ -1,3 +1,13 @@
+## v1.1.8 (2022-08-07)
+
+### Fix
+
+- **codes**: Wrote a new comprehensive set replacement library
+- **py-test.yml**: Add types-requests to workflow
+- **mypy**: Added stronger typing, fixed mypy errors
+- **Card-Settings**: Scryfall commands now pass direct scryfall data, improvements to download process
+- **core.get_mtgp_code-console**: Added flush to console and fixed pop, get_mtgp_code can now fall back on named search
+
 ## 1.1.7 (2022-08-05)
 
 ### Fix
