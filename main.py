@@ -6,7 +6,7 @@ import re
 import sys
 import time
 import threading
-from typing import Union
+from typing import Union, Optional
 from time import perf_counter
 from urllib import parse
 import requests as req
@@ -31,7 +31,7 @@ class Download:
         else:
             self.list = card_list
         self.time: float = perf_counter()
-        self.command: str = command
+        self.command: Optional[str] = command
 
     def start_command(self, dry_run: bool = False) -> list:
         """

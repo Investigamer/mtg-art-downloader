@@ -2,7 +2,7 @@
 CORE FUNCTIONS
 """
 import os
-from typing import Union
+from typing import Optional
 from urllib.parse import quote_plus
 import requests
 from difflib import SequenceMatcher
@@ -21,7 +21,7 @@ Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
 Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
 
 
-def get_command(command: str) -> Union[dict, None]:
+def get_command(command: str) -> Optional[dict]:
     """
     See if the command is listed in links.json
     :param command: String representing a pre-programmed command from links.json.
@@ -54,7 +54,7 @@ def get_list_from_link(command: dict) -> str:
     return os.path.join(cwd, f"lists/{command['name']}.txt")
 
 
-def get_list_from_scryfall(com: str) -> Union[list, None]:
+def get_list_from_scryfall(com: str) -> Optional[list]:
     """
     Use Scryfall API compliant query to return a list.
     :param com: Command string containing scryfall arguments.

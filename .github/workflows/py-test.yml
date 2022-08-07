@@ -33,7 +33,6 @@ jobs:
       run: |
         python -m pip install -U pip poetry
         poetry install
-        poetry add types-requests
     #----------------------------------------------
     # Run our Tests w/ Pytest, Type check with mypy
     #----------------------------------------------
@@ -41,6 +40,7 @@ jobs:
       run: |
         poetry run pytest lib/tests.py
         poetry run mypy main.py --ignore-missing-imports --exclude requests
+        poetry run mypy lib --ignore-missing-imports --exclude requests
 
   pre-commit:
     #----------------------------------------------

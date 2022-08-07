@@ -105,7 +105,7 @@ class Card:
         :param back: Is this the back side?
         :return:
         """
-        img_link = None
+        img_link = ""
         path = f"{cfg.mtgp}/{path}"
         try:
             # Crawl the mtgpics site to find correct link

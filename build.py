@@ -38,7 +38,7 @@ files = [
 ]
 
 # Folders that need to be copied
-folders = [
+folders: list = [
     # --- WORKING DIRECTORY
     # {'src': os.path.join(CWD, "lists"), 'dst': os.path.join(DIST, 'lists')}
 ]
