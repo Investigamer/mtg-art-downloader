@@ -2,8 +2,8 @@
 CARD CLASSES
 """
 import os
-from urllib.error import HTTPError
-
+from urllib.error import HTTPError, ContentTooShortError
+from pathvalidate import sanitize_filename
 import requests
 from pathlib import Path
 from urllib import request
@@ -105,8 +105,10 @@ class Card:
         :param back: Is this the back side?
         :return:
         """
+        img_link = None
+        path = f"{cfg.mtgp}/{path}"
         try:
-            # Crawl the mtgpics site to find correct link for mdfc card
+            # Crawl the mtgpics site to find correct link
             r = requests.get("https://www.mtgpics.com/card?ref=" + mtgp_code)
             soup = BeautifulSoup(r.content, "html.parser")
             soup_img = soup.find_all(
@@ -116,14 +118,27 @@ class Card:
             # Is this the back face?
             img_link = core.get_card_face(soup_img, back)
 
+            # Check path for overwrites
+            if not cfg.overwrite:
+                path = self.check_path(path)
+
             # Try to download from MTG Pics
-            request.urlretrieve(img_link, f"{cfg.mtgp}/{path}")
+            request.urlretrieve(img_link, path)
             console.out.append(
                 f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]"
             )
-            return True
+        except ContentTooShortError:
+            # Retry download
+            try:
+                request.urlretrieve(img_link, path)
+                console.out.append(
+                    f"{Fore.GREEN}MTGP:{Style.RESET_ALL} {name} [{self.set.upper()}]"
+                )
+            except (TypeError, AttributeError, HTTPError, ContentTooShortError):
+                return False
         except (TypeError, AttributeError, HTTPError):
             return False
+        return True
 
     def download_scryfall(self, name: str, path: str, scrylink: str):
         """
@@ -134,7 +149,7 @@ class Card:
         :return:
         """
         try:
-            request.urlretrieve(scrylink, f"{cfg.scry}/{path}.jpg")
+            requests.get(scrylink, f"{cfg.scry}/{path}.jpg")
             console.out.append(
                 f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]"
             )
@@ -177,6 +192,23 @@ class Card:
             )
             self.filename_back = f"{self.path_back}{back_name}.jpg"
 
+    @staticmethod
+    def check_path(path):
+        """
+        Check if path needs to be numbered to prevent overwrite.
+        """
+        # Front face
+        if Path(path).is_file():
+            i = 1
+            path = path.replace(".jpg", f" ({str(i)}).jpg")
+            while True:
+                i += 1
+                if Path(path).is_file():
+                    path = path.replace(f"({str(i-1)})", f"({str(i)})")
+                else:
+                    break
+        return path
+
     def check_for_promo(self):
         """
         Check if this is a promo card
@@ -207,6 +239,7 @@ class Card:
         """
         result = cfg.naming.replace("NAME", name)
         result = result.replace("ARTIST", artist).replace("SET", setcode)
+        result = sanitize_filename(result)
         return result
 
 
@@ -232,6 +265,28 @@ class Adventure(Card):
     """
 
     path = "Adventure/"
+
+    def __init__(self, c):
+        self.savename = c["card_faces"][0]["name"]
+        super().__init__(c)
+
+    def get_mtgp_code(self, name: str):
+        """
+        Override this method because flip names are displayed differently.
+        :param name: Card name to reformat
+        :return: The MTGP code linkage
+        """
+        name = self.name.replace("//", "/")
+        return super().get_mtgp_code(name)
+
+    def make_path(self):
+        """
+        Override this method because // isn't valid in filenames
+        """
+        front_name = self.naming_convention(
+            self.savename, self.artist, self.set.upper()
+        )
+        self.filename = f"{self.path}{front_name}.jpg"
 
 
 class Leveler(Card):
@@ -396,10 +451,27 @@ class Split(MDFC):
 
 class Meld(Card):
     """
-    Meld card -- Will do later
+    Meld card
+    TODO: Revisit
     """
 
     path = "Meld/"
+
+
+class Token(Card):
+    """
+    Token card
+    """
+
+    path = "Token/"
+
+
+class Reversible(MDFC):
+    """
+    Reversible card, see "Heads I Win, Tails You Lose"
+    """
+
+    path = "Reversible/"
 
 
 def get_card_class(c: dict):
@@ -420,15 +492,17 @@ def get_card_class(c: dict):
         "class": Class,
         "split": Split,
         "flip": Flip,
+        "token": Token,
+        "reversible_card": Reversible,
     }
 
     # Planeswalker, saga, or land? (non mdfc)
-    if "Planeswalker" in c["type_line"] and "card_faces" not in c:
+    if "type_line" in c and "Planeswalker" in c["type_line"] and "card_faces" not in c:
         return Planeswalker
-    if "Saga" in c["type_line"] and "card_faces" not in c:
+    if "type_line" in c and "Saga" in c["type_line"] and "card_faces" not in c:
         return Saga
     if "keywords" in c and "Mutate" in c["keywords"]:
         return Mutate
-    if "Land" in c["type_line"] and "card_faces" not in c:
+    if "type_line" in c and "Land" in c["type_line"] and "card_faces" not in c:
         return Land
     return class_map[c["layout"]]

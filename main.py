@@ -17,7 +17,7 @@ from lib.constants import console
 from colorama import Style, Fore
 
 cwd = os.getcwd()
-__VER__ = "1.1.6"
+__VER__ = "1.1.8"
 os.system("")
 
 
@@ -30,8 +30,8 @@ class Download:
             self.list = cfg.cardlist
         else:
             self.list = card_list
-        self.time = perf_counter()
-        self.command = command
+        self.time: float = perf_counter()
+        self.command: str = command
 
     def start_command(self, dry_run: bool = False) -> list:
         """
@@ -44,7 +44,7 @@ class Download:
             else:
                 link = core.get_command(self.command)
                 if link:
-                    self.list = core.get_list_from_link(self.command)
+                    self.list = core.get_list_from_link(link)
 
         self.start(dry_run)
         return self.fails
@@ -80,7 +80,11 @@ class Download:
         # For each card create new thread
         for i, card in enumerate(cards):
             # Detailed card including set?
-            if "--" in card or " (" in card:
+            if isinstance(card, dict):
+                self.thr.append(
+                    threading.Thread(target=self.download_dict, args=(card,))
+                )
+            elif "--" in card or " (" in card:
                 self.thr.append(
                     threading.Thread(target=self.download_detailed, args=(card,))
                 )
@@ -176,6 +180,7 @@ class Download:
             card = item.split("--")
             set_code = card[0]
             name = card[1]
+        name = name.replace("\n", "")
 
         # Try to find the card
         try:
@@ -192,6 +197,23 @@ class Download:
             result = False
         if not result:
             self.fails.append(item)
+        return result
+
+    def download_dict(self, card: dict):
+        """
+        Downloads a card with previously fetched scryfall data.
+        :param card: Dict of card data
+        :return: True if succeeded, False if not
+        """
+        # Try to download the card
+        try:
+            card_class = dl.get_card_class(card)
+            result = card_class(card).download()
+        except Exception:
+            console.out.append(f"{card['name']} not found!")
+            result = False
+        if not result:
+            self.fails.append(card["name"])
         return result
 
     @staticmethod

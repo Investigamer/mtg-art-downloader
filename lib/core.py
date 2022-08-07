@@ -54,7 +54,7 @@ def get_list_from_link(command: dict) -> str:
     return os.path.join(cwd, f"lists/{command['name']}.txt")
 
 
-def get_list_from_scryfall(com: str):
+def get_list_from_scryfall(com: str) -> Union[list, None]:
     """
     Use Scryfall API compliant query to return a list.
     :param com: Command string containing scryfall arguments.
@@ -87,12 +87,13 @@ def get_list_from_scryfall(com: str):
             pass
         command.update({arg[0] + sep: arg[1]})
         if "set:" in command and "is:" not in command:
-            command.update({"is:": "booster"})
+            if get_mtg_set(command["set:"])["set_type"] == "expansion":
+                command.update({"is:": "booster"})
 
     # Add each argument to scryfall search
     for k, v in command.items():
         query += quote_plus(f" {k}{v}")
-    query += "&unique=print"
+    query += "&unique=art"
 
     # Query scryfall
     res = requests.get(query).json()
@@ -110,15 +111,7 @@ def get_list_from_scryfall(com: str):
         return None
 
     # Write the list
-    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
-    with open(os.path.join(cwd, "lists/scry_search.txt"), "w", encoding="utf-8") as f:
-        # Clear out the txt file if used before
-        f.truncate(0)
-
-        # Loop through cards adding them to the txt list
-        for card in cards:
-            f.write(f"{card['set']}--{card['name']}\n")
-    return os.path.join(cwd, "lists/scry_search.txt")
+    return cards
 
 
 def get_mtgp_code(set_code: str, num: str, name: str):
@@ -129,6 +122,7 @@ def get_mtgp_code(set_code: str, num: str, name: str):
     :return: Accurate mtgp linkage for this card
     """
     try:
+
         # Crawl the mtgpics site to find correct set code
         r = requests.get("https://www.mtgpics.com/card?ref=" + set_code + "001")
         soup = BeautifulSoup(r.content, "html.parser")
@@ -145,19 +139,22 @@ def get_mtgp_code(set_code: str, num: str, name: str):
                 "style": "display:block;margin:0px 2px 0px 2px;border-top:1px #cccccc dotted;"
             },
         )
+
+        # Look for collector number and name match
         for row in rows:
             cols = row.find_all("td")
-            if cols[0].text == num:
-                if name in cols[2].text:
-                    return cols[2].find("a")["href"].replace("card?ref=", "")
-                else:  # Name doesn't match, look for the name
-                    for r in rows:
-                        cols = r.find_all("td")
-                        if name in cols[2].text:
-                            return cols[2].find("a")["href"].replace("card?ref=", "")
-        return None
+            if cols[0].text == num and name in cols[2].text:
+                return cols[2].find("a")["href"].replace("card?ref=", "")
+
+        # Collector number doesn't match, look only for the name
+        for row in rows:
+            cols = row.find_all("td")
+            if name in cols[2].text:
+                return cols[2].find("a")["href"].replace("card?ref=", "")
+
     except (KeyError, TypeError, IndexError, AttributeError):
         return None
+    return None
 
 
 def get_mtgp_code_pmo(name: str, artist: str, set_name: str, promo: str = "pmo"):
@@ -201,7 +198,7 @@ def get_mtgp_code_pmo(name: str, artist: str, set_name: str, promo: str = "pmo")
                         ).ratio(),
                     }
                 )
-        return sorted(matches, key=lambda i: i["match"])[0]["code"]
+        return sorted(matches, key=lambda i: i["match"], reverse=True)[0]["code"]
     except (KeyError, TypeError, IndexError, AttributeError):
         return None
 
@@ -272,3 +269,20 @@ def get_card_face(entries: list, back: bool = False):
         if back:
             return f"{path}/{img_i[0]}.jpg"
         return f"{path}/{img_s[0]}.jpg"
+
+
+"""
+SCRYFALL FUNCTIONS
+"""
+
+
+def get_mtg_set(code):
+    """
+    Return json data for MTG Set.
+    :param code: Set code
+    :return: Dict of set data
+    """
+    try:
+        return requests.get(f"https://api.scryfall.com/sets/{code}").json()
+    except requests.exceptions.BaseHTTPError:
+        return None

@@ -56,6 +56,11 @@ try:
     only_scryfall = config["SETTINGS"].getboolean("Only.Download.Scryfall")
 except ValueError:
     only_scryfall = False
+# Overwrite previous files
+try:
+    overwrite = config["SETTINGS"].getboolean("Overwrite.Same.Name")
+except ValueError:
+    only_scryfall = False
 
 
 """
