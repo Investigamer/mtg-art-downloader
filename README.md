@@ -23,12 +23,14 @@ We now use `poetry` as package manager [link][1]
 - Python 3.6+
 - clone the repository
 - install the requirements (it creates a virtual env) with
+```
     poetry install
+``` 
 - Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o (optional)
 - executed it with
-
+```
     poetry run python main.py
-
+```
 
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
