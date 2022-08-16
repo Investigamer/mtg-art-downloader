@@ -19,7 +19,7 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Make a copy of this google sheet document on your account:  [google Spreadsheet][3] (optional)
 
 # Setup - Python Version
-We now use `poetry` as package manager, [link][1]
+We now use `poetry` as package manager ([link][1]): 
 - Python 3.6+
 - clone the repository
 - install the requirements (it creates a virtual env) with
