@@ -1,3 +1,9 @@
+## v1.1.9 (2022-08-28)
+
+### Fix
+
+- **scryfall**: Fixed scryfall downloading
+
 ## v1.1.8 (2022-08-07)
 
 ### Fix
