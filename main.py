@@ -17,7 +17,7 @@ from lib.constants import console
 from colorama import Style, Fore
 
 cwd = os.getcwd()
-__VER__ = "1.1.8"
+__VER__ = "1.1.9"
 os.system("")
 
 
