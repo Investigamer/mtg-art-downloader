@@ -19,7 +19,7 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - Make a copy of this google sheet document on your account:  [google Spreadsheet][3] (optional)
 
 # Setup - Python Version
-We now use `poetry` as package manager ([link][1]): 
+We now use `poetry` as package manager ([link][1]):
 - Python 3.6+
 - Download this repository `git clone https://github.com/MrTeferi/MTG-Art-Downloader`
 - If you don't have Python Poetry, simply install it with `scoop install poetry` or read more at ([link][1])
@@ -57,7 +57,11 @@ We now use `poetry` as package manager ([link][1]):
 - You can increase or decrease threads added per second depending on the speed of your internet.
 - You can choose the naming convention for saving the downloaded images.
 
+# Contributing
+If you wish to contribute to this project:
+- Before doing a PR always make sure to run `pre-commit run` to ensure your code is standardized
+- Only commit with commitizen, add your changed files with `git add .` then `cz commit` and follow the prompts
 
 [1]: https://python-poetry.org/docs/basic-usage/
-[2]: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o 
+[2]: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o
 [3]: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk
