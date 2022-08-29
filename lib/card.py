@@ -149,7 +149,7 @@ class Card:
         :return:
         """
         try:
-            requests.get(scrylink, f"{cfg.scry}/{path}.jpg")
+            request.urlretrieve(scrylink, f"{cfg.scry}/{path}")
             console.out.append(
                 f"{Fore.YELLOW}SCRYFALL:{Style.RESET_ALL} {name} [{self.set.upper()}]"
             )
