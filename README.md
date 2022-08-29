@@ -16,13 +16,19 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 
 # Setup - Executable Release
 - Download the latest release
-- Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk (optional)
+- Make a copy of this google sheet document on your account:  [google Spreadsheet][3] (optional)
 
 # Setup - Python Version
+We now use `poetry` as package manager ([link][1]): 
 - Python 3.6+
-- pip install -r requirements.txt (python dependencies)
-- Make a copy of this google sheet document on your account: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o (optional)
-- "python app.py" to run
+- Download this repository `git clone https://github.com/MrTeferi/MTG-Art-Downloader`
+- If you don't have Python Poetry, simply install it with `scoop install poetry` or read more at ([link][1])
+- Install dependencies `poetry install`
+- Make a copy of this google sheet document on your account: [google Spreadsheet][2](optional)
+- execute it with
+```
+    poetry run python main.py
+```
 
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
@@ -50,3 +56,8 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 - You can choose whether to include extras in the search, this includes un-sets and special championship cards.
 - You can increase or decrease threads added per second depending on the speed of your internet.
 - You can choose the naming convention for saving the downloaded images.
+
+
+[1]: https://python-poetry.org/docs/basic-usage/
+[2]: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o 
+[3]: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk
