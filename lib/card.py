@@ -86,6 +86,7 @@ class Card:
         if cfg.only_scryfall:
             if not self.download_scryfall(self.name, self.filename, self.scrylink):
                 return False
+            return True
 
         # Try downloading MTGP
         if not self.download_mtgp(self.name, self.filename, self.code):
