@@ -6,7 +6,7 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
     <img alt="Discord" src="https://img.shields.io/discord/889831317066358815?label=Discord&style=plastic">
   </a>
   <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-brightgreen?style=plastic">
-  <img alt="Passing" src="https://img.shields.io/github/workflow/status/MrTeferi/MTG-Art-Downloader/Python%20application?style=plastic">
+  <img alt="Passing" src="https://img.shields.io/github/actions/workflow/status/MrTeferi/MTG-Art-Downloader/py-test.yml?style=plastic">
   <img alt="GitHub" src="https://img.shields.io/github/license/MrTeferi/MTG-Art-Downloader?color=1082C2&style=plastic">
   <a href="https://github.com/MrTeferi/MTG-Art-Downloader/releases">
     <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/MrTeferi/MTG-Art-Downloader/total?style=plastic">
