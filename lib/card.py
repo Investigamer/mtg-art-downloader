@@ -18,66 +18,145 @@ from lib import core
 cwd = os.getcwd()
 
 
-# SINGLE IMAGE CARDS
+"""
+CARD CLASSES
+"""
+
+
 class Card:
     """
     Base class to extend all cards to.
     """
+
     path = ""
     path_back = ""
 
     def __init__(self, c: dict) -> None:
-        # Inherited card info
+        # Store all card info
         self.c = c
-        self.set = c["set"]
-        self.artist = unidecode(c["artist"])
-        self.num = c["collector_number"]
-        self.set_name = c["set_name"]
-        self.set_type = c["set_type"]
+        self._promo = False
 
-        # Scrylink
-        if not hasattr(self, "scrylink"):
-            self.scrylink = c["image_uris"]["art_crop"]
+        # Create download folders if needed
+        Path(os.path.join(cfg.mtgp, self.path)).mkdir(
+            mode=511, parents=True, exist_ok=True
+        )
+        Path(os.path.join(cfg.scry, self.path)).mkdir(
+            mode=511, parents=True, exist_ok=True
+        )
 
-        # Fix mtgp setcode
-        if self.set in cfg.replace_sets:
-            self.mtgp_set = cfg.replace_sets[self.set]
-        else:
-            self.mtgp_set = self.set
+        # Setup backs folder if needed
+        if self.path_back != "":
+            Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(
+                mode=511, parents=True, exist_ok=True
+            )
+            Path(os.path.join(cfg.scry, self.path_back)).mkdir(
+                mode=511, parents=True, exist_ok=True
+            )
 
-        # Name if not defined
-        if not hasattr(self, "name"):
-            self.name = c["name"]
+    """
+    PROPERTIES
+    """
 
-        # Possible promo card?
-        self.promo = self.check_for_promo()
+    @property
+    def set(self) -> str:
+        return self.c["set"]
 
-        # Get the MTGP code
-        self.code = self.get_mtgp_code(self.name)
+    @property
+    def name(self) -> str:
+        return self.c["name"]
 
-        # Make folders, setup path
-        if self.path:
-            self.make_folders()
-        self.make_path()
+    @property
+    def artist(self) -> str:
+        return unidecode(self.c["artist"])
 
-    def get_mtgp_code(self, name: str) -> str:
+    @property
+    def number(self) -> str:
+        return self.c["collector_number"]
+
+    @property
+    def set_name(self) -> str:
+        return self.c["set_name"]
+
+    @property
+    def set_type(self) -> str:
+        return self.c["set_type"]
+
+    @property
+    def scrylink(self) -> str:
+        return self.c["image_uris"]["art_crop"]
+
+    @property
+    def promo(self) -> bool:
+        return self._promo
+
+    @promo.setter
+    def promo(self, value):
+        self._promo = value
+
+    @cached_property
+    def mtgp_set(self) -> str:
+        # Acquire MTGP appropriate set code
+        mtgp_set = self.set
+        if mtgp_set in cfg.replace_sets:
+            mtgp_set = cfg.replace_sets[self.set]
+
+        # Check for promo set
+        set_types = ["funny", "promo"]
+        if mtgp_set == "pre":
+            self.promo = True
+        if "Alchemy" in self.set_name:
+            self.promo = True
+            return "a22"
+        if "Judge Gift" in self.set_name or mtgp_set == "dci":
+            self.promo = True
+            return "dci"
+        if self.set_name in ("Legacy Championship", "Vintage Championship"):
+            self.promo = True
+            return "uni"
+        if self.set_type in set_types:
+            self.promo = True
+            return "pmo"
+        return mtgp_set
+
+    @property
+    def mtgp_name(self) -> str:
+        return self.name
+
+    @cached_property
+    def mtgp_code(self) -> str:
         """
         Get the correct mtgp URL code
         """
         # Possible promo set
-        if self.promo or self.mtgp_set == "pmo":
-            code = core.get_mtgp_code_pmo(
-                name, self.artist, self.set_name, self.mtgp_set
-            )
-            if code:
+        if self.mtgp_set and self.promo:
+            if code := core.get_mtgp_code_pmo(
+                self.mtgp_name, self.artist, self.set_name, self.mtgp_set
+            ):
                 return code
 
         # Try looking for the card under its collector number
-        code = core.get_mtgp_code(self.mtgp_set, self.num, name)
-        if code:
+        if code := core.get_mtgp_code(self.mtgp_set, self.number, self.mtgp_name):
             return code
-        else:
-            return self.set + self.num
+        return self.set + self.number
+
+    @cached_property
+    def filename(self) -> str:
+        # Filename to save front face image
+        front_name = self.naming_convention(self.name, self.artist, self.set.upper())
+        return f"{self.path}{front_name}.jpg"
+
+    @cached_property
+    def filename_back(self) -> str:
+        # Filename to save back face image
+        if self.path_back != "":
+            back_name = self.naming_convention(
+                self.name_back, self.artist, self.set.upper()
+            )
+            return f"{self.path_back}{back_name}.jpg"
+
+    """
+    METHODS
+    """
 
     def download(self, log_failed: bool = True) -> bool:
         """
@@ -90,7 +169,7 @@ class Card:
             return True
 
         # Try downloading MTGP
-        if not self.download_mtgp(self.name, self.filename, self.code):
+        if not self.download_mtgp(self.name, self.filename, self.mtgp_code):
             if cfg.download_scryfall:
                 self.download_scryfall(self.name, self.filename, self.scrylink)
             if log_failed:
@@ -159,40 +238,9 @@ class Card:
         except (TypeError, AttributeError, HTTPError):
             return False
 
-    def make_folders(self):
-        """
-        Check that the folders exist
-        """
-        Path(os.path.join(cfg.mtgp, self.path)).mkdir(
-            mode=511, parents=True, exist_ok=True
-        )
-        Path(os.path.join(cfg.scry, self.path)).mkdir(
-            mode=511, parents=True, exist_ok=True
-        )
-
-        # Setup backs folder if needed
-        if self.path_back != "":
-            Path(os.path.join(cfg.mtgp, self.path_back)).mkdir(
-                mode=511, parents=True, exist_ok=True
-            )
-            Path(os.path.join(cfg.scry, self.path_back)).mkdir(
-                mode=511, parents=True, exist_ok=True
-            )
-
-    def make_path(self):
-        """
-        Define save paths for this card
-        """
-        # Front image path
-        front_name = self.naming_convention(self.name, self.artist, self.set.upper())
-        self.filename = f"{self.path}{front_name}.jpg"
-
-        # Setup back path if exists
-        if self.path_back != "":
-            back_name = self.naming_convention(
-                self.name_back, self.artist, self.set.upper()
-            )
-            self.filename_back = f"{self.path_back}{back_name}.jpg"
+    """
+    STATIC METHODS
+    """
 
     @staticmethod
     def check_path(path):
@@ -200,37 +248,12 @@ class Card:
         Check if path needs to be numbered to prevent overwrite.
         """
         # Front face
-        if Path(path).is_file():
-            i = 1
-            path = path.replace(".jpg", f" ({str(i)}).jpg")
-            while True:
-                i += 1
-                if Path(path).is_file():
-                    path = path.replace(f"({str(i-1)})", f"({str(i)})")
-                else:
-                    break
-        return path
-
-    def check_for_promo(self):
-        """
-        Check if this is a promo card
-        """
-        set_types = ["funny", "promo"]
-        if self.mtgp_set == "pre":
-            return True
-        if "Alchemy" in self.set_name:
-            self.mtgp_set = "a22"
-            return True
-        if "Judge Gift" in self.set_name or self.mtgp_set == "dci":
-            self.mtgp_set = "dci"
-            return True
-        if self.set_name in ("Legacy Championship", "Vintage Championship"):
-            self.mtgp_set = "uni"
-            return True
-        if self.set_type in set_types:
-            self.mtgp_set = "pmo"
-            return True
-        return False
+        i = 0
+        current_path = path
+        while Path(current_path).is_file():
+            i += 1
+            current_path = path.replace(".jpg", f" ({str(i)}).jpg")
+        return current_path
 
     @staticmethod
     def naming_convention(name: str, artist: str, setcode: str):
@@ -247,29 +270,21 @@ class Card:
         return result
 
 
-class Land(Card):
-    """
-    Basic land card
-    """
-    path = "Land/"
-
-
-class Saga(Card):
-    """
-    Saga card
-    """
-    path = "Saga/"
+"""
+CARDS WITH TWO NAMES, ONE FACE
+"""
 
 
 class Adventure(Card):
     """
     Adventure card
     """
+
     path = "Adventure/"
 
     @property
     def savename(self) -> str:
-        return self.c['card_faces'][0]['name']
+        return self.c["card_faces"][0]["name"]
 
     @cached_property
     def filename(self):
@@ -281,52 +296,21 @@ class Adventure(Card):
         )
         return f"{self.path}{front_name}.jpg"
 
-    def get_mtgp_code(self, name: str):
-        """
-        Override this method because flip names are displayed differently.
-        :param name: Card name to reformat
-        :return: The MTGP code linkage
-        """
-        return super().get_mtgp_code(self.name.replace("//", "/"))
-
-
-class Leveler(Card):
-    """
-    Leveler card
-    """
-    path = "Leveler/"
-
-
-class Mutate(Card):
-    """
-    Mutate card
-    """
-    path = "Mutate/"
-
-
-class Planeswalker(Card):
-    """
-    Planeswalker card
-    """
-    path = "Planeswalker/"
-
-
-class Class(Card):
-    """
-    Class card
-    """
-    path = "Class/"
+    @property
+    def mtgp_name(self) -> str:
+        return self.name.replace("//", "/")
 
 
 class Flip(Card):
     """
     Flip card
     """
+
     path = "Flip/"
 
     @property
     def savename(self) -> str:
-        return self.c['card_faces'][0]['name']
+        return self.c["card_faces"][0]["name"]
 
     @cached_property
     def filename(self) -> str:
@@ -338,20 +322,14 @@ class Flip(Card):
         )
         return f"{self.path}{front_name}.jpg"
 
-    def get_mtgp_code(self, name: str):
-        """
-        Override this method because flip names are displayed differently.
-        :param name: Card name to reformat
-        :return: The MTGP code linkage
-        """
-        return super().get_mtgp_code(self.name.replace("//", "/"))
+    @property
+    def mtgp_name(self) -> str:
+        return self.name.replace("//", "/")
 
 
-class Planar(Card):
-    """
-    Planar card
-    """
-    path = "Planar/"
+"""
+CARDS WITH CARD_FACES ARRAY
+"""
 
 
 # MULTIPLE IMAGE CARDS
@@ -359,24 +337,25 @@ class MDFC(Card):
     """
     Double faced card
     """
+
     path = "MDFC Front/"
     path_back = "MDFC Back/"
 
     @property
     def name(self) -> str:
-        return self.c['card_faces'][0]['name']
+        return self.c["card_faces"][0]["name"]
 
     @property
     def name_back(self) -> str:
-        return self.c['card_faces'][1]['name']
+        return self.c["card_faces"][1]["name"]
 
     @property
     def scrylink(self) -> str:
-        return self.c['card_faces'][0]['image_uris']['art_crop']
+        return self.c["card_faces"][0]["image_uris"]["art_crop"]
 
     @property
     def scrylink_back(self) -> str:
-        return self.c['card_faces'][1]['image_uris']['art_crop']
+        return self.c["card_faces"][1]["image_uris"]["art_crop"]
 
     def download(self, log_failed: bool = True):
         """
@@ -396,7 +375,7 @@ class MDFC(Card):
                 back = True
         else:
             if not self.download_mtgp(
-                f"{self.name_back} (Back)", self.filename_back, self.code, True
+                f"{self.name_back} (Back)", self.filename_back, self.mtgp_code, True
             ):
                 if cfg.download_scryfall:
                     self.download_scryfall(
@@ -417,6 +396,23 @@ class MDFC(Card):
         return True
 
 
+class Split(MDFC):
+    """
+    Split card
+    """
+
+    path = "Split/"
+    path_back = "Split/"
+
+    @property
+    def scrylink(self) -> str:
+        return self.c["image_uris"]["art_crop"]
+
+    @property
+    def mtgp_name(self) -> str:
+        return self.name.replace("//", "/")
+
+
 class Transform(MDFC):
     """
     Transform card
@@ -426,25 +422,81 @@ class Transform(MDFC):
     path_back = "TF Back/"
 
 
-class Split(MDFC):
+class Reversible(MDFC):
     """
-    Split card
+    Reversible card, see "Heads I Win, Tails You Lose"
     """
-    path = "Split/"
-    path_back = "Split/"
 
-    @property
-    def scrylink(self) -> str:
-        return self.c['image_uris']['art_crop']
+    path = "Reversible/"
 
-    def get_mtgp_code(self, name: str):
-        """
-        Override this method because split names are displayed differently.
-        :param name: Card name to reformat
-        :return: The MTGP code linkage
-        """
-        name = self.c["name"].replace("//", "/")
-        return super().get_mtgp_code(name)
+
+"""
+SIMPLE ARCHETYPES
+"""
+
+
+class Land(Card):
+    """
+    Basic land card
+    """
+
+    path = "Land/"
+
+
+class Saga(Card):
+    """
+    Saga card
+    """
+
+    path = "Saga/"
+
+
+class Leveler(Card):
+    """
+    Leveler card
+    """
+
+    path = "Leveler/"
+
+
+class Mutate(Card):
+    """
+    Mutate card
+    """
+
+    path = "Mutate/"
+
+
+class Planeswalker(Card):
+    """
+    Planeswalker card
+    """
+
+    path = "Planeswalker/"
+
+
+class Class(Card):
+    """
+    Class card
+    """
+
+    path = "Class/"
+
+
+class Token(Card):
+    """
+    Token card
+    """
+
+    path = "Token/"
+
+
+class Planar(Card):
+    """
+    Planar card
+    """
+
+    path = "Planar/"
 
 
 class Meld(Card):
@@ -452,21 +504,13 @@ class Meld(Card):
     Meld card
     TODO: Revisit
     """
+
     path = "Meld/"
 
 
-class Token(Card):
-    """
-    Token card
-    """
-    path = "Token/"
-
-
-class Reversible(MDFC):
-    """
-    Reversible card, see "Heads I Win, Tails You Lose"
-    """
-    path = "Reversible/"
+"""
+UTILITY FUNCTIONS
+"""
 
 
 def get_card_class(c: dict):
