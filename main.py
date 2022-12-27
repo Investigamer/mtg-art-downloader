@@ -17,7 +17,7 @@ from lib.constants import console
 from colorama import Style, Fore
 
 cwd = os.getcwd()
-__VER__ = "1.1.9"
+__VER__ = "1.2.0"
 os.system("")
 
 
@@ -57,19 +57,15 @@ class Download:
             with open(self.list, "r", encoding="utf-8") as f:
                 # Remove blank lines, print total cards
                 cards = f.readlines()
-                try:
+                if "" in cards:
                     cards.remove("")
-                except ValueError:
-                    pass
-                try:
+                if " " in cards:
                     cards.remove(" ")
-                except ValueError:
-                    pass
         elif isinstance(self.list, list):
             cards = self.list
         else:
             print(f"{Fore.RED}---- NO CARD LIST FOUND! ----{Style.RESET_ALL}")
-            return None
+            return
 
         # Alert the user
         if not dry_run:
@@ -79,19 +75,13 @@ class Download:
 
         # For each card create new thread
         for i, card in enumerate(cards):
-            # Detailed card including set?
+            # Which download method to use for this card?
+            download_method = self.download_normal
             if isinstance(card, dict):
-                self.thr.append(
-                    threading.Thread(target=self.download_dict, args=(card,))
-                )
-            elif "--" in card or " (" in card:
-                self.thr.append(
-                    threading.Thread(target=self.download_detailed, args=(card,))
-                )
-            else:
-                self.thr.append(
-                    threading.Thread(target=self.download_normal, args=(card,))
-                )
+                download_method = self.download_dict
+            elif " (" in card:
+                download_method = self.download_detailed
+            self.thr.append(threading.Thread(target=download_method, args=(card,)))
 
             # Start thread, then sleep to manage thread overload
             self.thr[i].start()
@@ -106,7 +96,7 @@ class Download:
 
         # Output completion time
         if not dry_run:
-            self.complete(int(perf_counter() - self.time))
+            self.complete()
 
     def download_normal(self, card: str, disable_all: bool = False) -> list:
         """
@@ -132,7 +122,6 @@ class Download:
             ).json()
 
             # Remove full art entries
-            # Add our numbered sets
             prepared = []
             for t in r["data"]:
                 # No fullart to exclude?
@@ -170,17 +159,8 @@ class Download:
         Download card with defined set code.
         :param item: Card name -- set code
         """
-        # Setup card detailed
-        if " (" in item:
-            reg = r"(.*) \((.*)\)"
-            card = re.findall(reg, item)[0]
-            name = card[0]
-            set_code = card[1]
-        else:
-            card = item.split("--")
-            set_code = card[0]
-            name = card[1]
-        name = name.replace("\n", "")
+        # Setup card details (Array destructuring)
+        name, set_code = re.findall(r"(.*) \((.*)\)", item)[0]
 
         # Try to find the card
         try:
@@ -228,7 +208,7 @@ class Download:
             f"'{card}' basic land found! What set should I pull from? Ex: VOW, C21, ELD\n"
         )
         while True:
-            if len(land_set) >= 3:
+            if len(land_set) in [3, 4, 5]:
                 try:
                     c = req.get(
                         f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}"
@@ -241,12 +221,11 @@ class Download:
             else:
                 console.out.append("Error! Illegitimate set. Try again!")
 
-    @staticmethod
-    def complete(elapsed: int):
+    def complete(self):
         """
         Tell the user the download process is complete.
-        :param elapsed: Time to complete downloads (seconds)
         """
+        elapsed = int(perf_counter() - self.time)
         console.out.append(f"Downloads finished in {elapsed} seconds!")
         console.out.append(
             "\nAll available files downloaded.\n"

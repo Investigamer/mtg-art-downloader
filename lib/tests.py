@@ -23,11 +23,11 @@ def test_normal_cards():
 
 def test_detailed_cards():
     dl = app.Download()
-    assert dl.download_detailed("2x2--As Foretold")  # Normal card
-    assert dl.download_detailed("vow--Faithbound Judge")  # TF card
-    assert dl.download_detailed("khm--Darkbore Pathway")  # MDFC card
-    assert dl.download_detailed("mh2--Fire // Ice")  # Split card
-    assert dl.download_detailed("mh2--Geyadrone Dihada")  # Planeswalker
+    assert dl.download_detailed("As Foretold (2x2)")  # Normal card
+    assert dl.download_detailed("Faithbound Judge (vow)")  # TF card
+    assert dl.download_detailed("Darkbore Pathway (khm)")  # MDFC card
+    assert dl.download_detailed("Fire // Ice (mh2)")  # Split card
+    assert dl.download_detailed("Geyadrone Dihada (mh2)")  # Planeswalker
 
 
 def test_scryfall_command():
