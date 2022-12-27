@@ -6,7 +6,7 @@ authors = ["MrTeferi <freethoughtleft@gmail.com>"]
 license = "GNU General Public License v3.0"
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.7,<3.12"
 black = "^22.6.0"
 bs4 = "^0.0.1"
 colorama = "^0.4.5"
