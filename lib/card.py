@@ -2,6 +2,7 @@
 CARD CLASSES
 """
 import os
+from functools import cached_property
 from urllib.error import HTTPError, ContentTooShortError
 from pathvalidate import sanitize_filename
 import requests
@@ -22,12 +23,12 @@ class Card:
     """
     Base class to extend all cards to.
     """
-
     path = ""
     path_back = ""
 
     def __init__(self, c: dict) -> None:
         # Inherited card info
+        self.c = c
         self.set = c["set"]
         self.artist = unidecode(c["artist"])
         self.num = c["collector_number"]
@@ -250,7 +251,6 @@ class Land(Card):
     """
     Basic land card
     """
-
     path = "Land/"
 
 
@@ -258,7 +258,6 @@ class Saga(Card):
     """
     Saga card
     """
-
     path = "Saga/"
 
 
@@ -266,12 +265,21 @@ class Adventure(Card):
     """
     Adventure card
     """
-
     path = "Adventure/"
 
-    def __init__(self, c):
-        self.savename = c["card_faces"][0]["name"]
-        super().__init__(c)
+    @property
+    def savename(self) -> str:
+        return self.c['card_faces'][0]['name']
+
+    @cached_property
+    def filename(self):
+        """
+        Override this method because // isn't valid in filenames
+        """
+        front_name = self.naming_convention(
+            self.savename, self.artist, self.set.upper()
+        )
+        return f"{self.path}{front_name}.jpg"
 
     def get_mtgp_code(self, name: str):
         """
@@ -279,24 +287,13 @@ class Adventure(Card):
         :param name: Card name to reformat
         :return: The MTGP code linkage
         """
-        name = self.name.replace("//", "/")
-        return super().get_mtgp_code(name)
-
-    def make_path(self):
-        """
-        Override this method because // isn't valid in filenames
-        """
-        front_name = self.naming_convention(
-            self.savename, self.artist, self.set.upper()
-        )
-        self.filename = f"{self.path}{front_name}.jpg"
+        return super().get_mtgp_code(self.name.replace("//", "/"))
 
 
 class Leveler(Card):
     """
     Leveler card
     """
-
     path = "Leveler/"
 
 
@@ -304,7 +301,6 @@ class Mutate(Card):
     """
     Mutate card
     """
-
     path = "Mutate/"
 
 
@@ -312,7 +308,6 @@ class Planeswalker(Card):
     """
     Planeswalker card
     """
-
     path = "Planeswalker/"
 
 
@@ -320,7 +315,6 @@ class Class(Card):
     """
     Class card
     """
-
     path = "Class/"
 
 
@@ -328,12 +322,21 @@ class Flip(Card):
     """
     Flip card
     """
-
     path = "Flip/"
 
-    def __init__(self, c):
-        self.savename = c["card_faces"][0]["name"]
-        super().__init__(c)
+    @property
+    def savename(self) -> str:
+        return self.c['card_faces'][0]['name']
+
+    @cached_property
+    def filename(self) -> str:
+        """
+        Override this because // isn't valid in filenames
+        """
+        front_name = self.naming_convention(
+            self.savename, self.artist, self.set.upper()
+        )
+        return f"{self.path}{front_name}.jpg"
 
     def get_mtgp_code(self, name: str):
         """
@@ -341,24 +344,13 @@ class Flip(Card):
         :param name: Card name to reformat
         :return: The MTGP code linkage
         """
-        name = self.name.replace("//", "/")
-        return super().get_mtgp_code(name)
-
-    def make_path(self):
-        """
-        Override this method because // isn't valid in filenames
-        """
-        front_name = self.naming_convention(
-            self.savename, self.artist, self.set.upper()
-        )
-        self.filename = f"{self.path}{front_name}.jpg"
+        return super().get_mtgp_code(self.name.replace("//", "/"))
 
 
 class Planar(Card):
     """
     Planar card
     """
-
     path = "Planar/"
 
 
@@ -367,19 +359,24 @@ class MDFC(Card):
     """
     Double faced card
     """
-
     path = "MDFC Front/"
     path_back = "MDFC Back/"
 
-    def __init__(self, c):
+    @property
+    def name(self) -> str:
+        return self.c['card_faces'][0]['name']
 
-        # Face variables
-        self.name = c["card_faces"][0]["name"]
-        self.name_back = c["card_faces"][1]["name"]
-        if not hasattr(self, "scrylink"):
-            self.scrylink = c["card_faces"][0]["image_uris"]["art_crop"]
-            self.scrylink_back = c["card_faces"][1]["image_uris"]["art_crop"]
-        super().__init__(c)
+    @property
+    def name_back(self) -> str:
+        return self.c['card_faces'][1]['name']
+
+    @property
+    def scrylink(self) -> str:
+        return self.c['card_faces'][0]['image_uris']['art_crop']
+
+    @property
+    def scrylink_back(self) -> str:
+        return self.c['card_faces'][1]['image_uris']['art_crop']
 
     def download(self, log_failed: bool = True):
         """
@@ -433,14 +430,12 @@ class Split(MDFC):
     """
     Split card
     """
-
     path = "Split/"
     path_back = "Split/"
 
-    def __init__(self, c: dict):
-        self.fullname = c["name"]
-        self.scrylink = c["image_uris"]["art_crop"]
-        super().__init__(c)
+    @property
+    def scrylink(self) -> str:
+        return self.c['image_uris']['art_crop']
 
     def get_mtgp_code(self, name: str):
         """
@@ -448,7 +443,7 @@ class Split(MDFC):
         :param name: Card name to reformat
         :return: The MTGP code linkage
         """
-        name = self.fullname.replace("//", "/")
+        name = self.c["name"].replace("//", "/")
         return super().get_mtgp_code(name)
 
 
@@ -457,7 +452,6 @@ class Meld(Card):
     Meld card
     TODO: Revisit
     """
-
     path = "Meld/"
 
 
@@ -465,7 +459,6 @@ class Token(Card):
     """
     Token card
     """
-
     path = "Token/"
 
 
@@ -473,7 +466,6 @@ class Reversible(MDFC):
     """
     Reversible card, see "Heads I Win, Tails You Lose"
     """
-
     path = "Reversible/"
 
 
