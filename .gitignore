@@ -13,3 +13,4 @@ main.spec
 tester.py
 /venv
 /lib/matches
+/.idea
