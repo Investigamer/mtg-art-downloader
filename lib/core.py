@@ -209,7 +209,7 @@ def log(name: str, set_code: str, txt: str = "failed"):
     """
     Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
     with open(os.path.join(cwd, f"logs/{txt}.txt"), "a", encoding="utf-8") as f:
-        f.write(f"{set_code}--{name}\n") if set_code else f.write(f"{name}\n")
+        f.write(f"{name} ({set_code})\n") if set_code else f.write(f"{name}\n")
     print(f"{Fore.RED}FAILED: {Style.RESET_ALL}{name} [{set_code.upper()}]")
 
 

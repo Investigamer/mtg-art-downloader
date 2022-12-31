@@ -253,8 +253,8 @@ if __name__ == "__main__":
     print(" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
     print(" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ")
     print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v{__VER__}")
-    print("Additional thanks to Trix are for Scoot + Gikkman")
-    print(f"http://mpcfill.com --- Support great MTG Proxies!{Style.RESET_ALL}\n")
+    print("Additional thanks to Trix are for Scoot, Chilli, and Gikkman")
+    print(f"https://www.patreon.com/mpcfill --- Support our apps!{Style.RESET_ALL}\n")
 
     # Does the user want to use Google Sheet queries or cards from txt file?
     choice = input(
