@@ -95,5 +95,10 @@ if __name__ == "__main__":
 
     # Post-build steps
     move_data()
-    build_zip(sys.argv[1])
+
+    # Produce a zip if argument is provided
+    if len(sys.argv) > 1:
+        build_zip(sys.argv[1])
+
+    # Clear build files
     clear_build_files(False)

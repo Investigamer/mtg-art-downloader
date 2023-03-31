@@ -33,9 +33,9 @@ jobs:
         poetry install
     - name: Build with PyInstaller
       run: |
-        poetry run python build.py ${{ github.ref_name }}
+        poetry run python build.py
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        path: ./dist/mtg-art-downloader
+        path: ./dist/
         name: MTG Art Downloader (${{ matrix.TARGET }})
