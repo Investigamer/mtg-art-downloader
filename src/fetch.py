@@ -86,7 +86,7 @@ SCRYFALL REQUESTS
 
 
 @handle_scryfall_request({})
-def get_data_url(url: str, params: Optional[dict[str, str]] = None) -> dict:
+def get_data_url(url: str, params: Optional[dict] = None) -> dict:
     """
     Get JSON data from any valid API URL.
     @param url: Valid API URL, such as Scryfall.
@@ -206,7 +206,7 @@ UTILITY FUNCTIONS
 
 def get_cards_paged(
     url: str,
-    params: Optional[dict[str, str]] = None,
+    params: Optional[dict] = None,
     keys: Optional[list[str]] = None,
     has_more: str = "has_more",
     next_page: str = "next_page",
