@@ -12,8 +12,8 @@ import PyInstaller.__main__
 # Folder definitions
 CWD = os.getcwd()
 DIST = os.path.join(CWD, "dist")
-MTG = os.path.join(os.getcwd(), "src")
-DIST_MTG = os.path.join(os.getcwd(), "dist/lib")
+SRC = os.path.join(os.getcwd(), "src")
+DIST_SRC = os.path.join(os.getcwd(), "dist/lib")
 
 # All individual files that need to be copied upon pyinstaller completion
 files = [
@@ -24,16 +24,12 @@ files = [
     {"src": os.path.join(CWD, "config.ini"), "dst": os.path.join(DIST, "config.ini")},
     # --- SOURCE DIRECTORY
     {
-        "src": os.path.join(MTG, "codes.hjson"),
-        "dst": os.path.join(DIST_MTG, "codes.hjson"),
+        "src": os.path.join(SRC, "codes.hjson"),
+        "dst": os.path.join(DIST_SRC, "codes.hjson"),
     },
     {
-        "src": os.path.join(MTG, "links.json"),
-        "dst": os.path.join(DIST_MTG, "links.json"),
-    },
-    {
-        "src": os.path.join(MTG, "scryfall.json"),
-        "dst": os.path.join(DIST_MTG, "scryfall.json"),
+        "src": os.path.join(SRC, "links.json"),
+        "dst": os.path.join(DIST_SRC, "links.json"),
     },
 ]
 
@@ -60,8 +56,7 @@ def make_dirs():
     """
     # Ensure folders exist
     Path(DIST).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(DIST_MTG).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(DIST_MTG).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(DIST_SRC).mkdir(mode=511, parents=True, exist_ok=True)
 
 
 def move_data():

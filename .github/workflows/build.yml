@@ -19,18 +19,17 @@ jobs:
           - os: ubuntu-latest
             TARGET: linux
     steps:
-    - uses: actions/checkout@v2
-    - uses: browser-actions/setup-chrome@latest
+    - uses: actions/checkout@v3
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: false
-    - name: Install dependencies
+    #-----------------------------------------------
+    #  -----  install Poetry and Dependencies  -----
+    #-----------------------------------------------
+    - name: Install Poetry & Dependencies
       run: |
+        python -m pip install -U pip poetry
         poetry install
     - name: Build with PyInstaller
       run: |

@@ -46,7 +46,6 @@ update_changelog_on_bump = true
 tag_format = "v$major.$minor.$patch$prerelease"
 changelog_start_rev = 'v1.1.6'
 version = "1.2.0"
-annotated_tag = true
 version_files = [
     "src/__version__.py"
 ]
