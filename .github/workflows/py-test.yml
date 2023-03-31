@@ -38,7 +38,7 @@ jobs:
         poetry install
     - name: Precommit, MyPy check, PyTest check
       run: |
-        pre-commit run --all-files
+        poetry run pre-commit run --all-files
         poetry run mypy main.py --ignore-missing-imports --exclude requests
         poetry run mypy build.py --ignore-missing-imports --exclude requests
         poetry run mypy src --ignore-missing-imports --exclude requests
