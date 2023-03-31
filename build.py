@@ -39,6 +39,7 @@ def clear_build_files(clear_dist: bool = True):
     Clean out all PYCACHE files and Pyinstaller files
     """
     os.system("pyclean -v .")
+    os.system("pyclean -v .venv")
     try:
         rmtree(os.path.join(os.getcwd(), "build"))
     except Exception as e:

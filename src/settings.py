@@ -7,7 +7,7 @@ import hjson
 import json
 
 cwd = os.getcwd()
-with open("config.ini", "r") as f:
+with open("config.ini", "r", encoding="utf-8") as f:
     config = configparser.ConfigParser()
     config.read_file(f)
 
@@ -15,9 +15,9 @@ with open("config.ini", "r") as f:
 """
 CONSTANTS
 """
-with open(os.path.join(cwd, "src/codes.hjson")) as js:
+with open(os.path.join(cwd, "src/codes.hjson"), "r", encoding="utf-8") as js:
     replace_sets = hjson.load(js)
-with open(os.path.join(cwd, "src/links.json")) as js:
+with open(os.path.join(cwd, "src/links.json"), "r", encoding="utf-8") as js:
     links = json.load(js)
 
 """

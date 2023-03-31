@@ -1,11 +1,12 @@
 ﻿"""
 APP TO EXECUTE THE SEARCH
 """
+
 import os
 import re
 import sys
 from functools import cached_property
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, freeze_support
 from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Union, Optional
@@ -172,7 +173,6 @@ class Download:
                 "q": f'!"{card}"',
             }
         )
-        print(res)
 
         # Valid card data returned?
         if not res:
@@ -235,11 +235,11 @@ class Download:
 if __name__ == "__main__":
 
     # Add necessary directories
+    freeze_support()
     Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
     Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
     Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
     Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
-    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
 
     # Welcome page
     print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
