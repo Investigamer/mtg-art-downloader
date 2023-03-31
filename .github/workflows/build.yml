@@ -37,5 +37,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        path: ./dist/mtg-art-downloader.${{ github.ref_name }}.zip
+        path: ./dist/mtg-art-downloader
         name: MTG Art Downloader (${{ matrix.TARGET }})

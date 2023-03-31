@@ -13,7 +13,7 @@ import PyInstaller.__main__
 CWD = os.getcwd()
 DIST = os.path.join(CWD, "dist")
 SRC = os.path.join(os.getcwd(), "src")
-DIST_SRC = os.path.join(os.getcwd(), "dist/lib")
+DIST_SRC = os.path.join(os.getcwd(), "dist/src")
 
 # All individual files that need to be copied upon pyinstaller completion
 files = [
