@@ -39,18 +39,18 @@
   "Scryfall": {
     "LArtifact": {
       "name": "Legendary Artifacts",
-      "keys": ["data"],
-      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Aartifact+type%3Alegendary%29"
+      "keys": ["data"], "has_more": "has_more", "next_page": "next_page",
+      "url": "https://api.scryfall.com/cards/search?q=%28type%3Aartifact+type%3Alegendary%29"
     },
     "LEnchantment": {
       "name": "Legendary Enchantments",
-      "keys": ["data"],
-      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Aenchantment+type%3Alegendary%29"
+      "keys": ["data"], "has_more": "has_more", "next_page": "next_page",
+      "url": "https://api.scryfall.com/cards/search?q=%28type%3Aenchantment+type%3Alegendary%29"
     },
     "LCreature B": {
       "name": "Legendary Black Creatures",
-      "keys": ["data"],
-      "url": "https://api.scryfall.com/cards/search?page=0&q=%28type%3Acreature+type%3Alegendary%29+color%3DB"
+      "keys": ["data"], "has_more": "has_more", "next_page": "next_page",
+      "url": "https://api.scryfall.com/cards/search?q=%28type%3Acreature+type%3Alegendary%29+color%3DB"
     }
   }
 }

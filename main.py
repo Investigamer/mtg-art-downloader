@@ -4,230 +4,144 @@ APP TO EXECUTE THE SEARCH
 import os
 import re
 import sys
-import time
-import threading
+from functools import cached_property
+from multiprocessing import cpu_count
+from multiprocessing.pool import Pool
+from pathlib import Path
 from typing import Union, Optional
 from time import perf_counter
-from urllib import parse
-import requests as req
-from lib import card as dl
-from lib import settings as cfg
-from lib import core
-from lib.constants import console
+from src import card as dl
+from src import settings as cfg
+from src.__version__ import version
+from src.constants import console
 from colorama import Style, Fore
 
+from src.core import (
+    normalize_card_list,
+    get_list_from_link,
+    get_list_from_scryfall,
+    get_command,
+)
+from src.fetch import (
+    get_scryfall_card_named,
+    get_scryfall_card_numbered,
+    get_scryfall_card_search,
+)
+from src.types import DownloadResult
+
+# Core variables
+detailed_reg = re.compile(r"(.*) \((.*)\) ?(.*)")
 cwd = os.getcwd()
-__VER__ = "1.2.0"
 os.system("")
 
 
 class Download:
-    def __init__(self, command: str = None, card_list: Union[str, list] = None):
-        self.thr: list = []
+    def __init__(
+        self,
+        command: str = None,
+        card_list: Union[str, list] = None,
+        testing: bool = False,
+    ):
+        self._testing: bool = testing
+        self._time: float = perf_counter()
+        self._list = cfg.cardlist if not card_list else card_list
+        self._command: Optional[str] = command
         self.fails: list = []
-        self.basics: list = []
-        if not card_list:
-            self.list = cfg.cardlist
-        else:
-            self.list = card_list
-        self.time: float = perf_counter()
-        self.command: Optional[str] = command
 
-    def start_command(self, dry_run: bool = False) -> list:
-        """
-        Initiate download procedure based on the command.
-        """
-        # Valid command received?
-        if isinstance(self.command, str):
-            if ":" in self.command:
-                self.list = core.get_list_from_scryfall(self.command)
-            else:
-                link = core.get_command(self.command)
-                if link:
-                    self.list = core.get_list_from_link(link)
+        # Mute console output if in testing mode
+        if self.is_test:
+            console.waiting = False
 
-        self.start(dry_run)
-        return self.fails
+    """
+    PROPERTIES
+    """
 
-    def start(self, dry_run: bool = False) -> None:
+    @property
+    def is_test(self):
+        return self._testing
+
+    @cached_property
+    def cards(self) -> list[Union[dict, str]]:
         """
-        Open card list, for each card initiate a download
+        Return a card list either from given command or text file.
         """
-        if isinstance(self.list, str):
-            with open(self.list, "r", encoding="utf-8") as f:
+        if self.command and ":" in self.command:
+            return get_list_from_scryfall(self.command)
+        if self.command:
+            if link := get_command(self.command):
+                return normalize_card_list(get_list_from_link(link))
+        if isinstance(self._list, list):
+            return self._list
+        if os.path.isfile(self._list):
+            with open(self._list, "r", encoding="utf-8") as f:
                 # Remove blank lines, print total cards
-                cards = f.readlines()
-                if "" in cards:
-                    cards.remove("")
-                if " " in cards:
-                    cards.remove(" ")
-        elif isinstance(self.list, list):
-            cards = self.list
-        else:
-            print(f"{Fore.RED}---- NO CARD LIST FOUND! ----{Style.RESET_ALL}")
-            return
+                return normalize_card_list(f.readlines())
+        return []
 
-        # Alert the user
-        if not dry_run:
+    @cached_property
+    def command(self) -> str:
+        return self._command or ""
+
+    @cached_property
+    def time(self) -> float:
+        return perf_counter() - self._time
+
+    """
+    METHODS
+    """
+
+    def start(self) -> list[tuple[bool, str]]:
+        """
+        Using our card list, generate a download for each card.
+        @return: List of tuples, each containing success/fail state and name of the card.
+        """
+        # Do we have a valid card list?
+        if not self.cards:
+            print(f"{Fore.RED}---- NO CARD LIST FOUND! ----{Style.RESET_ALL}")
+            return []
+        if not self.is_test:
             print(
-                f"{Fore.GREEN}---- Downloading {len(cards)} cards! ----{Style.RESET_ALL}"
+                f"{Fore.GREEN}---- Downloading {len(self.cards)} cards! ----{Style.RESET_ALL}"
             )
 
-        # For each card create new thread
-        for i, card in enumerate(cards):
-            # Which download method to use for this card?
-            download_method = self.download_normal
-            if isinstance(card, dict):
-                download_method = self.download_dict
-            elif " (" in card:
-                download_method = self.download_detailed
-            self.thr.append(threading.Thread(target=download_method, args=(card,)))
+        # Create a pool to execute these downloads
+        with Pool(processes=cpu_count()) as pool:
+            downloads = pool.map(self.stage_download, self.cards)
 
-            # Start thread, then sleep to manage thread overload
-            self.thr[i].start()
-            time.sleep(float(1 / cfg.threads_per_second))
-
-        # Ensure each thread completes
-        for t in self.thr:
-            t.join()
-        # Check for basics encountered
-        for b in self.basics:
-            self.download_basic(b)
+        # Build results list
+        results = []
+        for res in list(downloads):
+            results.extend(res)
 
         # Output completion time
-        if not dry_run:
+        if not self.is_test:
             self.complete()
-
-    def download_normal(self, card: str, disable_all: bool = False) -> list:
-        """
-        Download a card with no defined set code.
-        :param card: Card name
-        :param disable_all: Disable download all
-        """
-        # Remove line break
-        card = card.replace("\n", "")
-        results = []
-
-        # Basic land?
-        if card in cfg.basic_lands:
-            self.basics.append(card)
-            return [True]
-        try:
-            # Retrieve scryfall data
-            r = req.get(
-                f'https://api.scryfall.com/cards/search?q=!"{parse.quote(card)}"'
-                f"&unique={cfg.unique}"
-                f"&include_extras={cfg.include_extras}"
-                "&order=released"
-            ).json()
-
-            # Remove full art entries
-            prepared = []
-            for t in r["data"]:
-                # No fullart to exclude?
-                if not cfg.exclude_fullart or t["full_art"] is False:
-                    prepared.append(t)
-
-            # Loop through prints of this card
-            for c in prepared:
-                card_class = dl.get_card_class(c)
-                result = card_class(c).download()
-                # If we're not downloading all, break
-                if (not cfg.download_all or disable_all) and result:
-                    results = [True]
-                    break
-                results.append(result)
-
-        except Exception:
-            # Try named lookup
-            try:
-                c = req.get(
-                    f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}"
-                ).json()
-                card_class = dl.get_card_class(c)
-                result = card_class(c).download()
-            except Exception:
-                console.out.append(f"{card} not found!")
-                result = False
-            results.append(result)
-        if sum(results) == 0:
-            self.fails.append(card)
         return results
 
-    def download_detailed(self, item: str) -> bool:
+    def stage_download(self, card: Union[str, dict]) -> DownloadResult:
         """
-        Download card with defined set code.
-        :param item: Card name -- set code
+        Choose the appropriate method to call to download this card, then call that method.
+        @param card: Card details or name.
+        @return: Tuple containing success/fail state and name of the card.
         """
-        # Setup card details (Array destructuring)
-        name, set_code = re.findall(r"(.*) \((.*)\)", item)[0]
-
-        # Try to find the card
-        try:
-            # Lookup card
-            c = req.get(
-                f"https://api.scryfall.com/cards/named?"
-                f"fuzzy={parse.quote(name)}"
-                f"&set={parse.quote(set_code.lower())}"
-            ).json()
-            card_class = dl.get_card_class(c)
-            result = card_class(c).download()
-        except Exception:
-            console.out.append(f"{name} not found!")
-            result = False
-        if not result:
-            self.fails.append(item)
-        return result
-
-    def download_dict(self, card: dict):
-        """
-        Downloads a card with previously fetched scryfall data.
-        :param card: Dict of card data
-        :return: True if succeeded, False if not
-        """
-        # Try to download the card
-        try:
-            card_class = dl.get_card_class(card)
-            result = card_class(card).download()
-        except Exception:
-            console.out.append(f"{card['name']} not found!")
-            result = False
-        if not result:
-            self.fails.append(card["name"])
-        return result
-
-    @staticmethod
-    def download_basic(card: str):
-        """
-        Prompt user for set info for basic land, then download.
-        :param card: Basic land name
-        :return: Always returns None
-        """
-        # Have user choose the set, then download
-        land_set = input(
-            f"'{card}' basic land found! What set should I pull from? Ex: VOW, C21, ELD\n"
-        )
-        while True:
-            if len(land_set) in [3, 4, 5]:
-                try:
-                    c = req.get(
-                        f"https://api.scryfall.com/cards/named?fuzzy={parse.quote(card)}"
-                        f"&set={parse.quote(land_set)}"
-                    ).json()
-                    dl.Land(c).download()
-                    break
-                except Exception:
-                    console.out.append("Scryfall couldn't find this set. Try again!")
-            else:
-                console.out.append("Error! Illegitimate set. Try again!")
+        # Associate the proper download method
+        if isinstance(card, dict):
+            return self.download_dict(card)
+        elif isinstance(card, str):
+            return (
+                self.download_detailed(card)
+                if " (" in card
+                else self.download_normal(card)
+            )
+        console.print(f"Unknown: {str(card)}")
+        return [(False, str(card))]
 
     def complete(self):
         """
         Tell the user the download process is complete.
         """
-        elapsed = int(perf_counter() - self.time)
-        console.out.append(f"Downloads finished in {elapsed} seconds!")
-        console.out.append(
+        console.print(f"Downloads finished in {self.time} seconds!")
+        console.print(
             "\nAll available files downloaded.\n"
             "See failed.txt for images that couldn't be located.\n"
             "Press enter to exit :)"
@@ -236,9 +150,98 @@ class Download:
         input()
         sys.exit()
 
+    """
+    DOWNLOAD METHODS
+    """
+
+    def download_normal(self, card: str, disable_all: bool = False) -> DownloadResult:
+        """
+        Download a card with no defined set code.
+        @param card: Card name
+        @param disable_all: Disable download all
+        """
+        # Prepare our return data
+        results: DownloadResult = []
+
+        # Retrieve scryfall data
+        res = get_scryfall_card_search(
+            params={
+                "unique": cfg.unique,
+                "include_extras": cfg.include_extras,
+                "order": "released",
+                "q": f'!"{card}"',
+            }
+        )
+        print(res)
+
+        # Valid card data returned?
+        if not res:
+            return [(False, card)]
+
+        # Remove full art entries if necessary
+        cards = [c for c in res if not cfg.exclude_fullart or not c.get("full_art")]
+
+        # Loop through prints of this card
+        for c in cards:
+            # Download the card
+            result = self.download_dict(c)
+
+            # Break if result is successful and we only need one
+            if (not cfg.download_all or disable_all) and all(
+                [res[0] for res in result]
+            ):
+                return result
+            results.extend(result)
+        return results
+
+    def download_detailed(self, item: str) -> DownloadResult:
+        """
+        Download card with defined set code, possibly number.
+        @param item: Card name (SET) number
+        @return: True if successful, False if unsuccessful.
+        """
+        # Setup card details (Array destructuring)
+        name, code, number = detailed_reg.findall(item)[0]
+
+        # Was collector number given?
+        card = (
+            get_scryfall_card_numbered(code=code.lower(), number=number)
+            if number
+            else get_scryfall_card_named(name=name, code=code.lower())
+        )
+
+        # Valid card data found?
+        if not card:
+            return [(False, item)]
+
+        # Try to download the card
+        return self.download_dict(card)
+
+    def download_dict(self, card: dict) -> DownloadResult:
+        """
+        Downloads a card using fetched scryfall data.
+        @param card: Dict of card data
+        @return: True if succeeded, False if not
+        """
+        # Ensure this is a real card
+        if not card.get("name"):
+            return [(False, "No Card Specified")]
+
+        # Try to download the card
+        card_class = dl.get_card_class(card)
+        return card_class(card).download(not self.is_test)
+
 
 if __name__ == "__main__":
 
+    # Add necessary directories
+    Path(cfg.folder).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(cfg.mtgp).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(cfg.scry).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(os.path.join(cwd, "logs")).mkdir(mode=511, parents=True, exist_ok=True)
+    Path(os.path.join(cwd, "lists")).mkdir(mode=511, parents=True, exist_ok=True)
+
+    # Welcome page
     print(f"{Fore.YELLOW}{Style.BRIGHT}\n")
     print("  ██████╗ ███████╗████████╗   ███╗   ███╗████████╗ ██████╗ ")
     print(" ██╔════╝ ██╔════╝╚══██╔══╝   ████╗ ████║╚══██╔══╝██╔════╝ ")
@@ -252,7 +255,7 @@ if __name__ == "__main__":
     print(" ██╔══██║██╔══██╗   ██║       ██║╚██╗██║██║   ██║██║███╗██║ ")
     print(" ██║  ██║██║  ██║   ██║       ██║ ╚████║╚██████╔╝╚███╔███╔╝ ")
     print(" ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ")
-    print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v{__VER__}")
+    print(f"{Fore.CYAN}{Style.BRIGHT}MTG Art Downloader by Mr Teferi v{version}")
     print("Additional thanks to Trix are for Scoot, Chilli, and Gikkman")
     print(f"https://www.patreon.com/mpcfill --- Support our apps!{Style.RESET_ALL}\n")
 
@@ -266,4 +269,4 @@ if __name__ == "__main__":
     # If the command is valid, download based on that, otherwise cards.txt
     if choice != "":
         print()  # Add newline gap
-    Download(choice).start_command()
+    Download(choice).start()
