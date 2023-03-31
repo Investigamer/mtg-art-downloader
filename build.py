@@ -6,13 +6,13 @@ import sys
 import zipfile
 from glob import glob
 from pathlib import Path
-from shutil import copy2, copytree, rmtree, move
+from shutil import copy2, rmtree, move
 import PyInstaller.__main__
 
 # Folder definitions
 CWD = os.getcwd()
 DIST = os.path.join(CWD, "dist")
-MTG = os.path.join(os.getcwd(), "lib")
+MTG = os.path.join(os.getcwd(), "src")
 DIST_MTG = os.path.join(os.getcwd(), "dist/lib")
 
 # All individual files that need to be copied upon pyinstaller completion
@@ -37,14 +37,8 @@ files = [
     },
 ]
 
-# Folders that need to be copied
-folders: list = [
-    # --- WORKING DIRECTORY
-    # {'src': os.path.join(CWD, "lists"), 'dst': os.path.join(DIST, 'lists')}
-]
 
-
-def clear_build_files(clear_dist=True):
+def clear_build_files(clear_dist: bool = True):
     """
     Clean out all PYCACHE files and Pyinstaller files
     """
@@ -79,13 +73,8 @@ def move_data():
     for f in files:
         copy2(f["src"], f["dst"])
 
-    # Transfer our necessary folders
-    print("Transferring data folders...")
-    for f in folders:
-        copytree(f["src"], f["dst"])
 
-
-def build_zip(version):
+def build_zip(version: str):
     """
     Create a zip of this release.
     """

@@ -146,6 +146,7 @@
     hml: hom
     fem: fal
     drk: dar
+    bro: tbw
 
     # === FROM THE VAULT === #
     v17: ftr
@@ -193,7 +194,7 @@
     plist: tli
     fmb1: mys
     mb1: mys
-    # rin: NOT SUPPORTEd
+    # rin: NOT SUPPORTED
 
     # === PLANECHASE === #
     opc2: 2pc

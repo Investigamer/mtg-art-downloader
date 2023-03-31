@@ -13,26 +13,36 @@ import core
 
 
 def test_normal_cards():
-    dl = app.Download()
-    assert all(dl.download_normal("As Foretold"))  # Normal card
-    assert all(dl.download_normal("Faithbound Judge", True))  # TF card
-    assert all(dl.download_normal("Darkbore Pathway", True))  # MDFC card
-    assert all(dl.download_normal("Fire // Ice", True))  # Split card
-    assert all(dl.download_normal("Geyadrone Dihada", True))  # Planeswalker
+    dl = app.Download(testing=True)
+    assert all(
+        [result for result, name in dl.download_normal("As Foretold", True)]
+    )  # Normal card
+    assert all(
+        [result for result, name in dl.download_normal("Faithbound Judge", True)]
+    )  # TF card
+    assert all(
+        [result for result, name in dl.download_normal("Darkbore Pathway", True)]
+    )  # MDFC card
+    assert all(
+        [result for result, name in dl.download_normal("Fire // Ice", True)]
+    )  # Split card
+    assert all(
+        [result for result, name in dl.download_normal("Geyadrone Dihada", True)]
+    )  # Planeswalker
 
 
 def test_detailed_cards():
-    dl = app.Download()
-    assert dl.download_detailed("2x2--As Foretold")  # Normal card
-    assert dl.download_detailed("vow--Faithbound Judge")  # TF card
-    assert dl.download_detailed("khm--Darkbore Pathway")  # MDFC card
-    assert dl.download_detailed("mh2--Fire // Ice")  # Split card
-    assert dl.download_detailed("mh2--Geyadrone Dihada")  # Planeswalker
+    dl = app.Download(testing=True)
+    assert dl.download_detailed("As Foretold (2x2)")[0]  # Normal card
+    assert dl.download_detailed("Faithbound Judge (vow)")[0]  # TF card
+    assert dl.download_detailed("Darkbore Pathway (khm)")[0]  # MDFC card
+    assert dl.download_detailed("Fire // Ice (mh2)")[0]  # Split card
+    assert dl.download_detailed("Geyadrone Dihada (mh2)")[0]  # Planeswalker
 
 
 def test_scryfall_command():
-    dl = app.Download("set:2x2, power>:15, color:C")
-    assert len(dl.start_command(dry_run=True)) == 0
+    dl = app.Download("set:2x2, power>=15, color:g", testing=True)
+    assert all([result for result, name in dl.start()])
 
 
 def test_mtgp_image_determination():

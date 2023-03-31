@@ -7,20 +7,18 @@ import hjson
 import json
 
 cwd = os.getcwd()
-config = configparser.ConfigParser()
-config.read("config.ini")
+with open("config.ini", "r") as f:
+    config = configparser.ConfigParser()
+    config.read_file(f)
 
 
 """
 CONSTANTS
 """
-basic_lands = ["Plains", "Island", "Swamp", "Mountain", "Forest"]
-with open(os.path.join(cwd, "lib/codes.hjson")) as js:
+with open(os.path.join(cwd, "src/codes.hjson")) as js:
     replace_sets = hjson.load(js)
-with open(os.path.join(cwd, "lib/links.json")) as js:
+with open(os.path.join(cwd, "src/links.json")) as js:
     links = json.load(js)
-with open(os.path.join(cwd, "lib/scryfall.json")) as js:
-    scry_args = json.load(js)
 
 """
 FILES AND FOLDERS
@@ -40,18 +38,13 @@ naming = config["FILES"]["Naming.Convention"]
 """
 APP SETTINGS
 """
-# Threads per second
-try:
-    threads_per_second = int(config["SETTINGS"]["Threads.Per.Second"])
-except ValueError:
-    threads_per_second = 5
 # Download all images available or just most recent?
 download_all = config["SETTINGS"].getboolean("Download.All")
 # Download scryfall if MTGPics missing?
 try:
     download_scryfall = config["SETTINGS"].getboolean("If.Missing.Download.Scryfall")
 except ValueError:
-    download_scryfall = False
+    download_scryfall = True
 # ONLY download scryfall?
 try:
     only_scryfall = config["SETTINGS"].getboolean("Only.Download.Scryfall")
@@ -61,7 +54,7 @@ except ValueError:
 try:
     overwrite = config["SETTINGS"].getboolean("Overwrite.Same.Name")
 except ValueError:
-    only_scryfall = False
+    only_scryfall = True
 
 
 """

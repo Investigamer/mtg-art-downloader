@@ -16,32 +16,59 @@ Mass download MTG card arts using MTGPics with Scryfall as a backup source, down
 
 # Setup - Executable Release
 - Download the latest release
-- Make a copy of this google sheet document on your account:  [google Spreadsheet][3] (optional)
+- **Option 1**: Paste a list of cards into the cards.txt file. For best results, I recommend exporting a list from your favorite deck editor (I use Moxfield)
+using the mode that displays each card like so: `Damnation (TSR) 106`. It's okay if this is preceded by a number value, MTG Art Downloader will correct
+for this. Start the app and hit Enter. The app will begin downloading art images for these cards!
+- **Option 2**: Alternatively you can use Scryfall notation if you're looking for something specific, like all Legendary creatures within Modern Horizons 2, or
+even every card in Modern Horizons 2! Scroll down to the section on Scryfall commands.
 
 # Setup - Python Version
-We now use `poetry` as package manager ([link][1]):
-- Python 3.6+
-- Download this repository `git clone https://github.com/MrTeferi/MTG-Art-Downloader`
-- If you don't have Python Poetry, simply install it with `scoop install poetry` or read more at ([link][1])
-- Install dependencies `poetry install`
-- Make a copy of this google sheet document on your account: [google Spreadsheet][2](optional)
-- execute it with
+We now use [poetry](https://python-poetry.org/docs/) for dependency management:
+- Have or Install Python 3.8+
+- Have or Install poetry, you can use one of the following commands or [check out this install guide](https://python-poetry.org/docs/):
+```shell
+# WINDOWS (Powershell/Terminal)
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+
+# WINDOWS (if you have Scoop)
+scoop install poetry
+
+# LINUX/MACOS (Or Windows if you have WSL)
+curl -sSL https://install.python-poetry.org | python3 -
 ```
-    poetry run python main.py
+- Download or clone this repository somewhere on your machine:
+```shell
+git clone https://github.com/MrTeferi/MTG-Art-Downloader
 ```
+- Next open a powershell/terminal in the MTG Art Downloader folder, enter `poetry install` to install our dependencies.
+- You can run MTG Art Downloader with one of the following commands:
+```shell
+# Run with poetry
+poetry run python main.py
+
+# Enter poetry environment, then run with Python
+poetry shell
+py main.py
+```
+- Alternatively you can get PyCharm which has native support for Poetry and can automatically start the app for you!
 
 # How to use with a Decklist
 - Paste a decklist into the cards.txt file in the working directory of MTG Art Downloader
-- Runt he downloader
+- Run the downloader, hit Enter. You're good to go!
+- Remember that you will get best results with clearly defined cards: `Card Name (SET) Number`
+- I recommend avoiding random promo sets, and definitely avoid the Pre-release/Promo versions of existing sets. For example if looking for Midnight Hunt
+cards make sure to use MID and not PMID!
 
-# How to use with scryfall commands?
+# How to use with Scryfall commands?
 - After running the app, you can enter commands like so:
 `set:mh2, power>:3, type:creature`
 - This example will download images for all MH2 creatures with power greater than or equal to 3. Separate arguments with a comma, separate the key and value of the argument with a colon. Refer to the scryfall API documentation for more use cases.
 
 # How to use with Google Sheet Script
-- Open up your copy of the "MTG Art Downloader Script" google sheet
-- In the FX for box A2 you can customize arguments for what cards you want to pull using the first variable, for example choose a given set, a given rarity (or range of rarities). Don't change the second variable, those are the columns that are generated. You can read more about arguments for this scryfall script here: https://github.com/scryfall/google-sheets
+- "Make a copy" of this [Google Sheet](https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk), this can use Scryfall to create a specialized list of cards based on parameters.
+- Open up your copy of the "MTG Art Downloader Script" google sheet.
+- In the FX for box A2 you can customize arguments for what cards you want to pull using the first string parameter, for example choose a given set, a given rarity (or range of rarities). Don't change the other parameters, those govern the columns that are generated.
+- You can read more about arguments for this scryfall script here: https://github.com/scryfall/google-sheets
 - Once your comfortable with the scryfall arguments, press enter and watch it populate. Copy the right most column.
 - Paste those rows into the cards.txt file in the working directory, hit save.
 - Run the downloader
@@ -61,7 +88,13 @@ We now use `poetry` as package manager ([link][1]):
 If you wish to contribute to this project:
 - Before doing a PR always make sure to run `pre-commit run` to ensure your code is standardized
 - Only commit with commitizen, add your changed files with `git add .` then `cz commit` and follow the prompts
+- You can test the app for consistency with:
+```shell
+pytest src/tests.py
+```
+- You can run a mypy typechecking test with:
+```shell
+mypy main.py build.py src
+```
 
 [1]: https://python-poetry.org/docs/basic-usage/
-[2]: https://docs.google.com/spreadsheets/d/1Gss4pwJZL_WzjNVFx6uDAviu1gpJdfN1fQUHbwNJl2o
-[3]: https://docs.google.com/spreadsheets/d/1QnVoQ1gvz1N4TKnkJJ44_FHomy0gNoxZlaPSkua4Rmk
