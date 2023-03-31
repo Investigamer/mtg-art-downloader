@@ -1,7 +1,3 @@
-### Fix
-
-- **scryfall**: Fixed scryfall downloading
-
 ## v1.2.0 (2023-03-31)
 
 ### Feat
