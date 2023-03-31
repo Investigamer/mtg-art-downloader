@@ -1,3 +1,13 @@
+### Fix
+
+- **scryfall**: Fixed scryfall downloading
+
+## v1.2.0 (2023-03-31)
+
+### Feat
+
+- **Downloader**: Move from threads to multiprocessing, complete rewrite with rate limited requests
+
 ## v1.1.9 (2022-08-28)
 
 ### Fix
@@ -29,4 +39,4 @@
 
 ## Pre-1.1.7
 
-- **Pre-Commitizen** - See Github release history
+- **Pre-Commitizen** - See GitHub release history
