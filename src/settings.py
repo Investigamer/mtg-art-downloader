@@ -19,8 +19,6 @@ with open(os.path.join(cwd, "src/codes.hjson")) as js:
     replace_sets = hjson.load(js)
 with open(os.path.join(cwd, "src/links.json")) as js:
     links = json.load(js)
-with open(os.path.join(cwd, "src/scryfall.json")) as js:
-    scry_args = json.load(js)
 
 """
 FILES AND FOLDERS

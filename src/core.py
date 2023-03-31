@@ -4,8 +4,6 @@ CORE FUNCTIONS
 import json
 import os
 from typing import Optional, Union
-from urllib.parse import quote_plus
-
 
 import requests
 from difflib import SequenceMatcher
@@ -16,7 +14,7 @@ from requests import RequestException
 from unidecode import unidecode
 from src import settings as cfg
 from src.constants import console
-from src.fetch import get_cards_paged, get_scryfall_set, get_mtgp_page
+from src.fetch import get_cards_paged, get_mtgp_page
 
 cwd = os.getcwd()
 
@@ -90,49 +88,24 @@ def get_list_from_link(command: dict) -> list[dict]:
     return cards if isinstance(cards, list) else []
 
 
-def get_list_from_scryfall(com: str) -> Optional[list]:
+def get_list_from_scryfall(command: str) -> Optional[list]:
     """
     Use Scryfall API compliant query to return a list.
-    @param com: Command string containing scryfall arguments.
+    @param command: Command string containing scryfall arguments.
     @return: Return path to the list file
     """
-    command = {}
-    query = "https://api.scryfall.com/cards/search?q="
+    query = "https://api.scryfall.com/cards/search"
+    commands = [com.strip() for com in command.split(",")]
 
-    # Split command by argument
-    com_arr = com.split(",")
-    for c in com_arr:
-        # Obtain key and value for argument
-        arg = c.split(":")
-
-        # Get the correct separator
-        ops = ["!", "<", ">"]
-        param = "".join(["" if c in ops else c for c in arg[0]])
-        if param in cfg.scry_args:
-            sep = cfg.scry_args[param]
-        else:
-            sep = "="
-
-        # Add to commands
-        try:
-            if arg[0][0] == " ":
-                arg[0] = arg[0][1:]
-            if arg[1][0] == " ":
-                arg[1] = arg[1][1:]
-        except (KeyError, TypeError):
-            pass
-        command.update({arg[0] + sep: arg[1]})
-        if "set:" in command and "is:" not in command:
-            if get_scryfall_set(command["set:"])["set_type"] == "expansion":
-                command.update({"is:": "booster"})
-
-    # Add each argument to scryfall search
-    for k, v in command.items():
-        query += quote_plus(f" {k}{v}")
-    query += "&unique=art"
+    # Recognized parameters
+    params = {
+        "unique": cfg.unique,
+        "include_extras": cfg.include_extras,
+        "q": " ".join(commands),
+    }
 
     # Query paged results
-    return get_cards_paged(query, keys=["data"])
+    return get_cards_paged(query, params=params, keys=["data"])
 
 
 """

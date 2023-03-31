@@ -86,7 +86,7 @@ SCRYFALL REQUESTS
 
 
 @handle_scryfall_request({})
-def get_data_url(url: str, params: Optional[dict[str, str]]) -> dict:
+def get_data_url(url: str, params: Optional[dict[str, str]] = None) -> dict:
     """
     Get JSON data from any valid API URL.
     @param url: Valid API URL, such as Scryfall.
@@ -95,6 +95,7 @@ def get_data_url(url: str, params: Optional[dict[str, str]]) -> dict:
     """
     with requests.get(url, params=(params or {})) as response:
         if response.status_code == 200:
+            print(response.url)
             return response.json() or {}
         return {}
 
