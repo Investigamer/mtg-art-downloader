@@ -165,11 +165,12 @@
     cmb2: mb2
     cmb1: myb
     ugl: ung
-    htr20: pmo
-    htr19: pmo
-    htr18: pmo
-    htr17: pmo
-    htr16: pmo
+    ph21: pmo
+    ph20: pmo
+    ph19: pmo
+    ph18: pmo
+    ph17: pmo
+    phtr: pmo
     ptg: pmo
     h17: pmo
     hho: pmo

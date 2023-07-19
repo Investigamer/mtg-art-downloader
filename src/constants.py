@@ -2,7 +2,21 @@
 GLOBAL CONSTANTS
 """
 import time
+from enum import Enum
 from threading import Thread, Lock
+
+
+class Constants(Enum):
+    promo_sets = [
+        "pre",
+        "pmo",
+        "dci",
+        "fnm",
+        # TODO: Investigate: 30a and p30a are really weird
+        "pst",
+        "30a",
+        "slc",
+    ]
 
 
 class Console:
@@ -45,5 +59,6 @@ class Console:
             self.out.append(message)
 
 
+con = Constants
 console = Console()
 Thread(target=console.wait, daemon=True).start()
