@@ -2,7 +2,7 @@
 SCRYFALL REQUESTS
 """
 import json
-from typing import Callable, Optional, Any, Union
+from typing import Callable, Optional, Any
 
 import requests
 from backoff import on_exception, expo
@@ -185,8 +185,8 @@ def get_mtgp_image(url: str, path: str):
         return False
 
 
-@handle_mtgp_request("")
-def get_mtgp_page(url: str) -> Union[str, bytes]:
+@handle_mtgp_request(None)
+def get_mtgp_page(url: str) -> Optional[bytes]:
     """
     Grab the HTML from a page on MTGPics.
     @param url: URL to the page.
@@ -194,8 +194,10 @@ def get_mtgp_page(url: str) -> Union[str, bytes]:
     """
     with requests.get(url) as response:
         if response.status_code == 200:
-            return response.content
-        return ""
+            if "Wrong ref or number." not in response.text:
+                if "No card found." not in response.text:
+                    return response.content
+        return None
 
 
 """
