@@ -1,3 +1,16 @@
+## v1.3.0 (2023-07-19)
+
+### Fix
+
+- **constants**: Change from Enum to dataclass
+- **types**: Fixed return type of naming_convention
+- **get_mtgp_page**: Covered more response cases in which card could not be located
+- **sets**: Updated some set codes and promo code dictionary
+
+### Feat
+
+- **settings**: Added a setting to allow downloading full Scryfall scans instead of art crop
+
 ## v1.2.0 (2023-03-31)
 
 ### Feat
