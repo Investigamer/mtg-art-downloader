@@ -287,7 +287,7 @@ class Card:
             .replace("SET", card_set)
             .replace("NUMBER", card_number)
         )
-        return sanitize_filename(result)
+        return str(sanitize_filename(result))
 
 
 """
