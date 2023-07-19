@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from unidecode import unidecode
 from src import settings as cfg
 from src import core
+from src.constants import con
 from src.core import log_failed, log_mtgp, log_scryfall
 from src.fetch import get_scryfall_image, get_mtgp_image, get_mtgp_page
 from src.types import DownloadResult
@@ -25,9 +26,7 @@ CARD CLASSES
 
 
 class Card:
-    """
-    Base class to extend all cards to.
-    """
+    """Base class to extend all cards to."""
 
     path = ""
     path_back = ""
@@ -115,9 +114,9 @@ class Card:
             mtgp_set = cfg.replace_sets[self.set]
 
         # Check for promo set
-        set_types = ["funny", "promo"]
-        if mtgp_set == "pre":
+        if mtgp_set in con.promo_sets:
             self.promo = True
+            return mtgp_set
         if "Alchemy" in self.set_name:
             self.promo = True
             return "a22"
@@ -127,7 +126,10 @@ class Card:
         if self.set_name in ("Legacy Championship", "Vintage Championship"):
             self.promo = True
             return "uni"
-        if self.set_type in set_types:
+        if self.set_type in ["funny", "promo"]:
+            # Does this set exist on MTG Pics?
+            if get_mtgp_page(f"https://www.mtgpics.com/card?ref={mtgp_set}001"):
+                return mtgp_set
             self.promo = True
             return "pmo"
         return mtgp_set
@@ -151,7 +153,9 @@ class Card:
     @property
     def scry_url(self) -> str:
         # Download link for Scryfall art crop
-        return self.c.get("image_uris", {}).get("art_crop", "")
+        return self.c.get("image_uris", {}).get(
+            "large" if cfg.download_scryfall_full else "art_crop", ""
+        )
 
     @cached_property
     def scry_path(self) -> str:
@@ -277,13 +281,13 @@ class Card:
         @param card_number: Collector number of the card.
         @return: Correct filename
         """
-        result = (
+        result = str(
             cfg.naming.replace("NAME", card_name)
             .replace("ARTIST", card_artist)
             .replace("SET", card_set)
             .replace("NUMBER", card_number)
         )
-        return str(sanitize_filename(result))
+        return sanitize_filename(result)
 
 
 """
@@ -292,9 +296,7 @@ CARDS WITH TWO NAMES, ONE FACE
 
 
 class Adventure(Card):
-    """
-    Adventure card
-    """
+    """Adventure frame type introduced in Throne of Eldraine."""
 
     path = "Adventure"
 
@@ -323,9 +325,7 @@ class Adventure(Card):
 
 
 class Flip(Card):
-    """
-    Flip card
-    """
+    """Flip card introduced in Champions of Kamigawa."""
 
     path = "Flip"
 
@@ -353,15 +353,12 @@ class Flip(Card):
 
 
 """
-CARDS WITH CARD_FACES ARRAY
+CARDS WITH MULTIPLE IMAGES
 """
 
 
-# MULTIPLE IMAGE CARDS
 class MDFC(Card):
-    """
-    Double faced card
-    """
+    """Modal Double Faced frame type introduced in Zendikar Rising."""
 
     path = "MDFC Front"
     path_back = "MDFC Back"
@@ -385,8 +382,10 @@ class MDFC(Card):
     @property
     def scry_urls(self) -> list[Optional[str]]:
         return [
-            self.c["card_faces"][0]["image_uris"]["art_crop"],
-            self.c["card_faces"][1]["image_uris"]["art_crop"],
+            n.get("image_uris", {}).get(
+                "large" if cfg.download_scryfall_full else "art_crop", ""
+            )
+            for n in self.c.get("card_faces", [])
         ]
 
     @cached_property
@@ -468,16 +467,19 @@ class MDFC(Card):
 
 
 class Split(MDFC):
-    """
-    Split card
-    """
+    """Split frame type introduced in Invasion."""
 
     path = "Split"
     path_back = "Split"
 
     @property
     def scry_urls(self) -> list[Optional[str]]:
-        return [self.c["image_uris"]["art_crop"], self.c["image_uris"]["art_crop"]]
+        # List the same image twice
+        return [
+            self.c.get("image_uris", {}).get(
+                "large" if cfg.download_scryfall_full else "art_crop", ""
+            )
+        ] * 2
 
     @property
     def mtgp_name(self) -> str:
@@ -485,18 +487,14 @@ class Split(MDFC):
 
 
 class Transform(MDFC):
-    """
-    Transform card
-    """
+    """Transform frame type introduced in Dark Ascension."""
 
     path = "TF Front"
     path_back = "TF Back"
 
 
 class Reversible(MDFC):
-    """
-    Reversible card, see "Heads I Win, Tails You Lose"
-    """
+    """Reversible layout type, see 'Heads I Win, Tails You Lose'."""
 
     path = "Reversible Front"
     path_back = "Reversible Back"
@@ -508,57 +506,49 @@ SIMPLE ARCHETYPES
 
 
 class Land(Card):
-    """
-    Basic land card
-    """
+    """Land card type."""
 
     path = "Land"
 
 
+class BasicLand(Card):
+    """Basic Land card type."""
+
+    path = "Basic"
+
+
 class Saga(Card):
-    """
-    Saga card
-    """
+    """Saga frame type introduced in Dominaria."""
 
     path = "Saga"
 
 
 class Leveler(Card):
-    """
-    Leveler card
-    """
+    """Level-Up frame type introduced in Rise of the Eldrazi."""
 
     path = "Leveler"
 
 
 class Mutate(Card):
-    """
-    Mutate card
-    """
+    """Mutate frame type introduced in Ikoria."""
 
     path = "Mutate"
 
 
 class Planeswalker(Card):
-    """
-    Planeswalker card
-    """
+    """Saga frame type introduced in Zendikar."""
 
     path = "Planeswalker"
 
 
 class Class(Card):
-    """
-    Class card
-    """
+    """Class frame type introduced in Adventures in the Forgotten Realms."""
 
     path = "Class"
 
 
 class Token(Card):
-    """
-    Token card
-    """
+    """Token card type."""
 
     path = "Token"
 
@@ -617,5 +607,7 @@ def get_card_class(c: dict):
     if "Mutate" in c.get("keywords", ""):
         return Mutate
     if "Land" in c.get("type_line", "") and "card_faces" not in c:
+        if "Basic Land" in c.get("type_line", ""):
+            return BasicLand
         return Land
     return class_map.get(c.get("layout", "normal"), Card)

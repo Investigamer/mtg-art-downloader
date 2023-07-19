@@ -23,58 +23,66 @@ with open(os.path.join(cwd, "src/links.json"), "r", encoding="utf-8") as js:
 """
 FILES AND FOLDERS
 """
-# Card list text file
-cardlist = os.path.join(cwd, config["FILES"]["Card.List"])
-# Parent folder of all images
-folder = os.path.join(cwd, config["FILES"]["Download.Folder"])
-# Scryfall sub folder
-scry = os.path.join(cwd, folder + "/" + config["FILES"]["Scryfall.Art.Folder"])
-# MTG Pics sub folder
-mtgp = os.path.join(cwd, folder + "/" + config["FILES"]["MTGPics.Art.Folder"])
-# Output naming convention
-naming = config["FILES"]["Naming.Convention"]
 
+# Card list text file
+cardlist = os.path.join(cwd, config.get("FILES", "Card.List", fallback="cards.txt"))
+
+# Parent folder of all images
+folder = os.path.join(
+    cwd, config.get("FILES", "Download.Folder", fallback="downloaded")
+)
+
+# Scryfall sub folder
+scry = os.path.join(
+    cwd, folder + "/" + config.get("FILES", "Scryfall.Art.Folder", fallback="scryfall")
+)
+
+# MTG Pics sub folder
+mtgp = os.path.join(
+    cwd, folder + "/" + config.get("FILES", "MTGPics.Art.Folder", fallback="mtgpics")
+)
+
+# Output naming convention
+naming = config.get(
+    "FILES", "Naming.Convention", fallback="NAME (ARTIST) [SET] {NUMBER}"
+)
 
 """
 APP SETTINGS
 """
-# Download all images available or just most recent?
-download_all = config["SETTINGS"].getboolean("Download.All")
-# Download scryfall if MTGPics missing?
-try:
-    download_scryfall = config["SETTINGS"].getboolean("If.Missing.Download.Scryfall")
-except ValueError:
-    download_scryfall = True
-# ONLY download scryfall?
-try:
-    only_scryfall = config["SETTINGS"].getboolean("Only.Download.Scryfall")
-except ValueError:
-    only_scryfall = False
-# Overwrite previous files
-try:
-    overwrite = config["SETTINGS"].getboolean("Overwrite.Same.Name")
-except ValueError:
-    only_scryfall = True
 
+# Download full card image from Scryfall?
+download_scryfall_full = config.getboolean(
+    "SETTINGS", "Download.Scryfall.Full", fallback=False
+)
+
+# Download scryfall if MTGPics missing?
+download_scryfall = config.getboolean(
+    "SETTINGS", "If.Missing.Download.Scryfall", fallback=True
+)
+
+# ONLY download scryfall?
+only_scryfall = config.getboolean("SETTINGS", "Only.Download.Scryfall", fallback=False)
+
+# Overwrite previous files
+overwrite = config.getboolean("SETTINGS", "Overwrite.Same.Name", fallback=True)
+
+# Download all images available or just most recent?
+download_all = config.getboolean("SETTINGS", "Download.All", fallback=False)
 
 """
 SEARCH SETTINGS
 """
+
 # Exclude full arts?
-try:
-    exclude_fullart = config["SEARCH"].getboolean("Exclude.Fullart")
-except ValueError:
-    exclude_fullart = False
+exclude_fullart = config.getboolean("SEARCH", "Exclude.Fullart", fallback=False)
+
 # Download unique or ALL?
-try:
-    if config["SEARCH"].getboolean("Only.Search.Unique.Art"):
-        unique = "art"
-    else:
-        unique = "prints"
-except ValueError:
-    unique = "art"
+unique = (
+    "art"
+    if config.getboolean("SEARCH", "Only.Search.Unique.Art", fallback=True)
+    else "prints"
+)
+
 # Include extras in search
-try:
-    include_extras = str(bool(config["SEARCH"].getboolean("Include.Extras")))
-except ValueError:
-    include_extras = "false"
+include_extras = str(config.getboolean("SEARCH", "Include.Extras", fallback=True))
