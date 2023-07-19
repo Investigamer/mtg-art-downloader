@@ -2,11 +2,12 @@
 GLOBAL CONSTANTS
 """
 import time
-from enum import Enum
+from dataclasses import dataclass
 from threading import Thread, Lock
 
 
-class Constants(Enum):
+@dataclass
+class Constants:
     promo_sets = [
         "pre",
         "pmo",
