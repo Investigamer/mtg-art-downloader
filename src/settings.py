@@ -74,6 +74,13 @@ download_all = config.getboolean("SETTINGS", "Download.All", fallback=False)
 SEARCH SETTINGS
 """
 
+# In which direction should the sorting by release date occur (this applies only to cards for which no set is specified)?
+release_sorting = (
+    "desc"
+    if config.getboolean("SEARCH", "If.No.Set.Code.Get.Newest", fallback=True)
+    else "asc"
+)
+
 # Exclude full arts?
 exclude_fullart = config.getboolean("SEARCH", "Exclude.Fullart", fallback=False)
 
