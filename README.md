@@ -75,6 +75,7 @@ cards make sure to use MID and not PMID!
 
 # Config.ini
 - You can choose the download folder and cards.txt naming conventions.
+- You can choose whether to download newest card versions or oldest (this applies only to cards for which a set code is not specified).
 - You can choose whether to download all available arts or only one art.
 - You can choose whether to only download unique art or all art even when duplicats are present.
 - You can choose whether to ignore fullarts (supported only when download all is enabled)

@@ -170,6 +170,7 @@ class Download:
                 "unique": cfg.unique,
                 "include_extras": cfg.include_extras,
                 "order": "released",
+                "dir": cfg.release_sorting,
                 "q": f'!"{card}"',
             }
         )
