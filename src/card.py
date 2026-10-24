@@ -138,6 +138,8 @@ class Card:
     def mtgp_url(self) -> Optional[str]:
         # Acquire best download link for MTGP image
         html = get_mtgp_page(f"https://www.mtgpics.com/card?ref={self.mtgp_code}")
+        if not html:
+            return None
         soup = BeautifulSoup(html, "html.parser")
         soup_img = soup.find_all(
             "img", {"style": "display:block;border:4px black solid;cursor:pointer;"}
